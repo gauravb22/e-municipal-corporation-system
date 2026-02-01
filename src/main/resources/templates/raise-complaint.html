@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raise Complaint | E-Municipal Corporation</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:
+      radial-gradient(circle at top left, #2a5298, transparent 40%),
+      radial-gradient(circle at bottom right, #1e3c72, transparent 40%),
+      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    min-height:100vh;
+}
+
+/* TOP BAR */
+.topbar{
+    background:#0f2442;
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar i{ cursor:pointer; }
+
+/* CONTAINER */
+.container{
+    max-width:900px;
+    margin:26px auto;
+    padding:14px;
+}
+
+/* GRID */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+}
+
+/* CARD */
+.card{
+    background:rgba(255,255,255,.96);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 15px 35px rgba(0,0,0,.25);
+    cursor:pointer;
+    transition:.3s;
+    text-align:center;
+}
+.card:hover{
+    transform:translateY(-6px);
+}
+.card i{
+    font-size:36px;
+    color:#1e3c72;
+    margin-bottom:10px;
+}
+.card h3{
+    margin:6px 0;
+    color:#1e3c72;
+}
+
+/* FORM */
+.form-card{
+    display:none;
+    background:rgba(255,255,255,.97);
+    border-radius:22px;
+    padding:26px;
+    box-shadow:0 20px 45px rgba(0,0,0,.35);
+    margin-top:20px;
+}
+
+label{
+    display:block;
+    margin-top:14px;
+    font-weight:600;
+}
+input,textarea{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    margin-top:6px;
+}
+textarea{ height:110px; resize:none; }
+
+button{
+    margin-top:18px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+}
+button:hover{ opacity:.95; }
+
+.back-btn{
+    margin-top:12px;
+    background:#ccc;
+    color:#333;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <i class="fa-solid fa-arrow-left" onclick="history.back()"></i>
+    <strong>Raise Complaint</strong>
+</div>
+
+<div class="container">
+
+<!-- COMPLAINT CARDS -->
+<div class="grid" id="cards">
+
+    <div class="card" onclick="openForm('Dead Animal Complaint')">
+        <i class="fa-solid fa-dog"></i>
+        <h3>Dead Animal</h3>
+        <p>Dead dog / animal on road</p>
+    </div>
+
+    <div class="card" onclick="openForm('Dog Catcher Request')">
+        <i class="fa-solid fa-shield-dog"></i>
+        <h3>Dog Catcher</h3>
+        <p>Stray dog issue</p>
+    </div>
+
+    <div class="card" onclick="openForm('Water Pipeline Overflow')">
+        <i class="fa-solid fa-water"></i>
+        <h3>Water Pipeline</h3>
+        <p>Leakage / overflow</p>
+    </div>
+
+    <div class="card" onclick="openForm('Drainage Overflow')">
+        <i class="fa-solid fa-sewer"></i>
+        <h3>Drainage</h3>
+        <p>Overflow / blockage</p>
+    </div>
+
+    <div class="card" onclick="openForm('Garbage Vehicle Not Coming')">
+        <i class="fa-solid fa-truck"></i>
+        <h3>Kachra Ghanta Gadi</h3>
+        <p>Vehicle not arriving</p>
+    </div>
+
+    <div class="card" onclick="openForm('Safai Karmachari Not Coming')">
+        <i class="fa-solid fa-broom"></i>
+        <h3>Safai Karmachari</h3>
+        <p>Worker not coming</p>
+    </div>
+
+    <div class="card" onclick="openForm('Road Potholes')">
+        <i class="fa-solid fa-road"></i>
+        <h3>Road Potholes</h3>
+        <p>Damaged roads</p>
+    </div>
+
+    <div class="card" onclick="openForm('Encroachment / Atikraman')">
+        <i class="fa-solid fa-ban"></i>
+        <h3>Atikraman</h3>
+        <p>Illegal encroachment</p>
+    </div>
+
+    <div class="card" onclick="openForm('Street Light Issue')">
+        <i class="fa-solid fa-lightbulb"></i>
+        <h3>Street Light</h3>
+        <p>Light not working</p>
+    </div>
+
+    <div class="card" onclick="openForm('Other Civic Issue')">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <h3>Other</h3>
+        <p>Any other issue</p>
+    </div>
+
+</div>
+
+<!-- FORM -->
+<div class="form-card" id="form">
+    <h2 id="formTitle"></h2>
+
+    <label>Ward Number</label>
+    <input type="number" placeholder="Enter ward number">
+
+    <label>Location / Landmark</label>
+    <input type="text" placeholder="Enter location">
+
+    <label>Description</label>
+    <textarea placeholder="Explain the issue clearly"></textarea>
+
+    <button>Submit Complaint</button>
+    <button class="back-btn" onclick="goBack()">← Back to Categories</button>
+</div>
+
+</div>
+
+<script>
+function openForm(type){
+    document.getElementById("cards").style.display="none";
+    document.getElementById("form").style.display="block";
+    document.getElementById("formTitle").innerText = type;
+}
+
+function goBack(){
+    document.getElementById("form").style.display="none";
+    document.getElementById("cards").style.display="grid";
+}
+</script>
+
+</body>
+</html>
