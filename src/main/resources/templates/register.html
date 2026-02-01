@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Account</title>
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    font-family:Segoe UI,Arial;
+}
+.card{
+    width:420px;
+    background:white;
+    margin:30px auto;
+    padding:28px;
+    border-radius:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+}
+input,select{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    border-radius:12px;
+    background:#1e3c72;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+    <h2 id="title">Create Account</h2>
+
+    <input placeholder="Full Name">
+    <input placeholder="Address">
+    <input placeholder="House Number">
+    <input placeholder="Ward Number">
+    <select>
+        <option>Ward Zone</option>
+        <option>Zone A</option>
+        <option>Zone B</option>
+        <option>Zone C</option>
+    </select>
+    <input type="date">
+    <input type="password" placeholder="Create Password">
+
+    <button onclick="location.href='dashboard.html'">Create Account</button>
+</div>
+
+<script>
+const l=localStorage.getItem("language");
+if(l==="hi")title.innerText="खाता बनाएँ";
+if(l==="mr")title.innerText="खाते तयार करा";
+</script>
+</body>
+</html>
