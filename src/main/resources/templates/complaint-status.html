@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Complaint Status | E-Municipal Corporation</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    min-height:100vh;
+}
+
+/* HEADER */
+.header{
+    background:#0f2442;
+    color:white;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.header img{
+    height:40px;
+}
+.header h2{
+    font-size:18px;
+    margin:0;
+}
+
+/* CONTAINER */
+.container{
+    max-width:900px;
+    margin:25px auto;
+    padding:10px;
+}
+
+/* SEARCH */
+.search-box{
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    gap:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.search-box input{
+    flex:1;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+}
+.search-box button{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    font-weight:600;
+}
+
+/* STATUS CARD */
+.status-card{
+    background:white;
+    margin-top:22px;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 18px 40px rgba(0,0,0,.3);
+}
+
+.card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.badge{
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
+.submitted{ background:#f1c40f; color:black; }
+.progress{ background:#3498db; color:white; }
+.resolved{ background:#2ecc71; color:white; }
+
+.details{
+    margin-top:12px;
+    color:#333;
+    line-height:1.6;
+}
+
+/* TIMELINE */
+.timeline{
+    margin-top:18px;
+}
+.step{
+    display:flex;
+    align-items:center;
+    margin-bottom:10px;
+}
+.step i{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    margin-right:10px;
+}
+.done{ background:#2ecc71; }
+.pending{ background:#bdc3c7; }
+
+.footer{
+    text-align:center;
+    color:#ddd;
+    padding:18px;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <img src="/images/municipalLogo.png" alt="Logo">
+    <h2>E-Municipal Corporation</h2>
+</div>
+
+<div class="container">
+
+<!-- SEARCH -->
+<div class="search-box">
+    <input type="text" placeholder="Enter Complaint ID or Mobile Number">
+    <button><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+</div>
+
+<!-- STATUS CARD -->
+<div class="status-card">
+
+    <div class="card-top">
+        <strong>Complaint ID: EMC-10235</strong>
+        <span class="badge progress">In Progress</span>
+    </div>
+
+    <div class="details">
+        <strong>Type:</strong> Drainage Overflow <br>
+        <strong>Address:</strong> Near Gandhi Chowk, Ward 5 <br>
+        <strong>Registered On:</strong> 02 Feb 2026
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="timeline">
+        <div class="step">
+            <i class="fa-solid fa-check done"></i>
+            Complaint Submitted
+        </div>
+        <div class="step">
+            <i class="fa-solid fa-check done"></i>
+            Assigned to Department
+        </div>
+        <div class="step">
+            <i class="fa-solid fa-spinner pending"></i>
+            Work In Progress
+        </div>
+        <div class="step">
+            <i class="fa-solid fa-clock pending"></i>
+            Awaiting Resolution
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+<div class="footer">
+    © 2026 Akola Municipal Corporation | Public Service Portal
+</div>
+
+</body>
+</html>
