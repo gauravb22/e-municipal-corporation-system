@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Works & Yojna | E-Municipal Corporation</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
+}
+
+/* TOP BAR */
+.topbar{
+    background:#16325c;
+    color:white;
+    display:flex;
+    align-items:center;
+    padding:12px 16px;
+    gap:12px;
+}
+.topbar img{ width:42px; }
+.topbar strong{ font-size:16px; }
+
+/* CONTAINER */
+.container{
+    max-width:900px;
+    margin:25px auto;
+    padding:12px;
+}
+
+/* FILTER */
+.filter{
+    display:flex;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+}
+select{
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    font-size:14px;
+}
+
+/* SECTION TITLE */
+.section-title{
+    color:white;
+    font-size:22px;
+    margin:20px 0 12px;
+}
+
+/* CARD GRID */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:16px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 12px 28px rgba(0,0,0,.18);
+    transition:.3s;
+}
+.card:hover{
+    transform:translateY(-6px);
+}
+.card h3{
+    margin:0 0 6px;
+}
+.badge{
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+.ongoing{ background:#f1c40f; }
+.completed{ background:#2ecc71; color:white; }
+.upcoming{ background:#3498db; color:white; }
+
+/* CARD CONTENT */
+.card p{
+    font-size:14px;
+    margin:8px 0;
+}
+.info{
+    font-size:13px;
+    color:#555;
+}
+.info i{ margin-right:6px; }
+
+/* VIEW BTN */
+button{
+    margin-top:10px;
+    padding:10px 14px;
+    background:#1e3c72;
+    color:white;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
+button:hover{
+    background:#16325c;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <img src="images/logo.png">
+    <strong>E-Municipal Corporation</strong>
+</div>
+
+<div class="container">
+
+    <!-- FILTER -->
+    <div class="filter">
+        <select>
+            <option>All Wards</option>
+            <option>Ward 1</option>
+            <option>Ward 2</option>
+            <option>Ward 3</option>
+        </select>
+
+        <select>
+            <option>All Status</option>
+            <option>Ongoing</option>
+            <option>Completed</option>
+            <option>Upcoming</option>
+        </select>
+    </div>
+
+    <!-- MUNICIPAL WORKS -->
+    <div class="section-title">Municipal Works</div>
+    <div class="grid">
+
+        <div class="card">
+            <span class="badge ongoing">Ongoing</span>
+            <h3>Road Concrete Work</h3>
+            <p>Concrete road construction at Ram Nagar area.</p>
+            <div class="info"><i class="fa-solid fa-location-dot"></i> Ward 5</div>
+            <div class="info"><i class="fa-solid fa-calendar"></i> Jan – Mar 2026</div>
+            <button>View Details</button>
+        </div>
+
+        <div class="card">
+            <span class="badge completed">Completed</span>
+            <h3>Drainage Cleaning</h3>
+            <p>Complete drainage cleaning before monsoon.</p>
+            <div class="info"><i class="fa-solid fa-location-dot"></i> Ward 3</div>
+            <div class="info"><i class="fa-solid fa-calendar"></i> Dec 2025</div>
+            <button>View Details</button>
+        </div>
+
+    </div>
+
+    <!-- YOJNA -->
+    <div class="section-title">Government Yojna</div>
+    <div class="grid">
+
+        <div class="card">
+            <span class="badge upcoming">Active</span>
+            <h3>PM Awas Yojna</h3>
+            <p>Housing scheme for economically weaker sections.</p>
+            <div class="info"><i class="fa-solid fa-user-group"></i> Citizens</div>
+            <button>Apply / Details</button>
+        </div>
+
+        <div class="card">
+            <span class="badge upcoming">Active</span>
+            <h3>Swachh Bharat Abhiyan</h3>
+            <p>Clean city mission with citizen participation.</p>
+            <div class="info"><i class="fa-solid fa-broom"></i> Sanitation</div>
+            <button>Know More</button>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
