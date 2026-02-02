@@ -10,14 +10,10 @@
 body{
     margin:0;
     font-family:"Segoe UI", Arial;
-    background:
-      radial-gradient(circle at top left, #2a5298, transparent 40%),
-      radial-gradient(circle at bottom right, #1e3c72, transparent 40%),
-      linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     min-height:100vh;
 }
 
-/* TOP BAR */
 .topbar{
     background:#0f2442;
     color:white;
@@ -26,9 +22,7 @@ body{
     gap:12px;
     align-items:center;
 }
-.topbar i{ cursor:pointer; }
 
-/* CONTAINER */
 .container{
     max-width:520px;
     margin:26px auto;
@@ -42,7 +36,6 @@ body{
     box-shadow:0 20px 40px rgba(0,0,0,.35);
 }
 
-/* FORM */
 label{
     display:block;
     margin-top:14px;
@@ -55,14 +48,10 @@ input, textarea{
     margin-top:6px;
     border-radius:12px;
     border:1px solid #ccc;
-    font-size:14px;
-}
-textarea{
-    resize:none;
-    height:110px;
 }
 
-/* CAMERA */
+textarea{ height:110px; resize:none; }
+
 .camera-box{
     border:2px dashed #1e3c72;
     border-radius:14px;
@@ -70,21 +59,7 @@ textarea{
     text-align:center;
     margin-top:10px;
 }
-.camera-box i{
-    font-size:28px;
-    color:#1e3c72;
-}
 
-/* INFO */
-.info{
-    background:#f4f6f7;
-    border-radius:12px;
-    padding:12px;
-    margin-top:14px;
-    font-size:14px;
-}
-
-/* BUTTON */
 button{
     width:100%;
     margin-top:18px;
@@ -95,24 +70,23 @@ button{
     font-weight:600;
     color:white;
     background:linear-gradient(135deg,#1e3c72,#2a5298);
-    cursor:pointer;
 }
 button:disabled{
     background:#95a5a6;
-    cursor:not-allowed;
 }
 
-small{
-    display:block;
-    margin-top:10px;
-    color:#555;
+.info{
+    background:#f4f6f7;
+    border-radius:12px;
+    padding:12px;
+    margin-top:14px;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
     <i class="fa-solid fa-arrow-left" onclick="history.back()"></i>
     <strong id="title">Complaint Form</strong>
@@ -121,90 +95,98 @@ small{
 <div class="container">
 <div class="card">
 
-<!-- ADDRESS -->
 <label>Address / Landmark *</label>
-<input type="text" id="address" placeholder="Near school, temple, main road" required>
+<input type="text" id="address" required>
 
-<!-- HOUSE NUMBER -->
 <label>Nearby House Number *</label>
-<input type="text" id="house" placeholder="House / Shop number" required>
+<input type="text" id="house" required>
 
-<!-- DESCRIPTION -->
-<label>Complaint Description *</label>
-<textarea id="desc" placeholder="Explain the issue clearly" required></textarea>
+<label>Description *</label>
+<textarea id="desc" required></textarea>
 
-<!-- CAMERA ONLY -->
-<label>Complaint Photo (Live Camera Only) *</label>
-<div class="camera-box">
-    <i class="fa-solid fa-camera"></i>
-    <p>Camera will open (Gallery not allowed)</p>
-
-    <input type="file"
-           id="photo"
-           accept="image/*"
-           capture="environment"
-           required>
+<!-- DATE (ONLY FOR SPECIFIC COMPLAINTS) -->
+<div id="dateSection" style="display:none;">
+    <label>Not Coming From Date *</label>
+    <input type="date" id="fromDate">
 </div>
 
-<!-- LOCATION + TIME -->
+<!-- CAMERA (FOR OTHER COMPLAINTS) -->
+<div id="cameraSection" style="display:none;">
+    <label>Complaint Photo (Live Camera Only) *</label>
+    <div class="camera-box">
+        <input type="file"
+               id="photo"
+               accept="image/*"
+               capture="environment">
+    </div>
+</div>
+
 <div class="info">
-    <strong>Live Details:</strong><br>
     📍 Location: <span id="location">Fetching...</span><br>
-    🕒 Timestamp: <span id="time">Fetching...</span>
+    🕒 Time: <span id="time"></span>
 </div>
 
 <button id="submitBtn" disabled onclick="submitComplaint()">
     Submit Complaint
 </button>
 
-<small>
-All fields are mandatory. Complaint requires live camera photo with GPS & timestamp.
-</small>
-
 </div>
 </div>
 
 <script>
-// Show complaint type from URL
 const params = new URLSearchParams(window.location.search);
-if(params.get("type")){
-    document.getElementById("title").innerText =
-        params.get("type") + " Complaint";
+const type = params.get("type") || "";
+document.getElementById("title").innerText = type + " Complaint";
+
+// Decide logic
+const noPhotoComplaints = [
+    "Garbage Vehicle Not Coming",
+    "Safai Karmachari Absent"
+];
+
+const dateSection = document.getElementById("dateSection");
+const cameraSection = document.getElementById("cameraSection");
+
+if(noPhotoComplaints.includes(type)){
+    dateSection.style.display = "block";
+} else {
+    cameraSection.style.display = "block";
 }
 
-// LOCATION
-navigator.geolocation.getCurrentPosition(
-    pos => {
-        document.getElementById("location").innerText =
-          `${pos.coords.latitude}, ${pos.coords.longitude}`;
-        checkForm();
-    },
-    () => {
-        alert("Location permission is required");
-    }
-);
-
-// TIMESTAMP
-const now = new Date();
-document.getElementById("time").innerText = now.toLocaleString();
-
-// FORM VALIDATION
-document.querySelectorAll("input, textarea").forEach(el=>{
-    el.addEventListener("input", checkForm);
+// Location
+navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById("location").innerText =
+        `${pos.coords.latitude}, ${pos.coords.longitude}`;
+    validate();
 });
 
-function checkForm(){
-    const filled =
+// Time
+document.getElementById("time").innerText =
+    new Date().toLocaleString();
+
+// Validation
+document.querySelectorAll("input, textarea").forEach(el=>{
+    el.addEventListener("input", validate);
+});
+
+function validate(){
+    let valid =
         address.value &&
         house.value &&
         desc.value &&
-        photo.files.length > 0 &&
         document.getElementById("location").innerText !== "Fetching...";
-    document.getElementById("submitBtn").disabled = !filled;
+
+    if(noPhotoComplaints.includes(type)){
+        valid = valid && fromDate.value;
+    } else {
+        valid = valid && photo.files.length > 0;
+    }
+
+    submitBtn.disabled = !valid;
 }
 
 function submitComplaint(){
-    alert("Complaint submitted successfully (frontend demo)");
+    alert("Complaint submitted successfully (demo)");
 }
 </script>
 
