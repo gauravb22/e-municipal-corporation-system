@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Complaint Form | E-Municipal Corporation</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    min-height:100vh;
+}
+
+.topbar{
+    background:#0f2442;
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.container{
+    max-width:520px;
+    margin:26px auto;
+    padding:12px;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    padding:24px;
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+}
+
+label{
+    display:block;
+    margin-top:14px;
+    font-weight:600;
+}
+
+input, textarea{
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    border-radius:12px;
+    border:1px solid #ccc;
+}
+
+textarea{ height:110px; resize:none; }
+
+.camera-box{
+    border:2px dashed #1e3c72;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+    margin-top:10px;
+}
+
+button{
+    width:100%;
+    margin-top:18px;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+}
+button:disabled{
+    background:#95a5a6;
+}
+
+.info{
+    background:#f4f6f7;
+    border-radius:12px;
+    padding:12px;
+    margin-top:14px;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <i class="fa-solid fa-arrow-left" onclick="history.back()"></i>
+    <strong id="title">Complaint Form</strong>
+</div>
+
+<div class="container">
+<div class="card">
+
+<label>Address / Landmark *</label>
+<input type="text" id="address" required>
+
+<label>Nearby House Number *</label>
+<input type="text" id="house" required>
+
+<label>Description *</label>
+<textarea id="desc" required></textarea>
+
+<!-- DATE (ONLY FOR SPECIFIC COMPLAINTS) -->
+<div id="dateSection" style="display:none;">
+    <label>Not Coming From Date *</label>
+    <input type="date" id="fromDate">
+</div>
+
+<!-- CAMERA (FOR OTHER COMPLAINTS) -->
+<div id="cameraSection" style="display:none;">
+    <label>Complaint Photo (Live Camera Only) *</label>
+    <div class="camera-box">
+        <input type="file"
+               id="photo"
+               accept="image/*"
+               capture="environment">
+    </div>
+</div>
+
+<div class="info">
+    📍 Location: <span id="location">Fetching...</span><br>
+    🕒 Time: <span id="time"></span>
+</div>
+
+<button id="submitBtn" disabled onclick="submitComplaint()">
+    Submit Complaint
+</button>
+
+</div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const type = params.get("type") || "";
+document.getElementById("title").innerText = type + " Complaint";
+
+// Decide logic
+const noPhotoComplaints = [
+    "Garbage Vehicle Not Coming",
+    "Safai Karmachari Absent"
+];
+
+const dateSection = document.getElementById("dateSection");
+const cameraSection = document.getElementById("cameraSection");
+
+if(noPhotoComplaints.includes(type)){
+    dateSection.style.display = "block";
+} else {
+    cameraSection.style.display = "block";
+}
+
+// Location
+navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById("location").innerText =
+        `${pos.coords.latitude}, ${pos.coords.longitude}`;
+    validate();
+});
+
+// Time
+document.getElementById("time").innerText =
+    new Date().toLocaleString();
+
+// Validation
+document.querySelectorAll("input, textarea").forEach(el=>{
+    el.addEventListener("input", validate);
+});
+
+function validate(){
+    let valid =
+        address.value &&
+        house.value &&
+        desc.value &&
+        document.getElementById("location").innerText !== "Fetching...";
+
+    if(noPhotoComplaints.includes(type)){
+        valid = valid && fromDate.value;
+    } else {
+        valid = valid && photo.files.length > 0;
+    }
+
+    submitBtn.disabled = !valid;
+}
+
+function submitComplaint(){
+    alert("Complaint submitted successfully (demo)");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OTP Verification</title>
+<style>
+body{
+    margin:0;
+    height:100vh;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Segoe UI,Arial;
+}
+.card{
+    width:360px;
+    background:#fff;
+    padding:28px;
+    border-radius:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+    text-align:center;
+}
+.boxes{
+    display:flex;
+    justify-content:space-between;
+    margin:20px 0;
+}
+.boxes input{
+    width:38px;
+    height:48px;
+    font-size:18px;
+    text-align:center;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+button{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    background:#1e3c72;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+    <h2>OTP Verification</h2>
+    <p>Enter 6-digit OTP</p>
+
+    <div class="boxes">
+        <input maxlength="1"><input maxlength="1"><input maxlength="1">
+        <input maxlength="1"><input maxlength="1"><input maxlength="1">
+    </div>
+
+    <button onclick="location.href='language.html'">Verify OTP</button>
+</div>
+</body>
+</html>

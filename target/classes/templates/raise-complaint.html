@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Select Complaint | E-Municipal Corporation</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
+}
+
+/* TOP BAR */
+.topbar{
+    background:#0f2442;
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar i{ cursor:pointer; }
+
+/* CONTAINER */
+.container{
+    max-width:600px;
+    margin:24px auto;
+    padding:12px;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+.card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+    box-shadow:0 12px 25px rgba(0,0,0,.25);
+    transition:.3s;
+}
+.card:hover{
+    transform:translateY(-5px);
+}
+.card i{
+    font-size:32px;
+    color:#1e3c72;
+}
+.card h4{ margin-top:10px; }
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <i class="fa-solid fa-arrow-left" onclick="history.back()"></i>
+    <strong>Select Complaint Type</strong>
+</div>
+
+<div class="container">
+    <div class="cards">
+
+        <div class="card" onclick="openForm('Dead Animal')">
+            <i class="fa-solid fa-skull-crossbones"></i>
+            <h4>Dead Animal</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Dog Catcher')">
+            <i class="fa-solid fa-dog"></i>
+            <h4>Dog Catcher</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Water Pipeline Overflow')">
+            <i class="fa-solid fa-water"></i>
+            <h4>Water Overflow</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Drainage Overflow')">
+            <i class="fa-solid fa-toilet"></i>
+            <h4>Drainage Overflow</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Garbage Vehicle Not Coming')">
+            <i class="fa-solid fa-trash"></i>
+            <h4>Kachra Gadi</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Safai Karmachari Absent')">
+            <i class="fa-solid fa-user-xmark"></i>
+            <h4>Safai Karmachari</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Road Potholes')">
+            <i class="fa-solid fa-road"></i>
+            <h4>Road Potholes</h4>
+        </div>
+
+        <div class="card" onclick="openForm('Encroachment')">
+            <i class="fa-solid fa-building"></i>
+            <h4>Atikraman</h4>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function openForm(type){
+    window.location.href = 
+      "complaint-form.html?type=" + encodeURIComponent(type);
+}
+</script>
+
+</body>
+</html>
