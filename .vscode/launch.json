@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "EmunicipalApplication",
+            "request": "launch",
+            "mainClass": "com.emunicipal.EmunicipalApplication",
+            "projectName": "e-municipal-corporation-system"
+        },
+        {
             "type": "chrome",
             "request": "launch",
             "name": "Open login.html",
