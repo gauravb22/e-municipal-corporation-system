@@ -147,4 +147,77 @@ public class AuthController {
         
         return "dashboard";
     }
+
+    @GetMapping("/my-profile")
+    public String myProfile(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
+        // Fetch fresh user from database to get latest data
+        User freshUser = userRepository.findById(user.getId()).orElse(user);
+        session.setAttribute("user", freshUser);
+        
+        model.addAttribute("user", freshUser);
+        return "my-profile";
+    }
+
+    @GetMapping("/profile")
+    public String profileAlias() {
+        return "redirect:/my-profile";
+    }
+
+    @PostMapping("/update-profile")
+    public String updateProfile(
+            @RequestParam(value = "fullName", required = false) String fullName,
+            @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "houseNo", required = false) String houseNo,
+            @RequestParam(value = "wardNo", required = false) Integer wardNo,
+            @RequestParam(value = "wardZone", required = false) String wardZone,
+            @RequestParam(value = "currentPassword", required = false) String currentPassword,
+            @RequestParam(value = "newPassword", required = false) String newPassword,
+            @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
+            HttpSession session,
+            Model model) {
+
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // Update simple profile fields
+        if (fullName != null && !fullName.isEmpty()) user.setFullName(fullName);
+        user.setAddress(address);
+        user.setHouseNo(houseNo);
+        user.setWardNo(wardNo);
+        user.setWardZone(wardZone);
+
+        // Handle password change if requested
+        if (newPassword != null && !newPassword.isEmpty()) {
+            // Verify current password matches
+            if (currentPassword == null || !currentPassword.equals(user.getPassword())) {
+                model.addAttribute("error", "Current password is incorrect");
+                model.addAttribute("user", user);
+                return "my-profile";
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                model.addAttribute("error", "New password and confirmation do not match");
+                model.addAttribute("user", user);
+                return "my-profile";
+            }
+
+            user.setPassword(newPassword);
+        }
+
+        // Save updated user
+        userRepository.save(user);
+        // Update session
+        session.setAttribute("user", user);
+
+        model.addAttribute("success", "Profile updated successfully");
+        model.addAttribute("user", user);
+        return "my-profile";
+    }
 }

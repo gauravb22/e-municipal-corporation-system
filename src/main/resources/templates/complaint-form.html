@@ -1,194 +1,482 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Complaint Form | E-Municipal Corporation</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Complaint Form | e-Municipal Corporation</title>
 
 <style>
-body{
-    margin:0;
-    font-family:"Segoe UI", Arial;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    min-height:100vh;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.topbar{
-    background:#0f2442;
-    color:white;
-    padding:14px 18px;
-    display:flex;
-    gap:12px;
-    align-items:center;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.container{
-    max-width:520px;
-    margin:26px auto;
-    padding:12px;
+.container {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.card{
-    background:white;
-    border-radius:20px;
-    padding:24px;
-    box-shadow:0 20px 40px rgba(0,0,0,.35);
+.card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-label{
-    display:block;
-    margin-top:14px;
-    font-weight:600;
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
 }
 
-input, textarea{
-    width:100%;
-    padding:12px;
-    margin-top:6px;
-    border-radius:12px;
-    border:1px solid #ccc;
+.header a {
+    color: #1e3c72;
+    font-size: 24px;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-textarea{ height:110px; resize:none; }
-
-.camera-box{
-    border:2px dashed #1e3c72;
-    border-radius:14px;
-    padding:18px;
-    text-align:center;
-    margin-top:10px;
+.header h1 {
+    color: #1e3c72;
+    font-size: 28px;
 }
 
-button{
-    width:100%;
-    margin-top:18px;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    font-size:16px;
-    font-weight:600;
-    color:white;
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-}
-button:disabled{
-    background:#95a5a6;
+.complaint-type {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border-left: 4px solid #1e3c72;
 }
 
-.info{
-    background:#f4f6f7;
-    border-radius:12px;
-    padding:12px;
-    margin-top:14px;
-    font-size:14px;
+.complaint-type label {
+    color: #666;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.complaint-type .value {
+    color: #1e3c72;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.user-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    font-size: 14px;
+}
+
+.user-info-item {
+    color: #666;
+}
+
+.user-info-item strong {
+    color: #1e3c72;
+    display: block;
+    margin-top: 5px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #1e3c72;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group label .marathi {
+    color: #999;
+    font-weight: normal;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Arial;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #1e3c72;
+    box-shadow: 0 0 5px rgba(30, 60, 114, 0.3);
+}
+
+.form-group textarea {
+    min-height: 120px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.button-group button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-submit {
+    background-color: #2a5298;
+    color: white;
+}
+
+.btn-submit:hover {
+    background-color: #1e3c72;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+}
+
+.btn-cancel {
+    background-color: #f0f0f0;
+    color: #1e3c72;
+    border: 1px solid #ddd;
+}
+
+.btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.required {
+    color: red;
+}
+
+/* Camera Section Styles */
+.camera-section {
+    background-color: #f8f9fa;
+    border: 2px solid #1e3c72;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.camera-preview {
+    width: 100%;
+    border-radius: 8px;
+    margin: 15px 0;
+    max-height: 400px;
+    object-fit: cover;
+    display: none;
+}
+
+.camera-preview.active {
+    display: block;
+}
+
+#photoInput {
+    display: none;
+}
+
+.camera-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.camera-button:hover {
+    background-color: #c82333;
+}
+
+.location-info {
+    background-color: #e7f3ff;
+    border-left: 4px solid #2196F3;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 13px;
+}
+
+.timestamp-info {
+    background-color: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 13px;
+}
+
+.photo-captured {
+    text-align: center;
+    color: #27ae60;
+    font-weight: 600;
+    padding: 10px;
+    background-color: #d5f4e6;
+    border-radius: 4px;
+    margin: 10px 0;
+    display: none;
+}
+
+.photo-captured.show {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .user-info {
+        grid-template-columns: 1fr;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-    <i class="fa-solid fa-arrow-left" onclick="history.back()"></i>
-    <strong id="title">Complaint Form</strong>
-</div>
-
 <div class="container">
-<div class="card">
+    <div class="card">
+        <!-- Header -->
+        <div class="header">
+            <a href="/raise-complaint" title="Go back">←</a>
+            <h1>Raise Complaint</h1>
+        </div>
 
-<label>Address / Landmark *</label>
-<input type="text" id="address" required>
+        <!-- Complaint Type -->
+        <div class="complaint-type">
+            <label>Complaint Type</label>
+            <div class="value" th:text="${complaintType}"></div>
+        </div>
 
-<label>Nearby House Number *</label>
-<input type="text" id="house" required>
+        <!-- User Information -->
+        <div class="user-info">
+            <div class="user-info-item">
+                Name
+                <strong th:text="${user.fullName}"></strong>
+            </div>
+            <div class="user-info-item">
+                Phone
+                <strong th:text="${user.phone}"></strong>
+            </div>
+            <div class="user-info-item">
+                Ward Number
+                <strong th:text="${user.wardNo != null ? user.wardNo : 'N/A'}"></strong>
+            </div>
+            <div class="user-info-item">
+                Ward Zone
+                <strong th:text="${user.wardZone != null ? user.wardZone : 'N/A'}"></strong>
+            </div>
+        </div>
 
-<label>Description *</label>
-<textarea id="desc" required></textarea>
+        <!-- Complaint Form -->
+        <form action="/submit-complaint" method="POST">
+            <input type="hidden" name="type" th:value="${complaintType}">
 
-<!-- DATE (ONLY FOR SPECIFIC COMPLAINTS) -->
-<div id="dateSection" style="display:none;">
-    <label>Not Coming From Date *</label>
-    <input type="date" id="fromDate">
-</div>
+            <!-- Location -->
+            <div class="form-group">
+                <label>
+                    Location / Area
+                    <span class="marathi">(स्थान / क्षेत्र)</span>
+                    <span class="required">*</span>
+                </label>
+                <input type="text" name="location" placeholder="Where is the problem?" th:value="${user.address}" required>
+            </div>
 
-<!-- CAMERA (FOR OTHER COMPLAINTS) -->
-<div id="cameraSection" style="display:none;">
-    <label>Complaint Photo (Live Camera Only) *</label>
-    <div class="camera-box">
-        <input type="file"
-               id="photo"
-               accept="image/*"
-               capture="environment">
+            <!-- House Number -->
+            <div class="form-group">
+                <label>
+                    House Number
+                    <span class="marathi">(घर नंबर)</span>
+                    <span class="required">*</span>
+                </label>
+                <input type="text" name="houseNo" placeholder="Enter house number or building name" th:value="${user.houseNo}" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label>
+                    Detailed Description
+                    <span class="marathi">(तपशीलवार वर्णन)</span>
+                </label>
+                <textarea name="description" placeholder="Provide detailed information about the complaint (optional). Include what, when, and how it happened."></textarea>
+            </div>
+
+            <!-- Camera Photo Capture -->
+            <div class="form-group">
+                <label>
+                    Complaint Photo
+                    <span class="marathi">(शिकायतीचा फोटो)</span>
+                    <span class="required">*</span>
+                </label>
+                <div class="camera-section">
+                    <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">
+                        📷 Camera-only capture with live timestamp & location
+                    </p>
+                    
+                    <!-- Timestamp Display -->
+                    <div class="timestamp-info">
+                        🕒 <strong>Timestamp:</strong> <span id="timestampDisplay">--:--:--</span>
+                    </div>
+                    
+                    <!-- Location Display -->
+                    <div class="location-info">
+                        📍 <strong>Location:</strong> <span id="locationDisplay">Fetching GPS...</span>
+                    </div>
+                    
+                    <!-- Camera Button -->
+                    <button type="button" class="camera-button" onclick="capturePhoto()">
+                        📷 Capture Photo from Camera
+                    </button>
+                    
+                    <!-- Photo Preview -->
+                    <img id="photoPreview" class="camera-preview" alt="Captured photo">
+                    
+                    <!-- Photo Captured Confirmation -->
+                    <div class="photo-captured" id="photoCapturedMsg">
+                        ✓ Photo captured with timestamp and location
+                    </div>
+                    
+                    <!-- Hidden file input (camera only) -->
+                    <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoCapture(event)">
+                    
+                    <!-- Hidden fields for timestamp and location -->
+                    <input type="hidden" id="photoTimestamp" name="photoTimestamp">
+                    <input type="hidden" id="photoLocation" name="photoLocation">
+                    <input type="hidden" id="photoLatitude" name="photoLatitude">
+                    <input type="hidden" id="photoLongitude" name="photoLongitude">
+                    <input type="hidden" id="photoBase64" name="photoBase64">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="button" class="btn-cancel" onclick="history.back()">Cancel (रद्द करा)</button>
+                <button type="submit" class="btn-submit" id="submitBtn">Submit Complaint (सबमिट करा)</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<div class="info">
-    📍 Location: <span id="location">Fetching...</span><br>
-    🕒 Time: <span id="time"></span>
-</div>
-
-<button id="submitBtn" disabled onclick="submitComplaint()">
-    Submit Complaint
-</button>
-
-</div>
-</div>
-
 <script>
-const params = new URLSearchParams(window.location.search);
-const type = params.get("type") || "";
-document.getElementById("title").innerText = type + " Complaint";
-
-// Decide logic
-const noPhotoComplaints = [
-    "Garbage Vehicle Not Coming",
-    "Safai Karmachari Absent"
-];
-
-const dateSection = document.getElementById("dateSection");
-const cameraSection = document.getElementById("cameraSection");
-
-if(noPhotoComplaints.includes(type)){
-    dateSection.style.display = "block";
-} else {
-    cameraSection.style.display = "block";
+// Initialize timestamp display
+function updateTimestamp() {
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    document.getElementById('timestampDisplay').textContent = timestamp;
+    document.getElementById('photoTimestamp').value = now.toISOString();
 }
 
-// Location
-navigator.geolocation.getCurrentPosition(pos=>{
-    document.getElementById("location").innerText =
-        `${pos.coords.latitude}, ${pos.coords.longitude}`;
-    validate();
-});
+// Update timestamp every second
+setInterval(updateTimestamp, 1000);
+updateTimestamp();
 
-// Time
-document.getElementById("time").innerText =
-    new Date().toLocaleString();
-
-// Validation
-document.querySelectorAll("input, textarea").forEach(el=>{
-    el.addEventListener("input", validate);
-});
-
-function validate(){
-    let valid =
-        address.value &&
-        house.value &&
-        desc.value &&
-        document.getElementById("location").innerText !== "Fetching...";
-
-    if(noPhotoComplaints.includes(type)){
-        valid = valid && fromDate.value;
-    } else {
-        valid = valid && photo.files.length > 0;
+// Get location once on page load
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                const accuracy = position.coords.accuracy.toFixed(0);
+                
+                document.getElementById('photoLatitude').value = lat;
+                document.getElementById('photoLongitude').value = lon;
+                document.getElementById('photoLocation').value = `${lat}, ${lon}`;
+                document.getElementById('locationDisplay').textContent = `${lat}, ${lon} (±${accuracy}m)`;
+            },
+            function(error) {
+                console.error('Geolocation error:', error);
+                document.getElementById('locationDisplay').textContent = 'Location not available';
+            }
+        );
     }
-
-    submitBtn.disabled = !valid;
 }
 
-function submitComplaint(){
-    alert("Complaint submitted successfully (demo)");
+// Get location on page load
+getLocation();
+
+// Trigger camera capture
+function capturePhoto() {
+    document.getElementById('photoInput').click();
 }
+
+// Handle photo capture
+function handlePhotoCapture(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.src = e.target.result;
+            photoPreview.classList.add('active');
+            
+            // Show confirmation
+            document.getElementById('photoCapturedMsg').classList.add('show');
+            
+            // Store base64 for submission
+            document.getElementById('photoBase64').value = e.target.result;
+            
+            // Enable submit button
+            document.getElementById('submitBtn').disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!document.getElementById('photoBase64').value) {
+        e.preventDefault();
+        alert('Please capture a photo before submitting');
+        return false;
+    }
+});
 </script>
-
-</body>
-</html>
