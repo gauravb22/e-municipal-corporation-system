@@ -1,0 +1,6 @@
+com\emunicipal\controller\AuthController.class
+com\emunicipal\entity\User.class
+com\emunicipal\service\SmsService.class
+com\emunicipal\EmunicipalApplication.class
+com\emunicipal\service\UserService.class
+com\emunicipal\repository\UserRepository.class
