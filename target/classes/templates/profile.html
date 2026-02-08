@@ -29,7 +29,7 @@
     <div class="container">
         <div class="card">
             <div class="profile-photo">
-                <img th:src="${user != null and user.profilePhoto != null} ? user.profilePhoto : @{/images/default-user.png}" id="profilePreview" alt="Profile">
+                <img th:src="${user != null and user.profilePhoto != null} ? ${user.profilePhoto} : @{/images/default-user.png}" id="profilePreview" alt="Profile">
                 <br>
                 <label class="upload-btn">
                     Change Photo

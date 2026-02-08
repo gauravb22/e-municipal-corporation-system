@@ -200,7 +200,7 @@ public class AuthController {
     =====================================
     */
 
-    @GetMapping("/profile")
+    @GetMapping({"/profile", "/my-profile"})
     public String profilePage(HttpSession session, Model model) {
 
         User user = (User) session.getAttribute("user");
@@ -215,7 +215,7 @@ public class AuthController {
 
         model.addAttribute("user", freshUser);
 
-        return "profile";   // profile.html
+        return "my-profile";
     }
 
     /*
@@ -260,7 +260,7 @@ public class AuthController {
                 model.addAttribute("error", "Current password incorrect");
                 model.addAttribute("user", user);
 
-                return "profile";
+                return "my-profile";
             }
 
             if (!newPassword.equals(confirmPassword)) {
@@ -268,7 +268,7 @@ public class AuthController {
                 model.addAttribute("error", "Passwords do not match");
                 model.addAttribute("user", user);
 
-                return "profile";
+                return "my-profile";
             }
 
             user.setPassword(newPassword);
@@ -281,7 +281,7 @@ public class AuthController {
         model.addAttribute("success", "Profile updated successfully");
         model.addAttribute("user", user);
 
-        return "profile";
+        return "my-profile";
     }
 
 }

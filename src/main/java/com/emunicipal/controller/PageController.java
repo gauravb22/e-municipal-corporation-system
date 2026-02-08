@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PageController {
 
     // Works + Yojna page
-    @GetMapping("/work-yojna")
+    @GetMapping("/works-yojna")
     public String workPage() {
-        return "work-yojna";   // opens work-yojna.html
+        return "works-yojna";   // opens works-yojna.html
     }
 
 }
