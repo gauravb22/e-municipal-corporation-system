@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Complaints</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#0f3d2e,#2e8b57);
+    min-height:100vh;
+}
+.topbar{
+    background:#123a2b;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.brand img{width:44px;height:44px;}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;}
+.container{
+    max-width:1000px;
+    margin:24px auto;
+    padding:12px;
+}
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+}
+.summary-card{
+    background:white;
+    border-radius:14px;
+    padding:24px;
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+.summary-card h3{margin:0;}
+.count{font-size:32px;font-weight:700;color:#1f6f4a;}
+.summary-link{
+    text-decoration:none;
+    color:inherit;
+}
+.note{font-size:12px;color:#6b6b6b;}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="brand">
+        <img src="/images/municipalLogo.png" alt="Logo">
+        <div>
+            <div class="brand-title">Akola Mahanagarpalika</div>
+            <div class="brand-sub">Ward Complaints</div>
+        </div>
+    </div>
+    <a href="/ward-dashboard" style="color:white;text-decoration:none;">Back to Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="cards">
+        <a class="summary-link" href="/ward-complaints/new">
+            <div class="summary-card">
+                <h3>New Complaints</h3>
+                <div class="count" th:text="${#lists.size(newComplaints)}">0</div>
+                <div class="note">Last 24 hours</div>
+            </div>
+        </a>
+        <a class="summary-link" href="/ward-complaints/approved">
+            <div class="summary-card">
+                <h3>Approved Complaints</h3>
+                <div class="count" th:text="${#lists.size(approvedComplaints)}">0</div>
+                <div class="note">Accepted by ward</div>
+            </div>
+        </a>
+        <a class="summary-link" href="/ward-complaints/pending">
+            <div class="summary-card">
+                <h3>Pending Complaints</h3>
+                <div class="count" th:text="${#lists.size(pendingComplaints)}">0</div>
+                <div class="note">Awaiting action</div>
+            </div>
+        </a>
+        <a class="summary-link" href="/ward-complaints/completed">
+            <div class="summary-card">
+                <h3>Completed Complaints</h3>
+                <div class="count" th:text="${#lists.size(completedComplaints)}">0</div>
+                <div class="note">Resolved</div>
+            </div>
+        </a>
+    </div>
+
+</div>
+</body>
+</html>

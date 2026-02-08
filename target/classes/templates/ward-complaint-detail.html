@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Complaint Details</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0f3d2e,#2e8b57);min-height:100vh;}
+.topbar{background:#123a2b;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{width:44px;height:44px;}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;}
+.container{max-width:900px;margin:24px auto;padding:12px;}
+.card{background:white;border-radius:14px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
+.title{font-size:20px;font-weight:700;color:#123a2b;}
+.badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:12px;font-weight:600;margin-left:8px;}
+.badge.pending{background:#fff1d6;color:#9a6b10;}
+.badge.approved{background:#e8f7ee;color:#1f6f4a;}
+.badge.solved{background:#e6f4ff;color:#155a8a;}
+.badge.repeated{background:#fbe9e7;color:#b23a1b;}
+.badge.not-ward{background:#f1f3f5;color:#4b5563;}
+.badge.wrong{background:#fdecec;color:#b53838;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.item{background:#f8f9fa;border-radius:10px;padding:10px;}
+.label{font-size:12px;color:#666;text-transform:uppercase;}
+.value{font-weight:600;color:#1e3c72;margin-top:4px;word-break:break-word;}
+.value a{color:#1e3c72;text-decoration:none;}
+.value a:hover{text-decoration:underline;}
+.desc{margin-top:12px;font-size:14px;color:#444;line-height:1.4;}
+.photo{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid #e5e7eb;}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+.btn{border:none;border-radius:10px;padding:10px 12px;font-size:12px;cursor:pointer;font-weight:600;}
+.btn-approve{background:#1f6f4a;color:white;}
+.btn-solved{background:#155a8a;color:white;}
+.btn-repeated{background:#b23a1b;color:white;}
+.btn-notward{background:#4b5563;color:white;}
+.btn-wrong{background:#b53838;color:white;}
+.notice{margin-top:12px;font-size:13px;color:#555;}
+.camera-section{
+    background:#f8f9fa;
+    border:2px solid #1f6f4a;
+    border-radius:10px;
+    padding:14px;
+    margin-top:12px;
+}
+.camera-preview{
+    width:100%;
+    border-radius:8px;
+    margin-top:10px;
+    max-height:320px;
+    object-fit:cover;
+    display:none;
+}
+.camera-preview.active{display:block;}
+.camera-btn{
+    display:inline-block;
+    padding:10px 12px;
+    background:#1f6f4a;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+.info-line{font-size:12px;color:#555;margin-top:8px;}
+@media (max-width:720px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="brand">
+        <img src="/images/municipalLogo.png" alt="Logo">
+        <div>
+            <div class="brand-title">Akola Mahanagarpalika</div>
+            <div class="brand-sub">Complaint Details</div>
+        </div>
+    </div>
+    <a href="/ward-complaints" style="color:white;text-decoration:none;">Back</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <div class="title">
+            <span th:text="${complaint.complaintType}">Complaint</span>
+            <span class="badge pending" th:if="${complaint.status == 'pending'}">PENDING</span>
+            <span class="badge approved" th:if="${complaint.status == 'approved'}">APPROVED</span>
+            <span class="badge solved" th:if="${complaint.status == 'solved'}">SOLVED</span>
+            <span class="badge repeated" th:if="${complaint.status == 'repeated'}">REPEATED</span>
+            <span class="badge not-ward" th:if="${complaint.status == 'not_ward'}">NOT OUR WARD</span>
+            <span class="badge wrong" th:if="${complaint.status == 'wrong'}">WRONG</span>
+        </div>
+
+        <div class="grid">
+            <div class="item">
+                <div class="label">Citizen Name</div>
+                <div class="value" th:text="${citizen != null ? citizen.fullName : 'Unknown'}">Citizen Name</div>
+            </div>
+            <div class="item">
+                <div class="label">Phone</div>
+                <div class="value" th:text="${citizen != null ? citizen.phone : 'Unknown'}">Phone</div>
+            </div>
+            <div class="item">
+                <div class="label">House No</div>
+                <div class="value" th:text="${complaint.houseNo}">House</div>
+            </div>
+            <div class="item">
+                <div class="label">Location</div>
+                <div class="value">
+                    <a th:href="'https://www.google.com/maps?q=' + ${complaint.photoLatitude} + ',' + ${complaint.photoLongitude}"
+                       target="_blank" rel="noopener"
+                       th:text="${complaint.location}">Location</a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="label">Ward No</div>
+                <div class="value" th:text="${complaint.wardNo}">Ward</div>
+            </div>
+            <div class="item">
+                <div class="label">Ward Zone</div>
+                <div class="value" th:text="${complaint.wardZone}">Zone</div>
+            </div>
+            <div class="item">
+                <div class="label">Submitted At</div>
+                <div class="value" th:text="${#temporals.format(complaint.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</div>
+            </div>
+            <div class="item">
+                <div class="label">Complaint ID</div>
+                <div class="value" th:text="${complaint.id}">ID</div>
+            </div>
+        </div>
+
+        <div class="desc" th:if="${complaint.description != null}">
+            <strong>Details:</strong> <span th:text="${complaint.description}"></span>
+        </div>
+
+        <img th:if="${complaint.photoBase64 != null}" th:src="${complaint.photoBase64}" class="photo" alt="Complaint photo">
+
+        <div class="actions" th:if="${complaint.status != 'approved' and complaint.status != 'solved'}">
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="approved">
+                <button class="btn btn-approve" type="submit">Approve</button>
+            </form>
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="repeated">
+                <button class="btn btn-repeated" type="submit">Repeated</button>
+            </form>
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="not_ward">
+                <button class="btn btn-notward" type="submit">Not Our Ward</button>
+            </form>
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="wrong">
+                <button class="btn btn-wrong" type="submit">Wrong</button>
+            </form>
+        </div>
+
+        <div th:if="${complaint.status == 'approved'}" class="camera-section">
+            <div class="notice">Upload completion photo with live location and timestamp.</div>
+            <div class="info-line">Timestamp: <span id="doneTimestampDisplay">--:--:--</span></div>
+            <div class="info-line">Location: <span id="doneLocationDisplay">Fetching GPS...</span></div>
+            <button type="button" class="camera-btn" onclick="captureDonePhoto()">Capture Done Photo</button>
+            <img id="donePhotoPreview" class="camera-preview" alt="Done photo">
+
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/complete'" style="margin-top:10px;">
+                <input type="file" id="donePhotoInput" accept="image/*" capture="environment" onchange="handleDonePhoto(event)" style="display:none;">
+                <input type="hidden" id="donePhotoTimestamp" name="donePhotoTimestamp">
+                <input type="hidden" id="donePhotoLocation" name="donePhotoLocation">
+                <input type="hidden" id="donePhotoLatitude" name="donePhotoLatitude">
+                <input type="hidden" id="donePhotoLongitude" name="donePhotoLongitude">
+                <input type="hidden" id="donePhotoBase64" name="donePhotoBase64">
+                <div class="actions">
+                    <button class="btn btn-solved" type="submit" id="markDoneBtn" disabled>Mark as Done</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="notice" th:if="${complaint.status == 'solved'}">This complaint is already completed.</div>
+    </div>
+</div>
+<script>
+function updateDoneTimestamp() {
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    const el = document.getElementById('doneTimestampDisplay');
+    if (el) el.textContent = timestamp;
+    const input = document.getElementById('donePhotoTimestamp');
+    if (input) input.value = now.toISOString();
+}
+setInterval(updateDoneTimestamp, 1000);
+updateDoneTimestamp();
+
+function getDoneLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                const accuracy = position.coords.accuracy.toFixed(0);
+                const latInput = document.getElementById('donePhotoLatitude');
+                const lonInput = document.getElementById('donePhotoLongitude');
+                const locInput = document.getElementById('donePhotoLocation');
+                if (latInput) latInput.value = lat;
+                if (lonInput) lonInput.value = lon;
+                if (locInput) locInput.value = `${lat}, ${lon}`;
+                const display = document.getElementById('doneLocationDisplay');
+                if (display) display.textContent = `${lat}, ${lon} (±${accuracy}m)`;
+            },
+            function() {
+                const display = document.getElementById('doneLocationDisplay');
+                if (display) display.textContent = 'Location not available';
+            }
+        );
+    }
+}
+getDoneLocation();
+
+function captureDonePhoto(){
+    const input = document.getElementById('donePhotoInput');
+    if (input) input.click();
+}
+
+function handleDonePhoto(event){
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const preview = document.getElementById('donePhotoPreview');
+        if (preview) {
+            preview.src = e.target.result;
+            preview.classList.add('active');
+        }
+        const base64 = document.getElementById('donePhotoBase64');
+        if (base64) base64.value = e.target.result;
+        const btn = document.getElementById('markDoneBtn');
+        if (btn) btn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
