@@ -72,13 +72,16 @@ public class ComplaintService {
     }
 
     // Submit feedback
-    public Complaint submitFeedback(Long complaintId, Boolean solved, String description, Integer rating) {
+    public Complaint submitFeedback(Long complaintId, Boolean solved, String description, Integer rating, String solvedBy) {
         Optional<Complaint> complaintOpt = complaintRepository.findById(complaintId);
         if (complaintOpt.isPresent()) {
             Complaint complaint = complaintOpt.get();
             complaint.setFeedbackSolved(solved);
             complaint.setFeedbackDescription(description);
             complaint.setFeedbackRating(rating);
+            if (solvedBy != null && !solvedBy.isBlank()) {
+                complaint.setFeedbackSolvedBy(solvedBy.trim());
+            }
             complaint.setFeedbackSubmitted(true);
             complaint.setFeedbackSubmittedAt(LocalDateTime.now());
             

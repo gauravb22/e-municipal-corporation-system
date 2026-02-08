@@ -9,4 +9,5 @@ import java.util.List;
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     List<Complaint> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<Complaint> findByUserId(Long userId);
+    List<Complaint> findByWardNoOrderByCreatedAtDesc(Integer wardNo);
 }

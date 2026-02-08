@@ -23,6 +23,12 @@ public class Complaint {
     @Column(name = "house_no", nullable = false)
     private String houseNo;
 
+    @Column(name = "ward_no")
+    private Integer wardNo;
+
+    @Column(name = "ward_zone", length = 5)
+    private String wardZone;
+
     @Column(name = "description", length = 1000)
     private String description;
 
@@ -41,8 +47,23 @@ public class Complaint {
     @Column(name = "photo_base64", columnDefinition = "CLOB")
     private String photoBase64;
 
+    @Column(name = "done_photo_timestamp")
+    private String donePhotoTimestamp;
+
+    @Column(name = "done_photo_location")
+    private String donePhotoLocation;
+
+    @Column(name = "done_photo_latitude")
+    private String donePhotoLatitude;
+
+    @Column(name = "done_photo_longitude")
+    private String donePhotoLongitude;
+
+    @Column(name = "done_photo_base64", columnDefinition = "CLOB")
+    private String donePhotoBase64;
+
     @Column(name = "status", nullable = false)
-    private String status; // pending, solved, escalated
+    private String status; // pending, solved, escalated, approved, repeated, not_ward
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -61,6 +82,9 @@ public class Complaint {
 
     @Column(name = "feedback_solved")
     private Boolean feedbackSolved; // Yes/No - is complaint solved
+
+    @Column(name = "feedback_solved_by", length = 100)
+    private String feedbackSolvedBy;
 
     @Column(name = "feedback_submitted_at")
     private LocalDateTime feedbackSubmittedAt;
@@ -127,6 +151,22 @@ public class Complaint {
         this.houseNo = houseNo;
     }
 
+    public Integer getWardNo() {
+        return wardNo;
+    }
+
+    public void setWardNo(Integer wardNo) {
+        this.wardNo = wardNo;
+    }
+
+    public String getWardZone() {
+        return wardZone;
+    }
+
+    public void setWardZone(String wardZone) {
+        this.wardZone = wardZone;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -173,6 +213,46 @@ public class Complaint {
 
     public void setPhotoBase64(String photoBase64) {
         this.photoBase64 = photoBase64;
+    }
+
+    public String getDonePhotoTimestamp() {
+        return donePhotoTimestamp;
+    }
+
+    public void setDonePhotoTimestamp(String donePhotoTimestamp) {
+        this.donePhotoTimestamp = donePhotoTimestamp;
+    }
+
+    public String getDonePhotoLocation() {
+        return donePhotoLocation;
+    }
+
+    public void setDonePhotoLocation(String donePhotoLocation) {
+        this.donePhotoLocation = donePhotoLocation;
+    }
+
+    public String getDonePhotoLatitude() {
+        return donePhotoLatitude;
+    }
+
+    public void setDonePhotoLatitude(String donePhotoLatitude) {
+        this.donePhotoLatitude = donePhotoLatitude;
+    }
+
+    public String getDonePhotoLongitude() {
+        return donePhotoLongitude;
+    }
+
+    public void setDonePhotoLongitude(String donePhotoLongitude) {
+        this.donePhotoLongitude = donePhotoLongitude;
+    }
+
+    public String getDonePhotoBase64() {
+        return donePhotoBase64;
+    }
+
+    public void setDonePhotoBase64(String donePhotoBase64) {
+        this.donePhotoBase64 = donePhotoBase64;
     }
 
     public String getStatus() {
@@ -229,6 +309,14 @@ public class Complaint {
 
     public void setFeedbackSolved(Boolean feedbackSolved) {
         this.feedbackSolved = feedbackSolved;
+    }
+
+    public String getFeedbackSolvedBy() {
+        return feedbackSolvedBy;
+    }
+
+    public void setFeedbackSolvedBy(String feedbackSolvedBy) {
+        this.feedbackSolvedBy = feedbackSolvedBy;
     }
 
     public LocalDateTime getFeedbackSubmittedAt() {

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.emunicipal.entity.WardWork;
 import com.emunicipal.entity.User;
+import com.emunicipal.entity.StaffUser;
 import com.emunicipal.repository.WardWorkRepository;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,8 +31,9 @@ public class WorkController {
 
         // Check login session
         User user = (User) session.getAttribute("user");
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
 
-        if (user == null) {
+        if (user == null && staffUser == null) {
             return "redirect:/login";
         }
 
@@ -52,13 +54,14 @@ public class WorkController {
     public List<WardWork> getWorks(HttpSession session) {
 
         User user = (User) session.getAttribute("user");
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
 
         // If not logged in
-        if (user == null) {
+        if (user == null && staffUser == null) {
             return List.of();
         }
 
-        Integer wardNo = user.getWardNo();
+        Integer wardNo = user != null ? user.getWardNo() : staffUser.getWardNo();
 
         // Safety check
         if (wardNo == null) {
