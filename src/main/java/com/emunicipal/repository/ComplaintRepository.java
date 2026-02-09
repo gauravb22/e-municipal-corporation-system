@@ -19,3 +19,4 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     @Query("select avg(c.feedbackRating) from Complaint c where c.wardNo = :wardNo and c.feedbackRating is not null")
     Double getAverageRatingByWard(@Param("wardNo") Integer wardNo);
 }
+ 
