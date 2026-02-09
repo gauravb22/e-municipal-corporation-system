@@ -151,14 +151,16 @@
         .sidebar{
             position:fixed;
             top:0;
-            left:-260px;
-            width:260px;
-            height:100%;
+            left:-100%;
+            width:280px;
+            max-width:85vw;
+            height:100vh;
             background:white;
             box-shadow:4px 0 20px rgba(0,0,0,.3);
             transition:.3s;
             z-index:100;
-            padding:18px;
+            padding:18px 16px;
+            overflow-y:auto;
         }
         .sidebar.open{left:0;}
         .sidebar h3{margin:0 0 12px;color:#24324a;}
@@ -185,6 +187,9 @@
             z-index:90;
         }
         .overlay.show{display:block;}
+        @media (max-width: 480px){
+            .sidebar{width:85vw; max-width:85vw;}
+        }
     </style>
 </head>
 <body class="role-citizen">

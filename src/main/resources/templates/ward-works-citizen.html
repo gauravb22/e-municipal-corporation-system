@@ -45,7 +45,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
     <div class="feed">
         <div class="post" th:each="p : ${posts}">
             <div class="post-header">
-                <img class="profile" src="/images/ward-member.png" alt="Ward Member">
+                <img class="profile" th:src="${postPhotos[p.id] != null ? postPhotos[p.id] : '/images/ward-member.png'}" alt="Ward Member">
                 <div>
                     <div class="name" th:text="${p.doneBy}">Ward Member</div>
                     <div class="meta">Ward <span th:text="${p.wardNo}">-</span> | Zone <span th:text="${p.wardZone}">-</span> | <span th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm') : 'N/A'}">--</span></div>

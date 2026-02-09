@@ -161,7 +161,7 @@ body{
 <div class="container">
     <h2 class="page-title">My Profile</h2>
 
-    <form class="card" action="/update-profile" method="post">\r\n        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>\r\n        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <form class="card" action="/update-profile" method="post"><div th:if="${success}" class="alert alert-success" th:text="${success}"></div><div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
         <h3 class="section-title"><i class="fa-solid fa-id-card"></i>Personal Details</h3>
         <div class="form-grid">
             <div>

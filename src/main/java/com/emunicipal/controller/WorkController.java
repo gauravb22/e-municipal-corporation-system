@@ -16,6 +16,7 @@ import com.emunicipal.repository.WardWorkLikeRepository;
 import com.emunicipal.repository.WardWorkCommentRepository;
 import com.emunicipal.repository.WardWorkRatingRepository;
 import com.emunicipal.repository.UserRepository;
+import com.emunicipal.repository.StaffUserRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -44,6 +45,9 @@ public class WorkController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private StaffUserRepository staffUserRepository;
+
     /*
      ===============================
      LOAD WARD WORK FEED
@@ -60,8 +64,10 @@ public class WorkController {
             return "redirect:/login";
         }
 
-        // Prefer citizen view if both sessions exist
-        if (user != null) {
+        // Prefer ward view if staff session exists
+        if (staffUser != null && "WARD".equalsIgnoreCase(staffUser.getRole())) {
+            user = null;
+        } else if (user != null) {
             staffUser = null;
         }
         Integer wardNo = staffUser != null ? staffUser.getWardNo() : user.getWardNo();
@@ -74,6 +80,7 @@ public class WorkController {
         Map<Long, Integer> userRatings = new HashMap<>();
         Map<Long, Boolean> userLiked = new HashMap<>();
         Map<Long, Double> avgRatings = new HashMap<>();
+        Map<Long, String> postPhotos = new HashMap<>();
 
         Long viewerId = user != null ? user.getId() : null;
 
@@ -92,6 +99,13 @@ public class WorkController {
             Double avg = ratingRepo.getAverageRatingByWorkId(post.getId());
             avgRatings.put(post.getId(), avg != null ? avg : 0.0);
 
+            if (post.getDoneBy() != null) {
+                StaffUser postOwner = staffUserRepository.findByUsername(post.getDoneBy());
+                if (postOwner != null && postOwner.getPhotoBase64() != null && !postOwner.getPhotoBase64().isBlank()) {
+                    postPhotos.put(post.getId(), postOwner.getPhotoBase64());
+                }
+            }
+
             if (viewerId != null) {
                 userLiked.put(post.getId(), likeRepo.existsByWorkIdAndUserId(post.getId(), viewerId));
                 WardWorkRating rating = ratingRepo.findByWorkIdAndUserId(post.getId(), viewerId);
@@ -109,6 +123,7 @@ public class WorkController {
         model.addAttribute("userRatings", userRatings);
         model.addAttribute("userLiked", userLiked);
         model.addAttribute("avgRatings", avgRatings);
+        model.addAttribute("postPhotos", postPhotos);
         return staffUser != null ? "ward-works" : "ward-works-citizen";
     }
 

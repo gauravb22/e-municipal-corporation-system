@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
 import com.emunicipal.entity.User;
+import com.emunicipal.entity.Complaint;
 import com.emunicipal.repository.UserRepository;
+import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.service.SmsService;
 
 import jakarta.servlet.http.HttpSession;
@@ -14,6 +16,8 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
@@ -23,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private ComplaintRepository complaintRepository;
 
     /*
     =====================================
@@ -198,6 +205,13 @@ public class AuthController {
 
         model.addAttribute("user", user);
         model.addAttribute("complaintSubmitted", complaintSubmitted != null);
+
+        List<Complaint> pendingFeedback = complaintRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
+                .stream()
+                .filter(c -> "solved".equalsIgnoreCase(c.getStatus()))
+                .filter(c -> c.getFeedbackSubmitted() == null || !c.getFeedbackSubmitted())
+                .collect(Collectors.toList());
+        model.addAttribute("pendingFeedback", pendingFeedback);
 
         return "dashboard";
     }

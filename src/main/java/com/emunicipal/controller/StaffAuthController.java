@@ -54,6 +54,7 @@ public class StaffAuthController {
             return Map.of("success", false, "message", "Not a ward member account");
         }
 
+        session.removeAttribute("user");
         session.setAttribute("staffUser", staffUser);
         session.setAttribute("staffRole", staffUser.getRole());
 
