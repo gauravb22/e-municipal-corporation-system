@@ -424,6 +424,9 @@ body{
 </footer>
 
 <script>
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
 function toggleMenu(){
     sidebar.classList.toggle("open");
     overlay.classList.toggle("show");
@@ -444,21 +447,21 @@ const adminSlides = [
         role: "Municipal Commissioner",
         name: "Shri Ajitji Pawar",
         desc: "City administration and civic service oversight.",
-        photo: "images/Commissoner.png",
+        photo: "/images/Commissoner.png",
         alt: "Municipal Commissioner"
     },
     {
         role: "Mayor (Mahapor)",
         name: "Shri Jayprakash Patil",
         desc: "Elected representative leading civic initiatives.",
-        photo: "images/Mayor.png",
+        photo: "/images/Mayor.png",
         alt: "Mayor"
     },
     {
         role: "Deputy Mayor",
         name: "Shri Rekha Sawant",
         desc: "Supports municipal programs and ward coordination.",
-        photo: "images/Deupty_Mayor.png",
+        photo: "/images/Deupty_Mayor.png",
         alt: "Deputy Mayor"
     }
 ];
