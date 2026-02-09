@@ -1,4 +1,4 @@
-﻿package com.emunicipal.repository;
+package com.emunicipal.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.emunicipal.entity.StaffUser;

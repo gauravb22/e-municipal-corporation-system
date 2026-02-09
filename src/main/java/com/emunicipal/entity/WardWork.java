@@ -1,6 +1,8 @@
 package com.emunicipal.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class WardWork {
@@ -15,9 +17,18 @@ public class WardWork {
 
     private Integer wardNo;
 
+    private String wardZone;
+
+    private String address;
+
+    private LocalDate workDoneDate;
+
     private String doneBy;
 
-    private String imageUrl;
+    @Column(name = "image_base64", columnDefinition = "CLOB")
+    private String imageBase64;
+
+    private LocalDateTime createdAt;
 
     private Double rating = 0.0;
 
@@ -39,13 +50,29 @@ public class WardWork {
 
     public void setWardNo(Integer wardNo) { this.wardNo = wardNo; }
 
+    public String getWardZone() { return wardZone; }
+
+    public void setWardZone(String wardZone) { this.wardZone = wardZone; }
+
+    public String getAddress() { return address; }
+
+    public void setAddress(String address) { this.address = address; }
+
+    public LocalDate getWorkDoneDate() { return workDoneDate; }
+
+    public void setWorkDoneDate(LocalDate workDoneDate) { this.workDoneDate = workDoneDate; }
+
     public String getDoneBy() { return doneBy; }
 
     public void setDoneBy(String doneBy) { this.doneBy = doneBy; }
 
-    public String getImageUrl() { return imageUrl; }
+    public String getImageBase64() { return imageBase64; }
 
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setImageBase64(String imageBase64) { this.imageBase64 = imageBase64; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public Double getRating() { return rating; }
 

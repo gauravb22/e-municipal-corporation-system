@@ -36,7 +36,9 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(HttpSession session) {
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
         return "login";
     }
 
@@ -69,6 +71,9 @@ public class AuthController {
         if (phone == null || phone.length() != 10 || !phone.matches("[0-9]{10}")) {
             return "redirect:/login";
         }
+
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
 
         User user = userRepository.findByPhone(phone);
 
@@ -179,7 +184,9 @@ public class AuthController {
     */
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
+    public String dashboard(HttpSession session,
+                            @RequestParam(value = "complaintSubmitted", required = false) String complaintSubmitted,
+                            Model model) {
 
         User user = (User) session.getAttribute("user");
 
@@ -190,6 +197,7 @@ public class AuthController {
         session.setAttribute("authenticated", true);
 
         model.addAttribute("user", user);
+        model.addAttribute("complaintSubmitted", complaintSubmitted != null);
 
         return "dashboard";
     }
@@ -282,6 +290,12 @@ public class AuthController {
         model.addAttribute("user", user);
 
         return "my-profile";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 
 }

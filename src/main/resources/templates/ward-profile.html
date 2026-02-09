@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Member Profile</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#0f3d2e,#2e8b57);
+    min-height:100vh;
+}
+.topbar{
+    background:#123a2b;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.container{
+    max-width:720px;
+    margin:24px auto;
+    padding:12px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:18px;
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.title{color:#123a2b;font-size:20px;margin:0 0 12px;}
+.alert{padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:12px;}
+.alert-success{background:#e8f7ee;color:#1f6f4a;border:1px solid #bfe7cd;}
+.alert-error{background:#fdecec;color:#b53838;border:1px solid #f5b9b9;}
+.profile{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:16px;
+}
+.photo{
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    border:3px solid #2e8b57;
+    object-fit:cover;
+    background:#f5f5f5;
+}
+.name{font-weight:700;color:#0e2f22;}
+.meta{font-size:13px;color:#3c4a44;margin-top:4px;}
+.form-group{margin-bottom:14px;}
+label{display:block;font-size:13px;color:#1f6f4a;margin-bottom:6px;font-weight:600;}
+input{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #d9dee5;
+    font-size:14px;
+}
+input:focus{outline:none;border-color:#2e8b57;box-shadow:0 0 0 3px rgba(46,139,87,.15);}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 14px;
+    background:#1f6f4a;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.note{font-size:12px;color:#6b6b6b;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>Ward Member Profile</div>
+    <a href="/ward-dashboard" style="color:white;text-decoration:none;">Back</a>
+</div>
+
+<div class="container">
+    <form class="card" method="post" action="/ward-profile">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="profile">
+            <img class="photo" id="photoPreview" th:src="${staffUser.photoBase64 != null ? staffUser.photoBase64 : '/images/ward-member.png'}" alt="Profile">
+            <div>
+                <div class="name" th:text="${staffUser.username}">Ward Member</div>
+                <div class="meta">Ward No: <span th:text="${staffUser.wardNo}">10</span> | Zone: <span th:text="${staffUser.wardZone}">A</span></div>
+                <div class="note">Tap below to change photo.</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Profile Photo</label>
+            <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)">
+            <input type="hidden" id="photoBase64" name="photoBase64">
+        </div>
+
+        <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" name="phone" placeholder="Enter mobile number" th:value="${staffUser.phone}">
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="currentPassword" placeholder="Current password">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="newPassword" placeholder="New password">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" name="confirmPassword" placeholder="Confirm password">
+        </div>
+
+        <button class="btn" type="submit">Save Changes</button>
+    </form>
+</div>
+
+<script>
+function handlePhoto(event){
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+        document.getElementById('photoPreview').src = e.target.result;
+        document.getElementById('photoBase64').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>

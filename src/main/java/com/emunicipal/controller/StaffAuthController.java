@@ -1,4 +1,4 @@
-﻿package com.emunicipal.controller;
+package com.emunicipal.controller;
 
 import java.util.Map;
 
@@ -8,21 +8,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.repository.StaffUserRepository;
+import com.emunicipal.repository.ComplaintRepository;
 
 import jakarta.servlet.http.HttpSession;
+import java.time.Year;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 public class StaffAuthController {
 
     @Autowired
     private StaffUserRepository staffUserRepository;
+    @Autowired
+    private ComplaintRepository complaintRepository;
 
     @GetMapping("/ward-login")
-    public String wardLoginPage() {
+    public String wardLoginPage(HttpSession session) {
+        session.removeAttribute("user");
         return "ward-login";
     }
 
@@ -59,7 +67,74 @@ public class StaffAuthController {
             return "redirect:/ward-login";
         }
 
+        Integer wardNo = staffUser.getWardNo();
+        if (wardNo != null) {
+            int year = Year.now().getValue();
+            LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(year, 12, 31, 23, 59, 59);
+            long worksCompletedThisYear = complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "solved", start, end);
+            long pendingWorksCount = complaintRepository.countByWardNoAndStatusIn(wardNo, List.of("pending", "approved"));
+            Double avgRating = complaintRepository.getAverageRatingByWard(wardNo);
+
+            model.addAttribute("worksCompletedThisYear", worksCompletedThisYear);
+            model.addAttribute("pendingWorksCount", pendingWorksCount);
+            model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "0.0");
+        }
+
         model.addAttribute("staffUser", staffUser);
         return "ward-dashboard";
+    }
+
+    @GetMapping("/ward-profile")
+    public String wardProfile(HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"WARD".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/ward-login";
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        return "ward-profile";
+    }
+
+    @PostMapping("/ward-profile")
+    public String updateWardProfile(@RequestParam(value = "phone", required = false) String phone,
+                                    @RequestParam(value = "photoBase64", required = false) String photoBase64,
+                                    @RequestParam(value = "currentPassword", required = false) String currentPassword,
+                                    @RequestParam(value = "newPassword", required = false) String newPassword,
+                                    @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
+                                    HttpSession session,
+                                    Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"WARD".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/ward-login";
+        }
+
+        if (phone != null && !phone.isBlank()) {
+            staffUser.setPhone(phone.trim());
+        }
+
+        if (photoBase64 != null && !photoBase64.isBlank()) {
+            staffUser.setPhotoBase64(photoBase64);
+        }
+
+        if (newPassword != null && !newPassword.isBlank()) {
+            if (currentPassword == null || !currentPassword.equals(staffUser.getPassword())) {
+                model.addAttribute("error", "Current password incorrect");
+                model.addAttribute("staffUser", staffUser);
+                return "ward-profile";
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                model.addAttribute("error", "Passwords do not match");
+                model.addAttribute("staffUser", staffUser);
+                return "ward-profile";
+            }
+            staffUser.setPassword(newPassword);
+        }
+
+        staffUserRepository.save(staffUser);
+        session.setAttribute("staffUser", staffUser);
+        model.addAttribute("success", "Profile updated successfully");
+        model.addAttribute("staffUser", staffUser);
+        return "ward-profile";
     }
 }

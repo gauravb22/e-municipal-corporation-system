@@ -1,0 +1,6 @@
+# ignore build artifacts
+/target/
+
+# local tooling
+/.idea/
+/.vscode/

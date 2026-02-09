@@ -7,5 +7,7 @@ import java.util.List;
 public interface WardWorkRepository extends JpaRepository<WardWork, Long> {
 
     List<WardWork> findByWardNo(Integer wardNo);
+    List<WardWork> findAllByOrderByCreatedAtDesc();
+    List<WardWork> findByWardNoOrderByCreatedAtDesc(Integer wardNo);
 
 }

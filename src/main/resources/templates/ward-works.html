@@ -1,172 +1,172 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Your Ward Works | E-Municipal Corporation</title>
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<title>Ward Works Feed</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-
-/* BODY */
-
-body{
-    margin:0;
-    font-family:"Segoe UI", Arial;
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    min-height:100vh;
-}
-
-/* TOPBAR */
-
-.topbar{
-    background:#16325c;
-    color:white;
-    display:flex;
-    align-items:center;
-    padding:12px 16px;
-    gap:12px;
-}
-
-.topbar strong{
-    font-size:16px;
-}
-
-/* CONTAINER */
-
-.container{
-    max-width:900px;
-    margin:25px auto;
-    padding:12px;
-}
-
-/* TITLE */
-
-.section-title{
-    color:white;
-    font-size:22px;
-    margin-bottom:18px;
-}
-
-/* GRID */
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:16px;
-}
-
-/* CARD */
-
-.card{
-    background:white;
-    border-radius:18px;
-    padding:18px;
-    box-shadow:0 12px 28px rgba(0,0,0,.18);
-    transition:.3s;
-}
-
-.card:hover{
-    transform:translateY(-6px);
-}
-
-.card h3{
-    margin:0 0 8px;
-}
-
-.info{
-    font-size:13px;
-    color:#555;
-    margin-top:5px;
-}
-
-.info i{
-    margin-right:6px;
-}
-
-/* RATING */
-
-.star{
-    color:gold;
-    margin-top:10px;
-    font-size:18px;
-}
-
+body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0f3d2e,#2e8b57);min-height:100vh;}
+.topbar{background:#123a2b;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{width:42px;height:42px;}
+.container{max-width:980px;margin:24px auto;padding:12px;}
+.card{background:white;border-radius:16px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.18);} 
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{margin-bottom:10px;}
+label{display:block;font-size:13px;color:#1f6f4a;margin-bottom:6px;font-weight:600;}
+input,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #d9dee5;font-size:14px;}
+textarea{min-height:90px;resize:vertical;}
+.btn{border:none;border-radius:10px;padding:10px 14px;background:#1f6f4a;color:white;font-weight:600;cursor:pointer;}
+.feed{margin-top:18px;display:grid;gap:18px;}
+.post{background:white;border-radius:22px;box-shadow:0 10px 24px rgba(0,0,0,.18);padding:16px;overflow:hidden;}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.profile{width:46px;height:46px;border-radius:50%;border:2px solid #2e8b57;object-fit:cover;background:#f2f2f2;}
+.name{font-weight:700;color:#0e2f22;}
+.meta{font-size:12px;color:#666;}
+.post-img{width:100%;border-radius:16px;margin:10px 0;max-height:420px;object-fit:cover;}
+.actions{display:flex;align-items:center;gap:12px;margin-top:8px;}
+.action-btn{background:#f3f5f9;border:none;border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:600;}
+.action-btn.disabled{opacity:.6;cursor:not-allowed;}
+.rating{display:flex;gap:6px;margin-top:10px;align-items:center;padding-top:8px;border-top:1px solid #eef1f4;}
+.star{cursor:pointer;color:#ddd;font-size:20px;}
+.star.active{color:#f6b100;}
+.note{font-size:12px;color:#6b6b6b;margin-top:6px;}
+.danger{background:#ffe5e5;}
 </style>
-
 </head>
-
 <body>
-
-<!-- TOPBAR -->
-
 <div class="topbar">
-    <i class="fa-solid fa-city"></i>
-    <strong>E-Municipal Corporation</strong>
+    <div class="brand">
+        <img src="/images/municipalLogo.png" alt="Logo">
+        <div>
+            <div style="font-weight:700;">Akola Mahanagarpalika</div>
+            <div style="font-size:12px;opacity:.85;">Ward Works Feed</div>
+        </div>
+    </div>
+    <a href="/ward-dashboard" style="color:white;text-decoration:none;">Back</a>
 </div>
 
 <div class="container">
+    <div class="card" th:if="${staffUser != null}">
+        <h3 style="margin:0 0 10px;">Post Ward Work</h3>
+        <form method="post" action="/ward-works/create">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Work title" required>
+                </div>
+                <div class="form-group">
+                    <label>Work Done Date</label>
+                    <input type="date" name="workDoneDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Ward No</label>
+                    <input type="number" name="wardNo" th:value="${staffUser.wardNo}" required>
+                </div>
+                <div class="form-group">
+                    <label>Ward Zone</label>
+                    <input type="text" name="wardZone" th:value="${staffUser.wardZone}" required>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="Work address" required>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Describe work done" required></textarea>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                    <label>Upload Photo</label>
+                    <input type="file" id="workPhoto" accept="image/*" onchange="handleWorkPhoto(event)" required>
+                    <input type="hidden" id="imageBase64" name="imageBase64">
+                </div>
+            </div>
+            <div class="note">Done by: <strong th:text="${staffUser.username}">Ward Member</strong> (auto)</div>
+            <button class="btn" type="submit">Publish Post</button>
+        </form>
+    </div>
 
-<div class="section-title">
-    Your Ward Member Completed Works
-</div>
+    <div class="feed">
+        <div class="post" th:each="p : ${posts}">
+            <div class="post-header">
+                <img class="profile" src="/images/ward-member.png" alt="Ward Member">
+                <div>
+                    <div class="name" th:text="${p.doneBy}">Ward Member</div>
+                    <div class="meta">Ward <span th:text="${p.wardNo}">-</span> | Zone <span th:text="${p.wardZone}">-</span> | <span th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm') : 'N/A'}">--</span></div>
+                </div>
+            </div>
 
-<div class="grid" id="workList">
+            <div class="name" th:text="${p.title}">Title</div>
+            <div class="meta" th:text="${p.address}">Address</div>
+            <img class="post-img" th:if="${p.imageBase64 != null}" th:src="${p.imageBase64}" alt="Work photo">
+            <div th:text="${p.description}">Description</div>
+            <div class="meta" style="margin-top:8px;">Work Done: <span th:text="${p.workDoneDate != null ? p.workDoneDate : 'N/A'}">--</span></div>
 
-    <!-- DATA WILL LOAD HERE -->
+            <div class="actions" th:if="${user != null}">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/like'">
+                    <button class="action-btn" type="submit"
+                            th:classappend="${userLiked[p.id]} ? ' disabled' : ''"
+                            th:disabled="${userLiked[p.id]}">Like (<span th:text="${likeCounts[p.id]} ?: 0">0</span>)</button>
+                </form>
+                <div class="meta">Rating: <span th:text="${avgRatings[p.id]} ?: 0.0">0.0</span>/5</div>
+            </div>
 
-</div>
+            <div class="rating" th:if="${user != null}">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/rate'" th:id="'rateForm-' + ${p.id}">
+                    <input type="hidden" name="rating" th:id="'rating-' + ${p.id}" value="0">
+                    <span class="star" th:attr="data-work=${p.id}" data-value="1">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="2">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="3">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="4">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="5">★</span>
+                </form>
+                <div class="note">Tap star to rate</div>
+            </div>
 
+            <div class="note" th:if="${userRatings[p.id] != null}">Your Rating: <span th:text="${userRatings[p.id]}">0</span>/5</div>
+
+            <div th:if="${staffUser != null}" class="comment-box">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/edit'">
+                    <input type="text" name="title" th:value="${p.title}" placeholder="Edit title" required>
+                    <input type="text" name="description" th:value="${p.description}" placeholder="Edit description" required>
+                    <button class="action-btn" type="submit">Save</button>
+                </form>
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/delete'">
+                    <button class="action-btn danger" type="submit">Delete Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+function handleWorkPhoto(event){
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+        document.getElementById('imageBase64').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 
-/*
-AUTO LOAD USER WARD WORKS
-
-Backend should detect user from session
-and return only their ward data
-*/
-
-fetch("/api/ward-works")
-.then(res => res.json())
-.then(data => {
-
-    let html = "";
-
-    data.forEach(work => {
-
-        html += `
-            <div class="card">
-
-                <h3>${work.title}</h3>
-
-                <p>${work.description}</p>
-
-                <div class="info">
-                    <i class="fa-solid fa-user"></i>
-                    Done by: ${work.doneBy}
-                </div>
-
-                <div class="info">
-                    <i class="fa-solid fa-location-dot"></i>
-                    Ward ${work.wardNo}
-                </div>
-
-                <div class="star">
-                    ⭐⭐⭐⭐⭐
-                </div>
-
-            </div>
-        `;
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function(){
+        const workId = this.getAttribute('data-work');
+        const value = this.getAttribute('data-value');
+        document.getElementById('rating-' + workId).value = value;
+        const form = document.getElementById('rateForm-' + workId);
+        const stars = document.querySelectorAll('.star[data-work="' + workId + '"]');
+        stars.forEach(s => {
+            if (s.getAttribute('data-value') <= value) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+        if (form) form.submit();
     });
-
-    document.getElementById("workList").innerHTML = html;
-
 });
-
 </script>
-
 </body>
 </html>

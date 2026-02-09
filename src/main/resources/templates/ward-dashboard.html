@@ -48,6 +48,28 @@ body{
 }
 .card h3{margin:0 0 8px;}
 .card a{color:#1f6f4a;text-decoration:none;font-weight:600;}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:14px;
+    margin-bottom:18px;
+}
+.stat-card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.stat-label{font-size:12px;color:#5b6a62;}
+.stat-value{font-size:26px;font-weight:700;color:#1f6f4a;margin-top:6px;}
+.rating{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+}
+.rating-stars{color:#f6b100;font-size:18px;}
+.note{font-size:12px;color:#5b6a62;margin-top:6px;}
 .member-card{
     display:flex;
     align-items:center;
@@ -80,7 +102,7 @@ body{
 
 <div class="container">
     <div class="card member-card">
-        <img class="member-photo" src="/images/ward-member.png" alt="Ward Member">
+        <img class="member-photo" th:src="${staffUser.photoBase64 != null ? staffUser.photoBase64 : '/images/ward-member.png'}" alt="Ward Member">
         <div>
             <div class="member-name" th:text="${staffUser.username}">Ward Member</div>
             <div class="member-meta">
@@ -89,6 +111,28 @@ body{
             </div>
         </div>
     </div>
+    <div class="title">Ward Performance Overview</div>
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label">Total Work Done (This Year)</div>
+            <div class="stat-value" th:text="${worksCompletedThisYear != null ? worksCompletedThisYear : 0}">0</div>
+            <div class="note">Includes completed ward works</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Works</div>
+            <div class="stat-value" th:text="${pendingWorksCount != null ? pendingWorksCount : 0}">0</div>
+            <div class="note">Awaiting completion</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">People Rating (Average)</div>
+            <div class="stat-value" th:text="${avgRating != null ? avgRating : 0.0}">0.0</div>
+            <div class="rating">
+                <div class="rating-stars">★★★★★</div>
+                <div class="note">Score from 1.0 to 5.0</div>
+            </div>
+        </div>
+    </div>
+
     <div class="title">Ward Member Services</div>
     <div class="grid">
         <div class="card">
@@ -97,9 +141,9 @@ body{
             <a href="/ward-complaints">Open Complaints</a>
         </div>
         <div class="card">
-            <h3>My Dashboard</h3>
-            <p>Quick overview of ward activity and updates.</p>
-            <a href="/ward-dashboard">Open Dashboard</a>
+            <h3>Edit Profile</h3>
+            <p>Update your profile details.</p>
+            <a href="/ward-profile">Open Profile</a>
         </div>
         <div class="card">
             <h3>Post on Ward Works</h3>

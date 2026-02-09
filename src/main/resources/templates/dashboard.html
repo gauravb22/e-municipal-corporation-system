@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>E-Municipal Corporation | Dashboard</title>
@@ -221,6 +221,35 @@ body{
     margin-top:12px;
 }
 
+/* ================= TOAST ================= */
+.toast{
+    position:fixed;
+    top:18px;
+    right:18px;
+    background:linear-gradient(135deg,#0f9d58,#0b8043);
+    color:white;
+    padding:14px 18px;
+    border-radius:12px;
+    box-shadow:0 10px 24px rgba(0,0,0,.3);
+    z-index:1000;
+    font-weight:600;
+    opacity:0;
+    transform:translateY(-10px);
+    animation:toast-in .35s ease forwards;
+}
+.toast small{
+    display:block;
+    font-weight:400;
+    margin-top:4px;
+    opacity:.9;
+}
+@keyframes toast-in{
+    to{opacity:1; transform:translateY(0);}
+}
+@keyframes toast-out{
+    to{opacity:0; transform:translateY(-10px);}
+}
+
 </style>
 </head>
 
@@ -255,6 +284,11 @@ body{
 <!-- ALERT -->
 <div class="alert-bar">
     <div class="alert-text" id="alerts"></div>
+</div>
+
+<div class="toast" id="complaintToast" th:if="${complaintSubmitted}">
+    Complaint submitted
+    <small>We have received your complaint.</small>
 </div>
 
 <!-- CONTENT -->
@@ -375,6 +409,18 @@ const alertData = [
 
 document.getElementById("alerts").innerHTML =
     alertData.map(a => `<span>${a}</span>`).join("");
+
+const toast = document.getElementById("complaintToast");
+if (toast) {
+    setTimeout(() => {
+        toast.style.animation = "toast-out .3s ease forwards";
+    }, 3000);
+    setTimeout(() => {
+        if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3400);
+}
 </script>
 
 </body>

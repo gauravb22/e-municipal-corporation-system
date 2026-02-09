@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Your Ward Works</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0f3d2e,#2e8b57);min-height:100vh;}
+.topbar{background:#123a2b;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{width:42px;height:42px;}
+.container{max-width:980px;margin:24px auto;padding:12px;}
+.feed{display:grid;gap:18px;}
+.post{background:white;border-radius:22px;box-shadow:0 10px 24px rgba(0,0,0,.18);padding:16px;overflow:hidden;}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.profile{width:46px;height:46px;border-radius:50%;border:2px solid #2e8b57;object-fit:cover;background:#f2f2f2;}
+.name{font-weight:700;color:#0e2f22;}
+.meta{font-size:12px;color:#666;}
+.post-img{width:100%;border-radius:16px;margin:10px 0;max-height:420px;object-fit:cover;}
+.actions{display:flex;align-items:center;gap:12px;margin-top:8px;}
+.action-btn{background:#f3f5f9;border:none;border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:600;}
+.action-btn.disabled{opacity:.6;cursor:not-allowed;}
+.rating{display:flex;gap:6px;margin-top:10px;align-items:center;padding-top:8px;border-top:1px solid #eef1f4;}
+.star{cursor:pointer;color:#ddd;font-size:20px;}
+.star.active{color:#f6b100;}
+.note{font-size:12px;color:#6b6b6b;margin-top:6px;}
+.comment-box{margin-top:10px;}
+.comment{background:#f8f9fa;border-radius:8px;padding:8px;margin-top:6px;}
+.comment .who{font-weight:600;font-size:12px;color:#1f6f4a;}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div class="brand">
+        <img src="/images/municipalLogo.png" alt="Logo">
+        <div>
+            <div style="font-weight:700;">Akola Mahanagarpalika</div>
+            <div style="font-size:12px;opacity:.85;">Your Ward Works</div>
+        </div>
+    </div>
+    <a href="/dashboard" style="color:white;text-decoration:none;">Back</a>
+</div>
+
+<div class="container">
+    <div class="feed">
+        <div class="post" th:each="p : ${posts}">
+            <div class="post-header">
+                <img class="profile" src="/images/ward-member.png" alt="Ward Member">
+                <div>
+                    <div class="name" th:text="${p.doneBy}">Ward Member</div>
+                    <div class="meta">Ward <span th:text="${p.wardNo}">-</span> | Zone <span th:text="${p.wardZone}">-</span> | <span th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm') : 'N/A'}">--</span></div>
+                </div>
+            </div>
+
+            <div class="name" th:text="${p.title}">Title</div>
+            <div class="meta" th:text="${p.address}">Address</div>
+            <img class="post-img" th:if="${p.imageBase64 != null}" th:src="${p.imageBase64}" alt="Work photo">
+            <div th:text="${p.description}">Description</div>
+            <div class="meta" style="margin-top:8px;">Work Done: <span th:text="${p.workDoneDate != null ? p.workDoneDate : 'N/A'}">--</span></div>
+
+            <div class="actions">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/like'">
+                    <button class="action-btn" type="submit"
+                            th:classappend="${userLiked[p.id]} ? ' disabled' : ''"
+                            th:disabled="${userLiked[p.id]}">Like (<span th:text="${likeCounts[p.id]} ?: 0">0</span>)</button>
+                </form>
+                <div class="meta">Rating: <span th:text="${avgRatings[p.id]} ?: 0.0">0.0</span>/5</div>
+            </div>
+
+            <div class="rating">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/rate'" th:id="'rateForm-' + ${p.id}">
+                    <input type="hidden" name="rating" th:id="'rating-' + ${p.id}" value="0">
+                    <span class="star" th:attr="data-work=${p.id}" data-value="1">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="2">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="3">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="4">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="5">★</span>
+                </form>
+                <div class="note" th:if="${userRatings[p.id] == null}">Tap star to rate</div>
+                <div class="note" th:if="${userRatings[p.id] != null}">Your Rating: <span th:text="${userRatings[p.id]}">0</span>/5</div>
+            </div>
+
+            <div class="comment-box">
+                <form method="post" th:action="'/ward-works/' + ${p.id} + '/comment'">
+                    <input type="text" name="comment" placeholder="Write a comment..." required>
+                    <button class="action-btn" type="submit">Comment</button>
+                </form>
+            </div>
+
+            <div class="comment" th:each="c : ${commentsMap[p.id]}" th:if="${commentsMap[p.id] != null}">
+                <div class="who" th:text="${c.name}">Citizen</div>
+                <div th:text="${c.text}">Comment</div>
+                <div class="meta" th:text="${#temporals.format(c.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function(){
+        const workId = this.getAttribute('data-work');
+        const value = this.getAttribute('data-value');
+        const already = document.querySelector('[data-rated="' + workId + '"]');
+        document.getElementById('rating-' + workId).value = value;
+        const form = document.getElementById('rateForm-' + workId);
+        const stars = document.querySelectorAll('.star[data-work="' + workId + '"]');
+        stars.forEach(s => {
+            if (s.getAttribute('data-value') <= value) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+        if (form) form.submit();
+    });
+});
+</script>
+</body>
+</html>

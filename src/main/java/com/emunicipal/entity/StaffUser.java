@@ -1,4 +1,4 @@
-﻿package com.emunicipal.entity;
+package com.emunicipal.entity;
 
 import jakarta.persistence.*;
 
@@ -15,6 +15,12 @@ public class StaffUser {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(length = 15)
+    private String phone;
+
+    @Column(name = "photo_base64", columnDefinition = "CLOB")
+    private String photoBase64;
 
     @Column(nullable = false, length = 20)
     private String role; // WARD or ADMIN
@@ -43,6 +49,22 @@ public class StaffUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhotoBase64() {
+        return photoBase64;
+    }
+
+    public void setPhotoBase64(String photoBase64) {
+        this.photoBase64 = photoBase64;
     }
 
     public String getRole() {

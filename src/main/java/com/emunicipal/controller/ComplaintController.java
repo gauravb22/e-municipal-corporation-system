@@ -61,10 +61,10 @@ public class ComplaintController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "wardNo", required = false) String wardNo,
             @RequestParam(value = "wardZone", required = false) String wardZone,
-            @RequestParam("photoTimestamp") String photoTimestamp,
-            @RequestParam("photoLocation") String photoLocation,
-            @RequestParam("photoLatitude") String photoLatitude,
-            @RequestParam("photoLongitude") String photoLongitude,
+            @RequestParam(value = "photoTimestamp", required = false) String photoTimestamp,
+            @RequestParam(value = "photoLocation", required = false) String photoLocation,
+            @RequestParam(value = "photoLatitude", required = false) String photoLatitude,
+            @RequestParam(value = "photoLongitude", required = false) String photoLongitude,
             @RequestParam(value = "photoBase64", required = false) String photoBase64,
             HttpSession session, Model model) {
         
@@ -74,16 +74,29 @@ public class ComplaintController {
         }
         
         // Create and save complaint
+        String resolvedPhotoTimestamp = (photoTimestamp != null && !photoTimestamp.isBlank())
+                ? photoTimestamp
+                : LocalDateTime.now().toString();
+        String resolvedPhotoLocation = (photoLocation != null && !photoLocation.isBlank())
+                ? photoLocation
+                : "Location not available";
+        String resolvedPhotoLatitude = (photoLatitude != null && !photoLatitude.isBlank())
+                ? photoLatitude
+                : "0";
+        String resolvedPhotoLongitude = (photoLongitude != null && !photoLongitude.isBlank())
+                ? photoLongitude
+                : "0";
+
         Complaint complaint = new Complaint(
             user.getId(),
             type,
             location,
             houseNo,
             description,
-            photoTimestamp,
-            photoLocation,
-            photoLatitude,
-            photoLongitude,
+            resolvedPhotoTimestamp,
+            resolvedPhotoLocation,
+            resolvedPhotoLatitude,
+            resolvedPhotoLongitude,
             photoBase64
         );
 
@@ -117,7 +130,7 @@ public class ComplaintController {
         
         model.addAttribute("success", "Complaint submitted successfully!");
         model.addAttribute("user", user);
-        return "redirect:/complaint-status";
+        return "redirect:/dashboard?complaintSubmitted=1";
     }
 
     @GetMapping("/complaint-status")
@@ -295,6 +308,7 @@ public class ComplaintController {
                 String normalized = status == null ? "" : status.trim().toLowerCase();
                 switch (normalized) {
                     case "approved":
+                    case "solved":
                     case "repeated":
                     case "not_ward":
                     case "wrong":
@@ -313,10 +327,10 @@ public class ComplaintController {
 
     @PostMapping("/ward-complaints/{id}/complete")
     public String completeWardComplaint(@PathVariable("id") Long complaintId,
-                                        @RequestParam("donePhotoTimestamp") String donePhotoTimestamp,
-                                        @RequestParam("donePhotoLocation") String donePhotoLocation,
-                                        @RequestParam("donePhotoLatitude") String donePhotoLatitude,
-                                        @RequestParam("donePhotoLongitude") String donePhotoLongitude,
+                                        @RequestParam(value = "donePhotoTimestamp", required = false) String donePhotoTimestamp,
+                                        @RequestParam(value = "donePhotoLocation", required = false) String donePhotoLocation,
+                                        @RequestParam(value = "donePhotoLatitude", required = false) String donePhotoLatitude,
+                                        @RequestParam(value = "donePhotoLongitude", required = false) String donePhotoLongitude,
                                         @RequestParam("donePhotoBase64") String donePhotoBase64,
                                         HttpSession session) {
         StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
@@ -333,12 +347,25 @@ public class ComplaintController {
             return "redirect:/ward-complaints/" + complaintId;
         }
 
+        String resolvedDonePhotoTimestamp = (donePhotoTimestamp != null && !donePhotoTimestamp.isBlank())
+                ? donePhotoTimestamp
+                : LocalDateTime.now().toString();
+        String resolvedDonePhotoLocation = (donePhotoLocation != null && !donePhotoLocation.isBlank())
+                ? donePhotoLocation
+                : "Location not available";
+        String resolvedDonePhotoLatitude = (donePhotoLatitude != null && !donePhotoLatitude.isBlank())
+                ? donePhotoLatitude
+                : "0";
+        String resolvedDonePhotoLongitude = (donePhotoLongitude != null && !donePhotoLongitude.isBlank())
+                ? donePhotoLongitude
+                : "0";
+
         complaintRepository.findById(complaintId).ifPresent(c -> {
             if (wardNo.equals(c.getWardNo()) && "approved".equalsIgnoreCase(c.getStatus())) {
-                c.setDonePhotoTimestamp(donePhotoTimestamp);
-                c.setDonePhotoLocation(donePhotoLocation);
-                c.setDonePhotoLatitude(donePhotoLatitude);
-                c.setDonePhotoLongitude(donePhotoLongitude);
+                c.setDonePhotoTimestamp(resolvedDonePhotoTimestamp);
+                c.setDonePhotoLocation(resolvedDonePhotoLocation);
+                c.setDonePhotoLatitude(resolvedDonePhotoLatitude);
+                c.setDonePhotoLongitude(resolvedDonePhotoLongitude);
                 c.setDonePhotoBase64(donePhotoBase64);
                 c.setStatus("solved");
                 c.setUpdatedAt(LocalDateTime.now());
@@ -395,4 +422,3 @@ public class ComplaintController {
         return "ward-complaints-" + type;
     }
 }
-
