@@ -114,11 +114,11 @@ textarea{min-height:90px;resize:vertical;}
             <div class="rating" th:if="${user != null}">
                 <form method="post" th:action="'/ward-works/' + ${p.id} + '/rate'" th:id="'rateForm-' + ${p.id}">
                     <input type="hidden" name="rating" th:id="'rating-' + ${p.id}" value="0">
-                    <span class="star" th:attr="data-work=${p.id}" data-value="1">★</span>
-                    <span class="star" th:attr="data-work=${p.id}" data-value="2">★</span>
-                    <span class="star" th:attr="data-work=${p.id}" data-value="3">★</span>
-                    <span class="star" th:attr="data-work=${p.id}" data-value="4">★</span>
-                    <span class="star" th:attr="data-work=${p.id}" data-value="5">★</span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="1"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="2"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="3"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="4"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                    <span class="star" th:attr="data-work=${p.id}" data-value="5"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                 </form>
                 <div class="note">Tap star to rate</div>
             </div>

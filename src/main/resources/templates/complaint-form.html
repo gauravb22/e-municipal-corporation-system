@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Complaint Form | e-Municipal Corporation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 * {
@@ -369,22 +370,22 @@ body {
                 </label>
                 <div class="camera-section">
                     <p style="color: #666; font-size: 14px; margin: 0 0 15px 0;">
-                        📷 Camera-only capture with live timestamp & location
+                        <i class="fa-solid fa-camera" aria-hidden="true"></i> Camera-only capture with live timestamp & location
                     </p>
                     
                     <!-- Timestamp Display -->
                     <div class="timestamp-info">
-                        🕒 <strong>Timestamp:</strong> <span id="timestampDisplay">--:--:--</span>
+                        <i class="fa-regular fa-clock" aria-hidden="true"></i> <strong>Timestamp:</strong> <span id="timestampDisplay">--:--:--</span>
                     </div>
                     
                     <!-- Location Display -->
                     <div class="location-info">
-                        📍 <strong>Location:</strong> <span id="locationDisplay">Fetching GPS...</span>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i> <strong>Location:</strong> <span id="locationDisplay">Fetching GPS...</span>
                     </div>
                     
                     <!-- Camera Button -->
                     <button type="button" class="camera-button" onclick="capturePhoto()">
-                        📷 Capture Photo from Camera
+                        <i class="fa-solid fa-camera" aria-hidden="true"></i> Capture Photo from Camera
                     </button>
                     
                     <!-- Photo Preview -->
@@ -392,7 +393,7 @@ body {
                     
                     <!-- Photo Captured Confirmation -->
                     <div class="photo-captured" id="photoCapturedMsg">
-                        ✓ Photo captured with timestamp and location
+                        <i class="fa-solid fa-check" aria-hidden="true"></i> Photo captured with timestamp and location
                     </div>
                     
                     <!-- Hidden file input (camera only) -->

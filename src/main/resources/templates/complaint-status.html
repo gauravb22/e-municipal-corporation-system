@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Complaint Status | e-Municipal Corporation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -342,8 +343,8 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>ðŸ“‹ Complaint Status</h1>
-            <a href="/dashboard" class="back-btn">â† Back to Dashboard</a>
+            <h1><i class="fa-regular fa-clipboard" aria-hidden="true"></i> Complaint Status</h1>
+            <a href="/dashboard" class="back-btn"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
         </div>
 
         <!-- Complaints List or No Complaints Message -->
@@ -372,19 +373,19 @@
                 <!-- Complaint Details Grid -->
                 <div class="complaint-details">
                     <div class="detail-item">
-                        <div class="detail-label">ðŸ“ Location</div>
+                        <div class="detail-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Location</div>
                         <div class="detail-value" th:text="${complaint.location}"></div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">ðŸ  House Number</div>
+                        <div class="detail-label"><i class="fa-solid fa-house" aria-hidden="true"></i> House Number</div>
                         <div class="detail-value" th:text="${complaint.houseNo}"></div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">ðŸ“… Date Filed</div>
+                        <div class="detail-label"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Date Filed</div>
                         <div class="detail-value" th:text="${#temporals.format(complaint.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">ðŸ• Status Updated</div>
+                        <div class="detail-label"><i class="fa-regular fa-clock" aria-hidden="true"></i> Status Updated</div>
                         <div class="detail-value" 
                              th:text="${complaint.updatedAt != null ? #temporals.format(complaint.updatedAt, 'dd-MMM-yyyy HH:mm') : 'Not updated yet'}"></div>
                     </div>
@@ -392,13 +393,13 @@
 
                 <!-- Description if provided -->
                 <div th:if="${complaint.description != null}" class="detail-item" style="grid-column: 1/-1;">
-                    <div class="detail-label">ðŸ“ Description</div>
+                    <div class="detail-label"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Description</div>
                     <div class="detail-value" th:text="${complaint.description}" style="color: #666; font-weight: normal;"></div>
                 </div>
 
                 <!-- Photo Section -->
                 <div th:if="${complaint.photoBase64 != null}" class="photos-section">
-                    <h4>ðŸ“¸ Complaint Photo</h4>
+                    <h4><i class="fa-solid fa-camera" aria-hidden="true"></i> Complaint Photo</h4>
                     <p style="font-size: 12px; color: #666; margin: 8px 0;">
                         <strong>Captured:</strong> <span th:text="${complaint.photoTimestamp}"></span>
                     </p>
@@ -410,7 +411,7 @@
 
                 <!-- Work Completed Photo (from ward member) -->
                 <div th:if="${complaint.donePhotoBase64 != null}" class="photos-section">
-                    <h4>✅ Work Completed Photo</h4>
+                    <h4><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Work Completed Photo</h4>
                     <p style="font-size: 12px; color: #666; margin: 8px 0;">
                         <strong>Captured:</strong> <span th:text="${complaint.donePhotoTimestamp}"></span>
                     </p>
@@ -425,27 +426,37 @@
 
                 <!-- Time Remaining for Escalation (only for pending) -->
                 <div th:if="${complaint.status == 'pending'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
-                    â±ï¸ Time remaining: <span th:text="${complaintService.getTimeRemaining(complaint)}"></span>
+                    <i class="fa-regular fa-clock" aria-hidden="true"></i> Time remaining: <span th:text="${complaintService.getTimeRemaining(complaint)}"></span>
                 </div>
 
                 <!-- Escalation Button (for pending complaints over 72 hours) -->
                 <div th:if="${complaint.status == 'pending'}" style="margin-top: 15px;">
                     <form method="POST" th:action="'/escalate-complaint/' + ${complaint.id}" style="display: inline;">
                         <button type="submit" class="escalation-btn" th:if="${complaintService.isPendingFor72Hours(complaint)}">
-                            ðŸš¨ Escalate - 72+ Hours Pending
+                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Escalate - 72+ Hours Pending
                         </button>
                     </form>
                 </div>
 
                 <!-- Feedback Section (for solved complaints) -->
                 <div th:if="${complaint.status == 'solved'}" class="feedback-section">
-                    <h4>ðŸ’¬ Complaint Feedback</h4>
+                    <h4><i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Complaint Feedback</h4>
 
                     <!-- If feedback already submitted -->
                     <div th:if="${complaint.feedbackSubmitted}" class="feedback-submitted">
-                        <h5>âœ“ Feedback Submitted</h5>
-                        <p><strong>Solved:</strong> <span th:text="${complaint.feedbackSolved ? 'Yes âœ“' : 'No âœ—'}"></span></p>
-                        <p><strong>Rating:</strong> <span class="stars" th:text="${'â˜…'.repeat(complaint.feedbackRating)}"></span> <span th:text="${complaint.feedbackRating} + ' / 5 stars'"></span></p>
+                        <h5><i class="fa-solid fa-check" aria-hidden="true"></i> Feedback Submitted</h5>
+                        <p>
+                            <strong>Solved:</strong>
+                            <span th:if="${complaint.feedbackSolved}">Yes <i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                            <span th:if="${!complaint.feedbackSolved}">No <i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+                        </p>
+                        <p>
+                            <strong>Rating:</strong>
+                            <span class="stars">
+                                <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, complaint.feedbackRating)}" aria-hidden="true"></i>
+                            </span>
+                            <span th:text="${complaint.feedbackRating} + ' / 5 stars'"></span>
+                        </p>
                         <p><strong>Feedback:</strong> <span th:text="${complaint.feedbackDescription}"></span></p>
                         <p th:if="${complaint.feedbackSolvedBy != null && !complaint.feedbackSolvedBy.isEmpty()}"><strong>Solved By:</strong> <span th:text="${complaint.feedbackSolvedBy}"></span></p>
                         <p style="font-size: 11px; color: #666; margin-top: 10px;">
@@ -462,7 +473,7 @@
                         <form method="POST" th:action="'/submit-feedback/' + ${complaint.id}">
                             <!-- Question: Is complaint solved? -->
                             <div class="form-group">
-                                <label>âœ“ Is your complaint solved?</label>
+                                <label><i class="fa-solid fa-check" aria-hidden="true"></i> Is your complaint solved?</label>
                                 <select name="solved" required style="cursor: pointer;">
                                     <option value="">-- Select --</option>
                                     <option value="true">Yes, it's completely solved</option>
@@ -472,19 +483,19 @@
 
                             <!-- Feedback Description -->
                             <div class="form-group">
-                                <label>ðŸ“ Feedback Description (Required)</label>
+                                <label><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Feedback Description (Required)</label>
                                 <textarea name="description" placeholder="Share your experience and any suggestions..." required></textarea>
                             </div>
 
                             <!-- Star Rating -->
                             <div class="form-group">
-                                <label>â­ Rating (Select)</label>
+                                <label><i class="fa-solid fa-star" aria-hidden="true"></i> Rating (Select)</label>
                                 <div class="star-rating" th:id="'rating-' + ${complaint.id}">
-                                    <span class="star" data-value="1">â˜…</span>
-                                    <span class="star" data-value="2">â˜…</span>
-                                    <span class="star" data-value="3">â˜…</span>
-                                    <span class="star" data-value="4">â˜…</span>
-                                    <span class="star" data-value="5">â˜…</span>
+                                    <span class="star" data-value="1"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                    <span class="star" data-value="2"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                    <span class="star" data-value="3"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                    <span class="star" data-value="4"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                    <span class="star" data-value="5"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                                 </div>
                                 <input type="hidden" name="rating" th:id="'ratingValue-' + ${complaint.id}" value="0" required>
                             </div>

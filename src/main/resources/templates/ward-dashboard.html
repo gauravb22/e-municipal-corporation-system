@@ -127,7 +127,13 @@ body{
             <div class="stat-label">People Rating (Average)</div>
             <div class="stat-value" th:text="${avgRating != null ? avgRating : 0.0}">0.0</div>
             <div class="rating">
-                <div class="rating-stars">★★★★★</div>
+                <div class="rating-stars">
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                </div>
                 <div class="note">Score from 1.0 to 5.0</div>
             </div>
         </div>
