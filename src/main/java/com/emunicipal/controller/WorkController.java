@@ -70,7 +70,7 @@ public class WorkController {
         } else if (user != null) {
             staffUser = null;
         }
-        Integer wardNo = staffUser != null ? staffUser.getWardNo() : user.getWardNo();
+        Integer wardNo = staffUser != null ? staffUser.getWardNo() : null;
         List<WardWork> posts = (wardNo != null)
                 ? repo.findByWardNoOrderByCreatedAtDesc(wardNo)
                 : repo.findAllByOrderByCreatedAtDesc();
@@ -132,6 +132,11 @@ public class WorkController {
         return "redirect:/ward-works";
     }
 
+    @GetMapping("/citizen/ward-works")
+    public String citizenWardWorksRedirect() {
+        return "redirect:/ward-works";
+    }
+
     /*
      ===============================
      API - GET USER WARD WORKS
@@ -149,13 +154,15 @@ public class WorkController {
             return List.of();
         }
 
-        Integer wardNo = user != null ? user.getWardNo() : staffUser.getWardNo();
-
-        if (wardNo == null) {
-            return List.of();
+        if (staffUser != null) {
+            Integer wardNo = staffUser.getWardNo();
+            if (wardNo == null) {
+                return List.of();
+            }
+            return repo.findByWardNoOrderByCreatedAtDesc(wardNo);
         }
 
-        return repo.findByWardNoOrderByCreatedAtDesc(wardNo);
+        return repo.findAllByOrderByCreatedAtDesc();
     }
 
     @PostMapping("/ward-works/create")

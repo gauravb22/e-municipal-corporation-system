@@ -5,30 +5,39 @@
 <title>Ward Works Feed</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0f3d2e,#2e8b57);min-height:100vh;}
-.topbar{background:#123a2b;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+body{margin:0;font-family:"Segoe UI", Arial;background:#f5f6f8;min-height:100vh;color:#111;}
+.topbar{background:white;color:#0f2f22;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
 .brand{display:flex;align-items:center;gap:12px;}
 .brand img{width:42px;height:42px;}
-.container{max-width:980px;margin:24px auto;padding:12px;}
-.card{background:white;border-radius:16px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.18);} 
+.container{max-width:980px;margin:20px auto;padding:12px;}
+.card{background:white;border-radius:16px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.08);border:1px solid #eef1f4;} 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .form-group{margin-bottom:10px;}
 label{display:block;font-size:13px;color:#1f6f4a;margin-bottom:6px;font-weight:600;}
 input,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #d9dee5;font-size:14px;}
 textarea{min-height:90px;resize:vertical;}
 .btn{border:none;border-radius:10px;padding:10px 14px;background:#1f6f4a;color:white;font-weight:600;cursor:pointer;}
-.feed{margin-top:18px;display:grid;gap:18px;}
-.post{background:white;border-radius:22px;box-shadow:0 10px 24px rgba(0,0,0,.18);padding:16px;overflow:hidden;}
-.post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.profile{width:46px;height:46px;border-radius:50%;border:2px solid #2e8b57;object-fit:cover;background:#f2f2f2;}
-.name{font-weight:700;color:#0e2f22;}
-.meta{font-size:12px;color:#666;}
-.post-img{width:100%;border-radius:16px;margin:10px 0;max-height:420px;object-fit:cover;}
-.actions{display:flex;align-items:center;gap:12px;margin-top:8px;}
-.action-btn{background:#f3f5f9;border:none;border-radius:10px;padding:6px 12px;cursor:pointer;font-weight:600;}
-.action-btn.disabled{opacity:.6;cursor:not-allowed;}
-.rating{display:flex;gap:6px;margin-top:10px;align-items:center;padding-top:8px;border-top:1px solid #eef1f4;}
-.star{cursor:pointer;color:#ddd;font-size:20px;}
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;background:white;border-radius:14px;padding:12px 14px;box-shadow:0 6px 18px rgba(0,0,0,.08);margin-top:16px;margin-bottom:10px;border:1px solid #eef1f4;}
+.filter-label{font-size:12px;color:#6b7280;font-weight:600;letter-spacing:.3px;}
+.filter-select{border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;font-size:13px;background:#fafafa;}
+.feed{margin-top:12px;display:grid;gap:18px;}
+.post{background:white;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);overflow:hidden;border:1px solid #eef1f4;}
+.post-header{display:flex;align-items:center;gap:10px;padding:14px 16px;}
+.profile{width:44px;height:44px;border-radius:50%;border:2px solid #e5e7eb;object-fit:cover;background:#f2f2f2;}
+.name{font-weight:700;color:#111;}
+.meta{font-size:12px;color:#6b7280;}
+.post-body{padding:0 16px 12px;}
+.post-img{width:100%;max-height:520px;object-fit:cover;background:#f3f4f6;}
+.post-title{font-weight:700;color:#111;margin-top:12px;}
+.post-text{margin-top:6px;color:#374151;font-size:14px;line-height:1.5;}
+.actions{display:flex;align-items:center;gap:10px;padding:10px 16px;}
+.icon-btn{border:none;background:transparent;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;font-size:18px;}
+.icon-btn.disabled{opacity:.5;cursor:not-allowed;}
+.icon-heart{color:#111;}
+.icon-heart.liked{color:#e11d48;}
+.icon-count{font-size:12px;color:#6b7280;font-weight:600;}
+.rating{display:flex;gap:6px;align-items:center;padding:8px 16px 12px;}
+.star{cursor:pointer;color:#e5e7eb;font-size:20px;}
 .star.active{color:#f6b100;}
 .note{font-size:12px;color:#6b6b6b;margin-top:6px;}
 .danger{background:#ffe5e5;}
@@ -94,7 +103,7 @@ textarea{min-height:90px;resize:vertical;}
             <div style="font-size:12px;opacity:.85;">Ward Works Feed</div>
         </div>
     </div>
-    <a href="/ward-dashboard" style="color:white;text-decoration:none;">Back</a>
+    <a href="/ward-dashboard" style="color:#0f2f22;text-decoration:none;font-weight:600;">Back</a>
 </div>
 
 <div class="container">
@@ -150,29 +159,55 @@ textarea{min-height:90px;resize:vertical;}
         </div>
     </div>
 
+    <div class="filter-bar">
+        <div>
+            <div class="filter-label">Filter</div>
+            <select class="filter-select" id="filterAll">
+                <option value="all">All Posts</option>
+            </select>
+        </div>
+        <div>
+            <div class="filter-label">Ward No</div>
+            <select class="filter-select" id="filterWard">
+                <option value="all">All Wards</option>
+            </select>
+        </div>
+        <div>
+            <div class="filter-label">Zone</div>
+            <select class="filter-select" id="filterZone">
+                <option value="all">All Zones</option>
+            </select>
+        </div>
+    </div>
+
     <div class="feed">
-        <div class="post" th:each="p : ${posts}">
+        <div class="post" th:each="p : ${posts}" th:attr="data-ward=${p.wardNo},data-zone=${p.wardZone}">
             <div class="post-header">
                 <img class="profile" th:src="${postPhotos[p.id] != null ? postPhotos[p.id] : '/images/ward-member.png'}" alt="Ward Member">
                 <div>
                     <div class="name" th:text="${p.doneBy}">Ward Member</div>
-                    <div class="meta">Ward <span th:text="${p.wardNo}">-</span> | Zone <span th:text="${p.wardZone}">-</span> | <span th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm') : 'N/A'}">--</span></div>
+                    <div class="meta">Ward <span th:text="${p.wardNo}">-</span> • Zone <span th:text="${p.wardZone}">-</span> • <span th:text="${p.createdAt != null ? #temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm') : 'N/A'}">--</span></div>
                 </div>
             </div>
 
-            <div class="name" th:text="${p.title}">Title</div>
-            <div class="meta" th:text="${p.address}">Address</div>
             <img class="post-img" th:if="${p.imageBase64 != null}" th:src="${p.imageBase64}" alt="Work photo">
-            <div th:text="${p.description}">Description</div>
-            <div class="meta" style="margin-top:8px;">Work Done: <span th:text="${p.workDoneDate != null ? p.workDoneDate : 'N/A'}">--</span></div>
+            <div class="post-body">
+                <div class="post-title" th:text="${p.title}">Title</div>
+                <div class="meta" th:text="${p.address}">Address</div>
+                <div class="post-text" th:text="${p.description}">Description</div>
+                <div class="meta" style="margin-top:8px;">Work Done: <span th:text="${p.workDoneDate != null ? p.workDoneDate : 'N/A'}">--</span></div>
+            </div>
 
             <div class="actions" th:if="${user != null}">
                 <form method="post" th:action="'/ward-works/' + ${p.id} + '/like'">
-                    <button class="action-btn" type="submit"
+                    <button class="icon-btn" type="submit"
                             th:classappend="${userLiked[p.id]} ? ' disabled' : ''"
-                            th:disabled="${userLiked[p.id]}">Like (<span th:text="${likeCounts[p.id]} ?: 0">0</span>)</button>
+                            th:disabled="${userLiked[p.id]}">
+                        <i class="fa-heart icon-heart" th:classappend="${userLiked[p.id]} ? ' fa-solid liked' : ' fa-regular'"></i>
+                    </button>
                 </form>
-                <div class="meta">Rating: <span th:text="${avgRatings[p.id]} ?: 0.0">0.0</span>/5</div>
+                <span class="icon-count" th:text="${likeCounts[p.id]} ?: 0">0</span>
+                <div class="meta">Avg <span th:text="${avgRatings[p.id]} ?: 0.0">0.0</span>/5</div>
             </div>
 
             <div class="rating" th:if="${user != null}">
@@ -184,7 +219,6 @@ textarea{min-height:90px;resize:vertical;}
                     <span class="star" th:attr="data-work=${p.id}" data-value="4"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                     <span class="star" th:attr="data-work=${p.id}" data-value="5"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                 </form>
-                <div class="note">Tap star to rate</div>
             </div>
 
             <div class="note" th:if="${userRatings[p.id] != null}">Your Rating: <span th:text="${userRatings[p.id]}">0</span>/5</div>
@@ -260,6 +294,55 @@ document.querySelectorAll('.star').forEach(star => {
         if (form) form.submit();
     });
 });
+
+const wardSelect = document.getElementById('filterWard');
+const zoneSelect = document.getElementById('filterZone');
+const allSelect = document.getElementById('filterAll');
+const posts = Array.from(document.querySelectorAll('.post'));
+
+function buildFilters() {
+    const wards = new Set();
+    const zones = new Set();
+    posts.forEach(p => {
+        const w = p.getAttribute('data-ward');
+        const z = p.getAttribute('data-zone');
+        if (w) wards.add(w);
+        if (z) zones.add(z);
+    });
+    Array.from(wards).sort((a,b) => Number(a) - Number(b)).forEach(w => {
+        const opt = document.createElement('option');
+        opt.value = w;
+        opt.textContent = w;
+        wardSelect.appendChild(opt);
+    });
+    Array.from(zones).sort().forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z;
+        opt.textContent = z;
+        zoneSelect.appendChild(opt);
+    });
+}
+
+function applyFilters() {
+    const ward = wardSelect.value;
+    const zone = zoneSelect.value;
+    posts.forEach(p => {
+        const matchWard = ward === 'all' || p.getAttribute('data-ward') === ward;
+        const matchZone = zone === 'all' || p.getAttribute('data-zone') === zone;
+        p.style.display = (matchWard && matchZone) ? '' : 'none';
+    });
+}
+
+if (wardSelect && zoneSelect && allSelect) {
+    buildFilters();
+    wardSelect.addEventListener('change', applyFilters);
+    zoneSelect.addEventListener('change', applyFilters);
+    allSelect.addEventListener('change', () => {
+        wardSelect.value = 'all';
+        zoneSelect.value = 'all';
+        applyFilters();
+    });
+}
 </script>
 </body>
 </html>

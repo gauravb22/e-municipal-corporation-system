@@ -71,6 +71,9 @@ body{
 }
 .rating-stars{color:#f6b100;font-size:16px;letter-spacing:2px;}
 .note{font-size:12px;color:#5b6a62;margin-top:6px;}
+.summary-list{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+.summary-item{display:flex;justify-content:space-between;font-size:13px;color:#2f3a35;}
+.summary-item strong{color:#0f3d2e;}
 .member-card{
     display:flex;
     align-items:center;
@@ -146,6 +149,28 @@ body{
                 </div>
                 <div class="note">Score from 1.0 to 5.0</div>
             </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">My Work Summary</div>
+            <div class="summary-list">
+                <div class="summary-item">
+                    <span>Assigned Today</span>
+                    <strong th:text="${assignedToday != null ? assignedToday : 8}">8</strong>
+                </div>
+                <div class="summary-item">
+                    <span>In Progress</span>
+                    <strong th:text="${inProgressCount != null ? inProgressCount : 3}">3</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Completed Today</span>
+                    <strong th:text="${completedToday != null ? completedToday : 5}">5</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Pending</span>
+                    <strong th:text="${pendingSummaryCount != null ? pendingSummaryCount : 2}">2</strong>
+                </div>
+            </div>
+            <div class="note">Ward workload snapshot</div>
         </div>
     </div>
 
