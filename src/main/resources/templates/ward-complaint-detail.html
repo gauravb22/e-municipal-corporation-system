@@ -15,9 +15,12 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .card{background:white;border-radius:14px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
 .title{font-size:20px;font-weight:700;color:#123a2b;}
 .badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:12px;font-weight:600;margin-left:8px;}
-.badge.pending{background:#fff1d6;color:#9a6b10;}
+.badge.submitted{background:#fff1d6;color:#9a6b10;}
+.badge.assigned{background:#e8f0ff;color:#1e3c72;}
 .badge.approved{background:#e8f7ee;color:#1f6f4a;}
-.badge.solved{background:#e6f4ff;color:#155a8a;}
+.badge.in-progress{background:#e6f4ff;color:#155a8a;}
+.badge.completed{background:#d4edda;color:#155724;}
+.badge.verified{background:#e3fcec;color:#1f6f4a;}
 .badge.repeated{background:#fbe9e7;color:#b23a1b;}
 .badge.not-ward{background:#f1f3f5;color:#4b5563;}
 .badge.wrong{background:#fdecec;color:#b53838;}
@@ -31,8 +34,9 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .photo{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid #e5e7eb;}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
 .btn{border:none;border-radius:10px;padding:10px 12px;font-size:12px;cursor:pointer;font-weight:600;}
+.btn-assign{background:#1e3c72;color:white;}
 .btn-approve{background:#1f6f4a;color:white;}
-.btn-solved{background:#155a8a;color:white;}
+.btn-progress{background:#155a8a;color:white;}
 .btn-repeated{background:#b23a1b;color:white;}
 .btn-notward{background:#4b5563;color:white;}
 .btn-wrong{background:#b53838;color:white;}
@@ -56,9 +60,12 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
     <div class="card">
         <div class="title">
             <span th:text="${complaint.complaintType}">Complaint</span>
-            <span class="badge pending" th:if="${complaint.status == 'pending'}">PENDING</span>
+            <span class="badge submitted" th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}">SUBMITTED</span>
+            <span class="badge assigned" th:if="${complaint.status == 'assigned'}">ASSIGNED</span>
             <span class="badge approved" th:if="${complaint.status == 'approved'}">APPROVED</span>
-            <span class="badge solved" th:if="${complaint.status == 'solved'}">SOLVED</span>
+            <span class="badge in-progress" th:if="${complaint.status == 'in_progress'}">IN PROGRESS</span>
+            <span class="badge completed" th:if="${complaint.status == 'completed' || complaint.status == 'solved'}">COMPLETED</span>
+            <span class="badge verified" th:if="${complaint.status == 'verified'}">VERIFIED</span>
             <span class="badge repeated" th:if="${complaint.status == 'repeated'}">REPEATED</span>
             <span class="badge not-ward" th:if="${complaint.status == 'not_ward'}">NOT OUR WARD</span>
             <span class="badge wrong" th:if="${complaint.status == 'wrong'}">WRONG</span>
@@ -109,14 +116,25 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 
         <img th:if="${complaint.photoBase64 != null}" th:src="${complaint.photoBase64}" class="photo" alt="Complaint photo">
 
-        <div class="actions" th:if="${complaint.status != 'approved' and complaint.status != 'solved'}">
+        <div class="actions" th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}">
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="assigned">
+                <button class="btn btn-assign" type="submit">Assign to Ward</button>
+            </form>
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="not_ward">
+                <button class="btn btn-notward" type="submit">Not Our Ward</button>
+            </form>
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="wrong">
+                <button class="btn btn-wrong" type="submit">Wrong</button>
+            </form>
+        </div>
+
+        <div class="actions" th:if="${complaint.status == 'assigned'}">
             <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
                 <input type="hidden" name="status" value="approved">
                 <button class="btn btn-approve" type="submit">Approve</button>
-            </form>
-            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
-                <input type="hidden" name="status" value="solved">
-                <button class="btn btn-solved" type="submit">Already Done</button>
             </form>
             <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
                 <input type="hidden" name="status" value="repeated">
@@ -133,11 +151,18 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
         </div>
 
         <div class="actions" th:if="${complaint.status == 'approved'}">
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
+                <input type="hidden" name="status" value="in_progress">
+                <button class="btn btn-progress" type="submit">Start Work</button>
+            </form>
+        </div>
+
+        <div class="actions" th:if="${complaint.status == 'in_progress'}">
             <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/complete'" id="completeForm">
                 <div class="item" style="width:100%;">
                     <div class="label">Completion Photo (Required)</div>
                     <div style="margin-top:8px;">
-                        <button class="btn btn-solved" type="button" onclick="captureDonePhoto()">Capture Photo</button>
+                        <button class="btn btn-progress" type="button" onclick="captureDonePhoto()">Capture Photo</button>
                     </div>
                     <img id="donePhotoPreview" class="photo" style="display:none;" alt="Completed work photo">
                     <div class="notice" id="donePhotoCapturedMsg" style="display:none;">Photo captured with timestamp and location.</div>
@@ -148,11 +173,11 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
                     <input type="hidden" id="donePhotoLongitude" name="donePhotoLongitude">
                     <input type="hidden" id="donePhotoBase64" name="donePhotoBase64">
                 </div>
-                <button class="btn btn-solved" type="submit" id="markDoneBtn" style="margin-top:10px;" disabled>Mark as Done</button>
+                <button class="btn btn-progress" type="submit" id="markDoneBtn" style="margin-top:10px;" disabled>Mark as Completed</button>
             </form>
         </div>
 
-        <div class="notice" th:if="${complaint.status == 'solved'}">This complaint is already completed.</div>
+        <div class="notice" th:if="${complaint.status == 'completed' || complaint.status == 'verified' || complaint.status == 'solved'}">This complaint is completed.</div>
     </div>
 </div>
 

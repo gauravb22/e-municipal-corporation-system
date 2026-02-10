@@ -208,7 +208,7 @@ public class AuthController {
 
         List<Complaint> pendingFeedback = complaintRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
                 .stream()
-                .filter(c -> "solved".equalsIgnoreCase(c.getStatus()))
+                .filter(c -> "completed".equalsIgnoreCase(c.getStatus()) || "solved".equalsIgnoreCase(c.getStatus()))
                 .filter(c -> c.getFeedbackSubmitted() == null || !c.getFeedbackSubmitted())
                 .collect(Collectors.toList());
         model.addAttribute("pendingFeedback", pendingFeedback);

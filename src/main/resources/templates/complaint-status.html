@@ -101,9 +101,19 @@
             text-transform: uppercase;
         }
 
-        .status-pending {
+        .status-submitted {
             background-color: #fff3cd;
             color: #856404;
+        }
+
+        .status-assigned {
+            background-color: #e8f0ff;
+            color: #1e3c72;
+        }
+
+        .status-in-progress {
+            background-color: #e6f4ff;
+            color: #155a8a;
         }
 
         .status-escalated {
@@ -111,9 +121,13 @@
             color: #721c24;
         }
 
-        .status-solved {
+        .status-completed {
             background-color: #d4edda;
             color: #155724;
+        }
+        .status-verified{
+            background:#e3fcec;
+            color:#1f6f4a;
         }
         .status-approved{
             background:#e8f7ee;
@@ -366,8 +380,8 @@
                         <span th:text="${complaint.complaintType}"></span>
                     </div>
                     <span class="status-badge" 
-                          th:classappend="${complaint.status == 'pending' ? 'status-pending' : (complaint.status == 'escalated' ? 'status-escalated' : (complaint.status == 'approved' ? 'status-approved' : (complaint.status == 'repeated' ? 'status-repeated' : (complaint.status == 'not_ward' ? 'status-not-ward' : (complaint.status == 'wrong' ? 'status-wrong' : 'status-solved')))))}"
-                          th:text="${complaint.status.toUpperCase()}"></span>
+                          th:classappend="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'status-submitted' : (complaint.status == 'assigned' ? 'status-assigned' : (complaint.status == 'approved' ? 'status-approved' : (complaint.status == 'in_progress' ? 'status-in-progress' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'status-completed' : (complaint.status == 'verified' ? 'status-verified' : (complaint.status == 'escalated' ? 'status-escalated' : (complaint.status == 'repeated' ? 'status-repeated' : (complaint.status == 'not_ward' ? 'status-not-ward' : (complaint.status == 'wrong' ? 'status-wrong' : 'status-completed')))))))))}"
+                          th:text="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'SUBMITTED' : (complaint.status == 'assigned' ? 'ASSIGNED TO WARD' : (complaint.status == 'approved' ? 'APPROVED' : (complaint.status == 'in_progress' ? 'IN PROGRESS' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'COMPLETED' : (complaint.status == 'verified' ? 'VERIFIED' : complaint.status.toUpperCase())))))}"></span>
                 </div>
 
                 <!-- Complaint Details Grid -->
@@ -425,12 +439,12 @@
                 </div>
 
                 <!-- Time Remaining for Escalation (only for pending) -->
-                <div th:if="${complaint.status == 'pending'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
+                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
                     <i class="fa-regular fa-clock" aria-hidden="true"></i> Time remaining: <span th:text="${complaintService.getTimeRemaining(complaint)}"></span>
                 </div>
 
                 <!-- Escalation Button (for pending complaints over 72 hours) -->
-                <div th:if="${complaint.status == 'pending'}" style="margin-top: 15px;">
+                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}" style="margin-top: 15px;">
                     <form method="POST" th:action="'/escalate-complaint/' + ${complaint.id}" style="display: inline;">
                         <button type="submit" class="escalation-btn" th:if="${complaintService.isPendingFor72Hours(complaint)}">
                             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Escalate - 72+ Hours Pending
@@ -438,8 +452,8 @@
                     </form>
                 </div>
 
-                <!-- Feedback Section (for solved complaints) -->
-                <div th:if="${complaint.status == 'solved'}" class="feedback-section">
+                <!-- Feedback Section (for completed complaints) -->
+                <div th:if="${complaint.status == 'completed' || complaint.status == 'verified' || complaint.status == 'solved'}" class="feedback-section">
                     <h4><i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Complaint Feedback</h4>
 
                     <!-- If feedback already submitted -->

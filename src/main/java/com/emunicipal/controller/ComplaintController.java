@@ -212,7 +212,7 @@ public class ComplaintController {
 
         for (Complaint c : complaints) {
             String status = c.getStatus() == null ? "" : c.getStatus();
-            if ("solved".equalsIgnoreCase(status)) {
+            if ("completed".equalsIgnoreCase(status) || "verified".equalsIgnoreCase(status) || "solved".equalsIgnoreCase(status)) {
                 completedComplaints.add(c);
                 continue;
             }
@@ -220,7 +220,7 @@ public class ComplaintController {
             LocalDateTime created = c.getCreatedAt();
             if ("approved".equalsIgnoreCase(status)) {
                 approvedComplaints.add(c);
-            } else if ("pending".equalsIgnoreCase(status) && created != null && created.isAfter(cutoff)) {
+            } else if (("submitted".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) && created != null && created.isAfter(cutoff)) {
                 newComplaints.add(c);
             } else {
                 pendingComplaints.add(c);
@@ -307,8 +307,9 @@ public class ComplaintController {
             if (wardNo.equals(c.getWardNo())) {
                 String normalized = status == null ? "" : status.trim().toLowerCase();
                 switch (normalized) {
+                    case "assigned":
                     case "approved":
-                    case "solved":
+                    case "in_progress":
                     case "repeated":
                     case "not_ward":
                     case "wrong":
@@ -361,13 +362,14 @@ public class ComplaintController {
                 : "0";
 
         complaintRepository.findById(complaintId).ifPresent(c -> {
-            if (wardNo.equals(c.getWardNo()) && "approved".equalsIgnoreCase(c.getStatus())) {
+            if (wardNo.equals(c.getWardNo()) &&
+                    ("approved".equalsIgnoreCase(c.getStatus()) || "in_progress".equalsIgnoreCase(c.getStatus()))) {
                 c.setDonePhotoTimestamp(resolvedDonePhotoTimestamp);
                 c.setDonePhotoLocation(resolvedDonePhotoLocation);
                 c.setDonePhotoLatitude(resolvedDonePhotoLatitude);
                 c.setDonePhotoLongitude(resolvedDonePhotoLongitude);
                 c.setDonePhotoBase64(donePhotoBase64);
-                c.setStatus("solved");
+                c.setStatus("completed");
                 c.setUpdatedAt(LocalDateTime.now());
                 complaintRepository.save(c);
             }
@@ -396,7 +398,7 @@ public class ComplaintController {
             LocalDateTime created = c.getCreatedAt();
 
             if ("new".equals(type)) {
-                if ("pending".equalsIgnoreCase(status) && created != null && created.isAfter(cutoff)) {
+                if (("submitted".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) && created != null && created.isAfter(cutoff)) {
                     result.add(c);
                 }
             } else if ("approved".equals(type)) {
@@ -404,13 +406,15 @@ public class ComplaintController {
                     result.add(c);
                 }
             } else if ("completed".equals(type)) {
-                if ("solved".equalsIgnoreCase(status)) {
+                if ("completed".equalsIgnoreCase(status) || "verified".equalsIgnoreCase(status) || "solved".equalsIgnoreCase(status)) {
                     result.add(c);
                 }
             } else {
-                if (!"solved".equalsIgnoreCase(status) &&
+                if (!"completed".equalsIgnoreCase(status) &&
+                        !"verified".equalsIgnoreCase(status) &&
+                        !"solved".equalsIgnoreCase(status) &&
                         !"approved".equalsIgnoreCase(status) &&
-                        !("pending".equalsIgnoreCase(status) && created != null && created.isAfter(cutoff))) {
+                        !(("submitted".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) && created != null && created.isAfter(cutoff))) {
                     result.add(c);
                 }
             }

@@ -73,8 +73,12 @@ public class StaffAuthController {
             int year = Year.now().getValue();
             LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0);
             LocalDateTime end = LocalDateTime.of(year, 12, 31, 23, 59, 59);
-            long worksCompletedThisYear = complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "solved", start, end);
-            long pendingWorksCount = complaintRepository.countByWardNoAndStatusIn(wardNo, List.of("pending", "approved"));
+            long worksCompletedThisYear =
+                    complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "completed", start, end)
+                    + complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "verified", start, end)
+                    + complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "solved", start, end);
+            long pendingWorksCount = complaintRepository.countByWardNoAndStatusIn(
+                    wardNo, List.of("submitted", "assigned", "approved", "in_progress", "pending"));
             Double avgRating = complaintRepository.getAverageRatingByWard(wardNo);
 
             model.addAttribute("worksCompletedThisYear", worksCompletedThisYear);

@@ -16,7 +16,9 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
 .complaint-card{background:white;border-radius:14px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
 .badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:12px;font-weight:600;margin-left:6px;}
-.badge.pending{background:#fff1d6;color:#9a6b10;}
+.badge.submitted{background:#fff1d6;color:#9a6b10;}
+.badge.assigned{background:#e8f0ff;color:#1e3c72;}
+.badge.in-progress{background:#e6f4ff;color:#155a8a;}
 .badge.repeated{background:#fbe9e7;color:#b23a1b;}
 .badge.not-ward{background:#f1f3f5;color:#4b5563;}
 .badge.wrong{background:#fdecec;color:#b53838;}
@@ -46,7 +48,9 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
         <div class="complaint-card" th:each="c : ${complaints}">
             <div>
                 <strong th:text="${c.complaintType}">Type</strong>
-                <span class="badge pending" th:if="${c.status == 'pending'}">PENDING</span>
+                <span class="badge submitted" th:if="${c.status == 'submitted' || c.status == 'pending'}">SUBMITTED</span>
+                <span class="badge assigned" th:if="${c.status == 'assigned'}">ASSIGNED</span>
+                <span class="badge in-progress" th:if="${c.status == 'in_progress'}">IN PROGRESS</span>
                 <span class="badge repeated" th:if="${c.status == 'repeated'}">REPEATED</span>
                 <span class="badge not-ward" th:if="${c.status == 'not_ward'}">NOT OUR WARD</span>
                 <span class="badge wrong" th:if="${c.status == 'wrong'}">WRONG</span>

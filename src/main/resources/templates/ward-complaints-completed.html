@@ -16,6 +16,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
 .complaint-card{background:white;border-radius:14px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
 .badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:12px;font-weight:600;background:#e6f4ff;color:#155a8a;margin-left:6px;}
+.badge.verified{background:#e3fcec;color:#1f6f4a;}
 .meta{font-size:12px;color:#666;margin-top:6px;}
 .meta a{color:#1f6f4a;text-decoration:none;}
 .meta a:hover{text-decoration:underline;}
@@ -40,7 +41,11 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
     <div class="section-title">Completed Complaints</div>
     <div class="list" th:if="${!complaints.isEmpty()}">
         <div class="complaint-card" th:each="c : ${complaints}">
-            <div><strong th:text="${c.complaintType}">Type</strong> <span class="badge">SOLVED</span></div>
+            <div>
+                <strong th:text="${c.complaintType}">Type</strong>
+                <span class="badge" th:if="${c.status == 'completed' || c.status == 'solved'}">COMPLETED</span>
+                <span class="badge verified" th:if="${c.status == 'verified'}">VERIFIED</span>
+            </div>
             <div class="meta">
                 <a th:href="'https://www.google.com/maps?q=' + ${c.photoLatitude} + ',' + ${c.photoLongitude}"
                    target="_blank" rel="noopener"

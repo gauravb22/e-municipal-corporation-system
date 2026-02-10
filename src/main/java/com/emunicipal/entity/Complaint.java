@@ -63,7 +63,7 @@ public class Complaint {
     private String donePhotoBase64;
 
     @Column(name = "status", nullable = false)
-    private String status; // pending, solved, escalated, approved, repeated, not_ward
+    private String status; // submitted, assigned, approved, in_progress, completed, verified, escalated, repeated, not_ward, wrong
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -105,7 +105,7 @@ public class Complaint {
         this.photoLatitude = photoLatitude;
         this.photoLongitude = photoLongitude;
         this.photoBase64 = photoBase64;
-        this.status = "pending";
+        this.status = "submitted";
         this.createdAt = LocalDateTime.now();
         this.feedbackSubmitted = false;
     }

@@ -17,7 +17,7 @@ public class ComplaintService {
     // Save a new complaint
     public Complaint saveComplaint(Complaint complaint) {
         complaint.setCreatedAt(LocalDateTime.now());
-        complaint.setStatus("pending");
+        complaint.setStatus("submitted");
         complaint.setFeedbackSubmitted(false);
         return complaintRepository.save(complaint);
     }
@@ -34,7 +34,8 @@ public class ComplaintService {
 
     // Check if complaint is pending for more than 72 hours
     public boolean isPendingFor72Hours(Complaint complaint) {
-        if (!"pending".equals(complaint.getStatus())) {
+        String status = complaint.getStatus() == null ? "" : complaint.getStatus().toLowerCase();
+        if (!"submitted".equals(status) && !"pending".equals(status)) {
             return false;
         }
         LocalDateTime createdTime = complaint.getCreatedAt();
@@ -85,10 +86,13 @@ public class ComplaintService {
             complaint.setFeedbackSubmitted(true);
             complaint.setFeedbackSubmittedAt(LocalDateTime.now());
             
-            // If user confirms it's solved, mark status as solved
+            // If user confirms it's solved, mark as verified
             if (solved) {
-                complaint.setStatus("solved");
+                complaint.setStatus("verified");
+            } else {
+                complaint.setStatus("completed");
             }
+            complaint.setUpdatedAt(LocalDateTime.now());
             
             return complaintRepository.save(complaint);
         }
@@ -100,7 +104,7 @@ public class ComplaintService {
         Optional<Complaint> complaintOpt = complaintRepository.findById(complaintId);
         if (complaintOpt.isPresent()) {
             Complaint complaint = complaintOpt.get();
-            complaint.setStatus("solved");
+            complaint.setStatus("completed");
             complaint.setUpdatedAt(LocalDateTime.now());
             return complaintRepository.save(complaint);
         }

@@ -368,12 +368,12 @@ body{
 
     <div class="card" th:if="${pendingFeedback != null && !pendingFeedback.isEmpty()}">
         <p style="margin:0 0 10px;color:#1e3c72;font-weight:600;">
-            Please submit feedback for solved complaints.
+            Please submit feedback for completed complaints.
         </p>
         <div th:each="c : ${pendingFeedback}" style="padding:10px;border:1px solid #e7e7e7;border-radius:12px;margin-bottom:10px;">
             <div style="font-weight:700;color:#0f2442;" th:text="${c.complaintType}">Complaint Type</div>
             <div style="color:#5c6674;font-size:13px;margin-top:4px;">
-                Solved on
+                Completed on
                 <span th:text="${c.updatedAt != null ? #temporals.format(c.updatedAt, 'dd-MMM-yyyy HH:mm') : #temporals.format(c.createdAt, 'dd-MMM-yyyy HH:mm')}"></span>
             </div>
             <a href="/complaint-status" style="display:inline-block;margin-top:8px;background:#1e3c72;color:white;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;">

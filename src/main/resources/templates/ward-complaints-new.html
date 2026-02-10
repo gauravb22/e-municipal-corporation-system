@@ -52,7 +52,7 @@ body{
     <div class="section-title">New Complaints (Last 24 Hours)</div>
     <div class="list" th:if="${!complaints.isEmpty()}">
         <div class="complaint-card" th:each="c : ${complaints}">
-            <div><strong th:text="${c.complaintType}">Type</strong> <span class="badge">NEW</span></div>
+            <div><strong th:text="${c.complaintType}">Type</strong> <span class="badge">SUBMITTED</span></div>
             <div class="meta">
                 <a th:href="'https://www.google.com/maps?q=' + ${c.photoLatitude} + ',' + ${c.photoLongitude}"
                    target="_blank" rel="noopener"
