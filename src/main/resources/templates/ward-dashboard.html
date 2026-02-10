@@ -64,11 +64,12 @@ body{
 .stat-value{font-size:26px;font-weight:700;color:#1f6f4a;margin-top:6px;}
 .rating{
     display:flex;
-    align-items:center;
-    gap:8px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
     margin-top:6px;
 }
-.rating-stars{color:#f6b100;font-size:18px;}
+.rating-stars{color:#f6b100;font-size:16px;letter-spacing:2px;}
 .note{font-size:12px;color:#5b6a62;margin-top:6px;}
 .member-card{
     display:flex;
@@ -86,6 +87,15 @@ body{
 }
 .member-name{font-weight:700;color:#0e2f22;}
 .member-meta{font-size:13px;color:#3c4a44;margin-top:4px;}
+.footer{
+    margin-top:32px;
+    background:#0f2f22;
+    color:#dfe8e3;
+    padding:18px 16px;
+    text-align:center;
+    font-size:13px;
+}
+.footer strong{color:#ffffff;}
 </style>
 </head>
 <body>
@@ -158,5 +168,9 @@ body{
         </div>
     </div>
 </div>
+
+<footer class="footer">
+    <strong>Akola Municipal Corporation</strong> | Ward Member Portal
+</footer>
 </body>
 </html>
