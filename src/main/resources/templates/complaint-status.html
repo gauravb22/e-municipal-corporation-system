@@ -412,7 +412,7 @@
                 </div>
 
                 <!-- Photo Section -->
-                <div th:if="${complaint.photoBase64 != null}" class="photos-section">
+                <div th:if="${complaint.photoPath != null || complaint.photoBase64 != null}" class="photos-section">
                     <h4><i class="fa-solid fa-camera" aria-hidden="true"></i> Complaint Photo</h4>
                     <p style="font-size: 12px; color: #666; margin: 8px 0;">
                         <strong>Captured:</strong> <span th:text="${complaint.photoTimestamp}"></span>
@@ -420,11 +420,11 @@
                     <p style="font-size: 12px; color: #666; margin: 8px 0;">
                         <strong>Location:</strong> <span th:text="${complaint.photoLocation}"></span>
                     </p>
-                    <img th:src="${complaint.photoBase64}" alt="Complaint photo" class="complaint-photo">
+                    <img th:src="${complaint.photoPath != null ? complaint.photoPath : complaint.photoBase64}" alt="Complaint photo" class="complaint-photo">
                 </div>
 
                 <!-- Work Completed Photo (from ward member) -->
-                <div th:if="${complaint.donePhotoBase64 != null}" class="photos-section">
+                <div th:if="${complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}" class="photos-section">
                     <h4><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Work Completed Photo</h4>
                     <p style="font-size: 12px; color: #666; margin: 8px 0;">
                         <strong>Captured:</strong> <span th:text="${complaint.donePhotoTimestamp}"></span>
@@ -435,7 +435,7 @@
                            target="_blank" rel="noopener"
                            th:text="${complaint.donePhotoLocation}">Open Map</a>
                     </p>
-                    <img th:src="${complaint.donePhotoBase64}" alt="Completed work photo" class="complaint-photo">
+                    <img th:src="${complaint.donePhotoPath != null ? complaint.donePhotoPath : complaint.donePhotoBase64}" alt="Completed work photo" class="complaint-photo">
                 </div>
 
                 <!-- Time Remaining for Escalation (only for pending) -->

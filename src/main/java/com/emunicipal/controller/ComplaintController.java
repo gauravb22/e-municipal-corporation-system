@@ -9,6 +9,7 @@ import com.emunicipal.entity.User;
 import com.emunicipal.entity.Complaint;
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.service.ComplaintService;
+import com.emunicipal.service.UploadStorageService;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.LinkedHashMap;
+
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class ComplaintController {
@@ -29,6 +32,9 @@ public class ComplaintController {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+
+    @Autowired
+    private UploadStorageService uploadStorageService;
 
     @GetMapping("/raise-complaint")
     public String raiseComplaint(HttpSession session, Model model) {
@@ -116,7 +122,18 @@ public class ComplaintController {
         complaint.setWardNo(resolvedWardNo);
         complaint.setWardZone(resolvedWardZone);
         
-        complaintService.saveComplaint(complaint);
+        Complaint saved = complaintService.saveComplaint(complaint);
+        if (photoBase64 != null && !photoBase64.isBlank() && saved.getId() != null) {
+            try {
+                String photoPath = uploadStorageService.storeComplaintPhotoFromDataUrl(saved.getId(), photoBase64);
+                saved.setPhotoPath(photoPath);
+                // Keep DB small: store the file path, not the base64 payload
+                saved.setPhotoBase64(null);
+                complaintRepository.save(saved);
+            } catch (Exception ex) {
+                System.out.println("Failed to store complaint photo for complaint " + saved.getId() + ": " + ex.getMessage());
+            }
+        }
         
         System.out.println("================== COMPLAINT SUBMITTED ==================");
         System.out.println("Complaint Type: " + type);
@@ -332,7 +349,7 @@ public class ComplaintController {
                                         @RequestParam(value = "donePhotoLocation", required = false) String donePhotoLocation,
                                         @RequestParam(value = "donePhotoLatitude", required = false) String donePhotoLatitude,
                                         @RequestParam(value = "donePhotoLongitude", required = false) String donePhotoLongitude,
-                                        @RequestParam("donePhotoBase64") String donePhotoBase64,
+                                        @RequestParam("donePhoto") MultipartFile donePhoto,
                                         HttpSession session) {
         StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
         if (staffUser == null || !"WARD".equalsIgnoreCase(staffUser.getRole())) {
@@ -344,7 +361,7 @@ public class ComplaintController {
             return "redirect:/ward-complaints";
         }
 
-        if (donePhotoBase64 == null || donePhotoBase64.isBlank()) {
+        if (donePhoto == null || donePhoto.isEmpty()) {
             return "redirect:/ward-complaints/" + complaintId;
         }
 
@@ -361,19 +378,36 @@ public class ComplaintController {
                 ? donePhotoLongitude
                 : "0";
 
-        complaintRepository.findById(complaintId).ifPresent(c -> {
-            if (wardNo.equals(c.getWardNo()) &&
-                    ("approved".equalsIgnoreCase(c.getStatus()) || "in_progress".equalsIgnoreCase(c.getStatus()))) {
-                c.setDonePhotoTimestamp(resolvedDonePhotoTimestamp);
-                c.setDonePhotoLocation(resolvedDonePhotoLocation);
-                c.setDonePhotoLatitude(resolvedDonePhotoLatitude);
-                c.setDonePhotoLongitude(resolvedDonePhotoLongitude);
-                c.setDonePhotoBase64(donePhotoBase64);
-                c.setStatus("completed");
-                c.setUpdatedAt(LocalDateTime.now());
-                complaintRepository.save(c);
-            }
-        });
+        Complaint complaint = complaintRepository.findById(complaintId).orElse(null);
+        if (complaint == null) {
+            return "redirect:/ward-complaints";
+        }
+
+        if (!wardNo.equals(complaint.getWardNo())) {
+            return "redirect:/ward-complaints";
+        }
+
+        if (!("approved".equalsIgnoreCase(complaint.getStatus()) || "in_progress".equalsIgnoreCase(complaint.getStatus()))) {
+            return "redirect:/ward-complaints/" + complaintId;
+        }
+
+        String donePhotoPath;
+        try {
+            donePhotoPath = uploadStorageService.storeComplaintDonePhoto(complaintId, donePhoto);
+        } catch (Exception ex) {
+            System.out.println("Failed to store completion photo for complaint " + complaintId + ": " + ex.getMessage());
+            return "redirect:/ward-complaints/" + complaintId;
+        }
+
+        complaint.setDonePhotoTimestamp(resolvedDonePhotoTimestamp);
+        complaint.setDonePhotoLocation(resolvedDonePhotoLocation);
+        complaint.setDonePhotoLatitude(resolvedDonePhotoLatitude);
+        complaint.setDonePhotoLongitude(resolvedDonePhotoLongitude);
+        complaint.setDonePhotoPath(donePhotoPath);
+        complaint.setDonePhotoBase64(null);
+        complaint.setStatus("completed");
+        complaint.setUpdatedAt(LocalDateTime.now());
+        complaintRepository.save(complaint);
 
         return "redirect:/ward-complaints/" + complaintId;
     }

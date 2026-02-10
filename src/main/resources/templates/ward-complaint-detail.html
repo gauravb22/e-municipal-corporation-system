@@ -114,7 +114,16 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
             <strong>Details:</strong> <span th:text="${complaint.description}"></span>
         </div>
 
-        <img th:if="${complaint.photoBase64 != null}" th:src="${complaint.photoBase64}" class="photo" alt="Complaint photo">
+        <div class="grid" style="margin-top:12px;" th:if="${complaint.photoPath != null || complaint.photoBase64 != null || complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}">
+            <div class="item" th:if="${complaint.photoPath != null || complaint.photoBase64 != null}">
+                <div class="label">Before Photo</div>
+                <img th:src="${complaint.photoPath != null ? complaint.photoPath : complaint.photoBase64}" class="photo" alt="Complaint photo">
+            </div>
+            <div class="item" th:if="${complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}">
+                <div class="label">After Photo</div>
+                <img th:src="${complaint.donePhotoPath != null ? complaint.donePhotoPath : complaint.donePhotoBase64}" class="photo" alt="Completion photo">
+            </div>
+        </div>
 
         <div class="actions" th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}">
             <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
@@ -158,7 +167,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
         </div>
 
         <div class="actions" th:if="${complaint.status == 'in_progress'}">
-            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/complete'" id="completeForm">
+            <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/complete'" id="completeForm" enctype="multipart/form-data">
                 <div class="item" style="width:100%;">
                     <div class="label">Completion Photo (Required)</div>
                     <div style="margin-top:8px;">
@@ -166,12 +175,11 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
                     </div>
                     <img id="donePhotoPreview" class="photo" style="display:none;" alt="Completed work photo">
                     <div class="notice" id="donePhotoCapturedMsg" style="display:none;">Photo captured with timestamp and location.</div>
-                    <input type="file" id="donePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleDonePhotoCapture(event)">
+                    <input type="file" id="donePhotoInput" name="donePhoto" accept="image/*" capture="environment" style="display:none;" onchange="handleDonePhotoCapture(event)">
                     <input type="hidden" id="donePhotoTimestamp" name="donePhotoTimestamp">
                     <input type="hidden" id="donePhotoLocation" name="donePhotoLocation">
                     <input type="hidden" id="donePhotoLatitude" name="donePhotoLatitude">
                     <input type="hidden" id="donePhotoLongitude" name="donePhotoLongitude">
-                    <input type="hidden" id="donePhotoBase64" name="donePhotoBase64">
                 </div>
                 <button class="btn btn-progress" type="submit" id="markDoneBtn" style="margin-top:10px;" disabled>Mark as Completed</button>
             </form>
@@ -192,16 +200,11 @@ function handleDonePhotoCapture(event) {
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('donePhotoPreview');
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        document.getElementById('donePhotoCapturedMsg').style.display = 'block';
-        document.getElementById('donePhotoBase64').value = e.target.result;
-        document.getElementById('markDoneBtn').disabled = false;
-    };
-    reader.readAsDataURL(file);
+    const preview = document.getElementById('donePhotoPreview');
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+    document.getElementById('donePhotoCapturedMsg').style.display = 'block';
+    document.getElementById('markDoneBtn').disabled = false;
 
     const now = new Date();
     document.getElementById('donePhotoTimestamp').value = now.toISOString();
@@ -227,7 +230,8 @@ function handleDonePhotoCapture(event) {
 const completeForm = document.getElementById('completeForm');
 if (completeForm) {
     completeForm.addEventListener('submit', function(e) {
-        if (!document.getElementById('donePhotoBase64').value) {
+        const input = document.getElementById('donePhotoInput');
+        if (!input || !input.files || input.files.length === 0) {
             e.preventDefault();
             alert('Please capture a completion photo before marking as done.');
         }

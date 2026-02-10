@@ -47,6 +47,9 @@ public class Complaint {
     @Column(name = "photo_base64", columnDefinition = "CLOB")
     private String photoBase64;
 
+    @Column(name = "photo_path", length = 500)
+    private String photoPath;
+
     @Column(name = "done_photo_timestamp")
     private String donePhotoTimestamp;
 
@@ -61,6 +64,9 @@ public class Complaint {
 
     @Column(name = "done_photo_base64", columnDefinition = "CLOB")
     private String donePhotoBase64;
+
+    @Column(name = "done_photo_path", length = 500)
+    private String donePhotoPath;
 
     @Column(name = "status", nullable = false)
     private String status; // submitted, assigned, approved, in_progress, completed, verified, escalated, repeated, not_ward, wrong
@@ -215,6 +221,14 @@ public class Complaint {
         this.photoBase64 = photoBase64;
     }
 
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
+    }
+
     public String getDonePhotoTimestamp() {
         return donePhotoTimestamp;
     }
@@ -253,6 +267,14 @@ public class Complaint {
 
     public void setDonePhotoBase64(String donePhotoBase64) {
         this.donePhotoBase64 = donePhotoBase64;
+    }
+
+    public String getDonePhotoPath() {
+        return donePhotoPath;
+    }
+
+    public void setDonePhotoPath(String donePhotoPath) {
+        this.donePhotoPath = donePhotoPath;
     }
 
     public String getStatus() {
