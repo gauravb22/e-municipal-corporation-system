@@ -29,6 +29,9 @@ public class Complaint {
     @Column(name = "ward_zone", length = 5)
     private String wardZone;
 
+    @Column(name = "ward_id")
+    private Long wardId;
+
     @Column(name = "description", length = 1000)
     private String description;
 
@@ -171,6 +174,14 @@ public class Complaint {
 
     public void setWardZone(String wardZone) {
         this.wardZone = wardZone;
+    }
+
+    public Long getWardId() {
+        return wardId;
+    }
+
+    public void setWardId(Long wardId) {
+        this.wardId = wardId;
     }
 
     public String getDescription() {

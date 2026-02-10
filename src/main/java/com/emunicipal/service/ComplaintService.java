@@ -1,7 +1,11 @@
 package com.emunicipal.service;
 
 import com.emunicipal.entity.Complaint;
+import com.emunicipal.entity.ComplaintImage;
+import com.emunicipal.entity.ComplaintStatusHistory;
 import com.emunicipal.repository.ComplaintRepository;
+import com.emunicipal.repository.ComplaintImageRepository;
+import com.emunicipal.repository.ComplaintStatusHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -14,12 +18,20 @@ public class ComplaintService {
     @Autowired
     private ComplaintRepository complaintRepository;
 
+    @Autowired
+    private ComplaintStatusHistoryRepository statusHistoryRepository;
+
+    @Autowired
+    private ComplaintImageRepository complaintImageRepository;
+
     // Save a new complaint
     public Complaint saveComplaint(Complaint complaint) {
         complaint.setCreatedAt(LocalDateTime.now());
         complaint.setStatus("submitted");
         complaint.setFeedbackSubmitted(false);
-        return complaintRepository.save(complaint);
+        Complaint saved = complaintRepository.save(complaint);
+        recordStatusChange(saved.getId(), null, "submitted", "USER", saved.getUserId(), "Complaint submitted");
+        return saved;
     }
 
     // Get all complaints for a user
@@ -65,9 +77,12 @@ public class ComplaintService {
         Optional<Complaint> complaintOpt = complaintRepository.findById(complaintId);
         if (complaintOpt.isPresent()) {
             Complaint complaint = complaintOpt.get();
+            String oldStatus = complaint.getStatus();
             complaint.setStatus("escalated");
             complaint.setUpdatedAt(LocalDateTime.now());
-            return complaintRepository.save(complaint);
+            Complaint saved = complaintRepository.save(complaint);
+            recordStatusChange(saved.getId(), oldStatus, "escalated", "SYSTEM", null, "Escalated after 72 hours");
+            return saved;
         }
         return null;
     }
@@ -77,6 +92,7 @@ public class ComplaintService {
         Optional<Complaint> complaintOpt = complaintRepository.findById(complaintId);
         if (complaintOpt.isPresent()) {
             Complaint complaint = complaintOpt.get();
+            String oldStatus = complaint.getStatus();
             complaint.setFeedbackSolved(solved);
             complaint.setFeedbackDescription(description);
             complaint.setFeedbackRating(rating);
@@ -93,8 +109,9 @@ public class ComplaintService {
                 complaint.setStatus("completed");
             }
             complaint.setUpdatedAt(LocalDateTime.now());
-            
-            return complaintRepository.save(complaint);
+            Complaint saved = complaintRepository.save(complaint);
+            recordStatusChange(saved.getId(), oldStatus, saved.getStatus(), "USER", saved.getUserId(), "Feedback submitted");
+            return saved;
         }
         return null;
     }
@@ -104,10 +121,59 @@ public class ComplaintService {
         Optional<Complaint> complaintOpt = complaintRepository.findById(complaintId);
         if (complaintOpt.isPresent()) {
             Complaint complaint = complaintOpt.get();
+            String oldStatus = complaint.getStatus();
             complaint.setStatus("completed");
             complaint.setUpdatedAt(LocalDateTime.now());
-            return complaintRepository.save(complaint);
+            Complaint saved = complaintRepository.save(complaint);
+            recordStatusChange(saved.getId(), oldStatus, "completed", "SYSTEM", null, "Marked as solved");
+            return saved;
         }
         return null;
+    }
+
+    public void recordStatusChange(Long complaintId,
+                                   String oldStatus,
+                                   String newStatus,
+                                   String changedByType,
+                                   Long changedById,
+                                   String note) {
+        if (complaintId == null || newStatus == null) {
+            return;
+        }
+        ComplaintStatusHistory h = new ComplaintStatusHistory();
+        h.setComplaintId(complaintId);
+        h.setOldStatus(oldStatus);
+        h.setNewStatus(newStatus);
+        h.setChangedByType(changedByType);
+        h.setChangedById(changedById);
+        h.setNote(note);
+        h.setChangedAt(LocalDateTime.now());
+        statusHistoryRepository.save(h);
+    }
+
+    public void recordImage(Long complaintId,
+                            String imageType,
+                            String path,
+                            String photoTimestamp,
+                            String photoLocation,
+                            String photoLatitude,
+                            String photoLongitude,
+                            String uploadedByType,
+                            Long uploadedById) {
+        if (complaintId == null || path == null || imageType == null) {
+            return;
+        }
+        ComplaintImage img = new ComplaintImage();
+        img.setComplaintId(complaintId);
+        img.setImageType(imageType);
+        img.setPath(path);
+        img.setPhotoTimestamp(photoTimestamp);
+        img.setPhotoLocation(photoLocation);
+        img.setPhotoLatitude(photoLatitude);
+        img.setPhotoLongitude(photoLongitude);
+        img.setUploadedByType(uploadedByType);
+        img.setUploadedById(uploadedById);
+        img.setCreatedAt(LocalDateTime.now());
+        complaintImageRepository.save(img);
     }
 }

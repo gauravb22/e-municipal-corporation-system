@@ -10,6 +10,8 @@ import com.emunicipal.entity.Complaint;
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.service.ComplaintService;
 import com.emunicipal.service.UploadStorageService;
+import com.emunicipal.service.WardService;
+import com.emunicipal.entity.Ward;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +34,9 @@ public class ComplaintController {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+
+    @Autowired
+    private WardService wardService;
 
     @Autowired
     private UploadStorageService uploadStorageService;
@@ -121,6 +126,13 @@ public class ComplaintController {
 
         complaint.setWardNo(resolvedWardNo);
         complaint.setWardZone(resolvedWardZone);
+
+        Ward ward = wardService.resolveWard(resolvedWardNo, resolvedWardZone);
+        if (ward != null) {
+            complaint.setWardId(ward.getId());
+            complaint.setWardNo(ward.getWardNo());
+            complaint.setWardZone(ward.getWardZone());
+        }
         
         Complaint saved = complaintService.saveComplaint(complaint);
         if (photoBase64 != null && !photoBase64.isBlank() && saved.getId() != null) {
@@ -130,6 +142,17 @@ public class ComplaintController {
                 // Keep DB small: store the file path, not the base64 payload
                 saved.setPhotoBase64(null);
                 complaintRepository.save(saved);
+                complaintService.recordImage(
+                        saved.getId(),
+                        "BEFORE",
+                        photoPath,
+                        resolvedPhotoTimestamp,
+                        resolvedPhotoLocation,
+                        resolvedPhotoLatitude,
+                        resolvedPhotoLongitude,
+                        "USER",
+                        saved.getUserId()
+                );
             } catch (Exception ex) {
                 System.out.println("Failed to store complaint photo for complaint " + saved.getId() + ": " + ex.getMessage());
             }
@@ -330,9 +353,18 @@ public class ComplaintController {
                     case "repeated":
                     case "not_ward":
                     case "wrong":
+                        String oldStatus = c.getStatus();
                         c.setStatus(normalized);
                         c.setUpdatedAt(LocalDateTime.now());
                         complaintRepository.save(c);
+                        complaintService.recordStatusChange(
+                                c.getId(),
+                                oldStatus,
+                                normalized,
+                                "STAFF",
+                                staffUser.getId(),
+                                "Status updated"
+                        );
                         break;
                     default:
                         break;
@@ -399,6 +431,7 @@ public class ComplaintController {
             return "redirect:/ward-complaints/" + complaintId;
         }
 
+        String oldStatus = complaint.getStatus();
         complaint.setDonePhotoTimestamp(resolvedDonePhotoTimestamp);
         complaint.setDonePhotoLocation(resolvedDonePhotoLocation);
         complaint.setDonePhotoLatitude(resolvedDonePhotoLatitude);
@@ -408,6 +441,26 @@ public class ComplaintController {
         complaint.setStatus("completed");
         complaint.setUpdatedAt(LocalDateTime.now());
         complaintRepository.save(complaint);
+
+        complaintService.recordImage(
+                complaint.getId(),
+                "AFTER",
+                donePhotoPath,
+                resolvedDonePhotoTimestamp,
+                resolvedDonePhotoLocation,
+                resolvedDonePhotoLatitude,
+                resolvedDonePhotoLongitude,
+                "STAFF",
+                staffUser.getId()
+        );
+        complaintService.recordStatusChange(
+                complaint.getId(),
+                oldStatus,
+                "completed",
+                "STAFF",
+                staffUser.getId(),
+                "Work completed"
+        );
 
         return "redirect:/ward-complaints/" + complaintId;
     }

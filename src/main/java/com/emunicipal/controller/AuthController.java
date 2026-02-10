@@ -10,6 +10,8 @@ import com.emunicipal.entity.Complaint;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.service.SmsService;
+import com.emunicipal.service.WardService;
+import com.emunicipal.entity.Ward;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -30,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+
+    @Autowired
+    private WardService wardService;
 
     /*
     =====================================
@@ -166,6 +171,13 @@ public class AuthController {
             user.setEmail("user" + phone + "@municipal.local");
         }
 
+        Ward ward = wardService.resolveWard(user.getWardNo(), user.getWardZone());
+        if (ward != null) {
+            user.setWardId(ward.getId());
+            user.setWardNo(ward.getWardNo());
+            user.setWardZone(ward.getWardZone());
+        }
+
         User saved = userRepository.save(user);
 
         session.setAttribute("user", saved);
@@ -274,6 +286,15 @@ public class AuthController {
         user.setHouseNo(houseNo);
         user.setWardNo(wardNo);
         user.setWardZone(wardZone);
+
+        Ward ward = wardService.resolveWard(user.getWardNo(), user.getWardZone());
+        if (ward != null) {
+            user.setWardId(ward.getId());
+            user.setWardNo(ward.getWardNo());
+            user.setWardZone(ward.getWardZone());
+        } else {
+            user.setWardId(null);
+        }
 
         if (newPassword != null && !newPassword.isEmpty()) {
 
