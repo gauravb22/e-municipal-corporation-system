@@ -37,6 +37,12 @@ public class StaffAuthController {
         return "ward-login";
     }
 
+    @GetMapping("/admin-login")
+    public String adminLoginPage(HttpSession session) {
+        session.removeAttribute("user");
+        return "admin-login";
+    }
+
     @PostMapping("/ward-login")
     @ResponseBody
     public Map<String, Object> wardLogin(@RequestBody Map<String, String> request, HttpSession session) {
@@ -62,6 +68,33 @@ public class StaffAuthController {
         session.setAttribute("staffRole", staffUser.getRole());
 
         return Map.of("success", true, "redirect", "/ward-dashboard");
+    }
+
+    @PostMapping("/admin-login")
+    @ResponseBody
+    public Map<String, Object> adminLogin(@RequestBody Map<String, String> request, HttpSession session) {
+        String username = request.get("username");
+        String password = request.get("password");
+
+        if (username == null || password == null) {
+            return Map.of("success", false, "message", "Missing credentials");
+        }
+
+        StaffUser staffUser = staffUserRepository.findByUsername(username);
+
+        if (staffUser == null || !password.equals(staffUser.getPassword())) {
+            return Map.of("success", false, "message", "Invalid username or password");
+        }
+
+        if (!"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return Map.of("success", false, "message", "Not an administration account");
+        }
+
+        session.removeAttribute("user");
+        session.setAttribute("staffUser", staffUser);
+        session.setAttribute("staffRole", staffUser.getRole());
+
+        return Map.of("success", true, "redirect", "/admin-dashboard");
     }
 
     @GetMapping("/ward-dashboard")
@@ -95,6 +128,31 @@ public class StaffAuthController {
 
         model.addAttribute("staffUser", staffUser);
         return "ward-dashboard";
+    }
+
+    @GetMapping("/admin-dashboard")
+    public String adminDashboard(HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        complaintService.refreshOverdueForComplaints(complaintRepository.findAll());
+
+        long totalComplaints = complaintRepository.count();
+        long overdueComplaints = complaintRepository.countByStatus("overdue");
+        long inProgressComplaints = complaintRepository.countByStatus("in_progress");
+        long completedComplaints = complaintRepository.countByStatusIn(List.of("completed", "verified", "solved"));
+        long pendingComplaints = complaintRepository.countByStatusIn(
+                List.of("submitted", "pending", "assigned", "approved", "in_progress", "overdue"));
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("totalComplaints", totalComplaints);
+        model.addAttribute("overdueComplaints", overdueComplaints);
+        model.addAttribute("inProgressComplaints", inProgressComplaints);
+        model.addAttribute("completedComplaints", completedComplaints);
+        model.addAttribute("pendingComplaints", pendingComplaints);
+        return "admin-dashboard";
     }
 
     @GetMapping("/ward-profile")

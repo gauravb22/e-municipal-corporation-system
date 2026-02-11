@@ -13,6 +13,8 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     List<Complaint> findByUserId(Long userId);
     List<Complaint> findByWardNoOrderByCreatedAtDesc(Integer wardNo);
     long countByWardNoAndStatusIn(Integer wardNo, List<String> statuses);
+    long countByStatusIn(List<String> statuses);
+    long countByStatus(String status);
 
     long countByWardNoAndStatusAndCreatedAtBetween(Integer wardNo, String status, java.time.LocalDateTime start, java.time.LocalDateTime end);
 

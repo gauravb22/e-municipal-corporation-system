@@ -205,7 +205,7 @@
     </button>
     <button class="role-btn" id="roleAdmin">
         Login as Administration
-        <small>Commissioner / Mayor / Deputy Mayor</small>
+        <small>Username and password only</small>
     </button>
 </div>
 <div class="overlay" id="overlay"></div>
@@ -263,13 +263,9 @@
         bodyEl.classList.remove('role-ward', 'role-admin');
 
         if(role === 'admin'){
-            bodyEl.classList.add('role-admin');
-            roleAdmin.classList.add('active');
-            roleWard.classList.remove('active');
-            roleCitizen.classList.remove('active');
-            loginTitle.textContent = 'Administration Login';
-            loginLabel.innerHTML = 'Enter registered mobile number <span class="faint">Commissioner / Mayor / Deputy Mayor</span>';
-            signupHint.style.display = 'none';
+            // Administration login is a separate page (username + password)
+            window.location.href = '/admin-login';
+            return;
         }else if(role === 'ward'){
             // Ward login is a separate page (username + password)
             window.location.href = '/ward-login';
