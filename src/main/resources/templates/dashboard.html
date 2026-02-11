@@ -305,7 +305,10 @@ body{
 
 <!-- ALERT -->
 <div class="alert-bar">
-    <div class="alert-text" id="alerts"></div>
+    <div class="alert-text" id="alerts">
+        <span th:if="${citizenNotices != null && !citizenNotices.isEmpty()}" th:each="n : ${citizenNotices}" th:text="${n.message}"></span>
+        <span th:if="${citizenNotices == null || citizenNotices.isEmpty()}">No new notices from administration.</span>
+    </div>
 </div>
 
 <div class="toast" id="complaintToast" th:if="${complaintSubmitted}">
@@ -357,10 +360,11 @@ body{
     <div class="section-title">Important Notices</div>
 
     <div class="card notice">
-        <ul>
-            <li>Property tax last date: 15 Feb 2026</li>
-            <li>Complaints resolved within 72 working hours</li>
-            <li>New building rules effective March 2026</li>
+        <ul th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
+            <li th:each="n : ${citizenNotices}" th:text="${n.message}"></li>
+        </ul>
+        <ul th:if="${citizenNotices == null || citizenNotices.isEmpty()}">
+            <li>No notices available right now.</li>
         </ul>
     </div>
 
@@ -432,15 +436,6 @@ function toggleMenu(){
     overlay.classList.toggle("show");
 }
 
-const alertData = [
-    "Water supply interruption in Ward 5 & 7 (10 AM – 4 PM)",
-    "Road maintenance work near Ram Nagar Circle",
-    "Property tax deadline approaching – 15 Feb 2026",
-    "Official municipal updates available on this portal only"
-];
-
-document.getElementById("alerts").innerHTML =
-    alertData.map(a => `<span>${a}</span>`).join("");
 
 const adminSlides = [
     {

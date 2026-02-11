@@ -7,8 +7,10 @@ import org.springframework.ui.Model;
 
 import com.emunicipal.entity.User;
 import com.emunicipal.entity.Complaint;
+import com.emunicipal.entity.Notice;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
+import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.service.SmsService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.entity.Ward;
@@ -32,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private ComplaintRepository complaintRepository;
+
+    @Autowired
+    private NoticeRepository noticeRepository;
 
     @Autowired
     private WardService wardService;
@@ -224,6 +229,9 @@ public class AuthController {
                 .filter(c -> c.getFeedbackSubmitted() == null || !c.getFeedbackSubmitted())
                 .collect(Collectors.toList());
         model.addAttribute("pendingFeedback", pendingFeedback);
+
+        List<Notice> citizenNotices = noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN");
+        model.addAttribute("citizenNotices", citizenNotices);
 
         return "dashboard";
     }

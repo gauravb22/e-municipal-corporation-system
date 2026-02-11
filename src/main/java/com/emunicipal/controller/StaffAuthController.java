@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.emunicipal.entity.StaffUser;
+import com.emunicipal.entity.Notice;
 import com.emunicipal.repository.StaffUserRepository;
 import com.emunicipal.repository.ComplaintRepository;
+import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.service.ComplaintService;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,6 +32,8 @@ public class StaffAuthController {
     private ComplaintRepository complaintRepository;
     @Autowired
     private ComplaintService complaintService;
+    @Autowired
+    private NoticeRepository noticeRepository;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -127,6 +131,7 @@ public class StaffAuthController {
         }
 
         model.addAttribute("staffUser", staffUser);
+        model.addAttribute("wardNotices", noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
         return "ward-dashboard";
     }
 
@@ -152,7 +157,38 @@ public class StaffAuthController {
         model.addAttribute("inProgressComplaints", inProgressComplaints);
         model.addAttribute("completedComplaints", completedComplaints);
         model.addAttribute("pendingComplaints", pendingComplaints);
+        model.addAttribute("citizenNotices", noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN"));
+        model.addAttribute("wardNotices", noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
         return "admin-dashboard";
+    }
+
+    @PostMapping("/admin/notices/citizen")
+    public String publishCitizenNotice(@RequestParam("noticeMessage") String noticeMessage, HttpSession session) {
+        return publishNotice("CITIZEN", noticeMessage, session);
+    }
+
+    @PostMapping("/admin/notices/ward")
+    public String publishWardNotice(@RequestParam("noticeMessage") String noticeMessage, HttpSession session) {
+        return publishNotice("WARD", noticeMessage, session);
+    }
+
+    private String publishNotice(String targetType, String noticeMessage, HttpSession session) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        if (noticeMessage != null && !noticeMessage.isBlank()) {
+            Notice notice = new Notice();
+            notice.setMessage(noticeMessage.trim());
+            notice.setTargetType(targetType);
+            notice.setActive(true);
+            notice.setCreatedAt(LocalDateTime.now());
+            notice.setCreatedBy(staffUser.getUsername());
+            noticeRepository.save(notice);
+        }
+
+        return "redirect:/admin-dashboard";
     }
 
     @GetMapping("/ward-profile")

@@ -25,6 +25,30 @@ body{
 .brand-title{font-weight:700;}
 .brand-sub{font-size:12px;opacity:.85;}
 .logout-link{color:white;text-decoration:none;font-size:14px;}
+.alert-strip{
+    background:#fff4e8;
+    border-top:1px solid #f0d6ba;
+    border-bottom:1px solid #f0d6ba;
+    overflow:hidden;
+    white-space:nowrap;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.alert-track{
+    display:inline-block;
+    padding:10px 0;
+    padding-left:100%;
+    animation:ward-scroll 24s linear infinite;
+}
+.alert-track span{
+    margin-right:42px;
+    color:#7a3e0b;
+    font-size:13px;
+    font-weight:600;
+}
+@keyframes ward-scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-100%);}
+}
 .container{
     max-width:900px;
     margin:24px auto;
@@ -113,6 +137,15 @@ body{
         </div>
     </div>
     <a class="logout-link" href="/logout">Logout</a>
+</div>
+
+<div class="alert-strip">
+    <div class="alert-track" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
+        <span th:each="n : ${wardNotices}" th:text="${n.message}"></span>
+    </div>
+    <div class="alert-track" th:if="${wardNotices == null || wardNotices.isEmpty()}">
+        <span>No new ward member notices from administration.</span>
+    </div>
 </div>
 
 <div class="container">

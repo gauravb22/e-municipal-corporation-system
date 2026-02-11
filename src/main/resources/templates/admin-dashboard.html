@@ -35,6 +35,7 @@ body{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:14px;
+    margin-bottom:16px;
 }
 .card{
     background:white;
@@ -45,6 +46,49 @@ body{
 .label{font-size:12px;color:#7b5b45;}
 .value{font-size:28px;font-weight:700;color:#4a2811;margin-top:8px;}
 .value.overdue{color:#b42318;}
+.notice-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:14px;
+}
+.notice-form textarea{
+    width:100%;
+    min-height:90px;
+    border:1px solid #e2d4c5;
+    border-radius:10px;
+    padding:10px;
+    font-family:"Segoe UI", Arial;
+    font-size:14px;
+    resize:vertical;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:10px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+.notice-list{
+    margin-top:10px;
+    display:grid;
+    gap:8px;
+}
+.notice-item{
+    border:1px solid #f0e6dd;
+    border-radius:10px;
+    padding:8px 10px;
+    font-size:13px;
+    color:#4a2811;
+    background:#fffaf6;
+}
+.notice-meta{
+    margin-top:4px;
+    font-size:11px;
+    color:#8a6a55;
+}
 </style>
 </head>
 <body>
@@ -80,7 +124,37 @@ body{
             <div class="value overdue" th:text="${overdueComplaints != null ? overdueComplaints : 0}">0</div>
         </div>
     </div>
+
+    <div class="title">Publish Notices</div>
+    <div class="notice-grid">
+        <div class="card">
+            <div class="label">Notice For Citizens</div>
+            <form class="notice-form" method="post" action="/admin/notices/citizen">
+                <textarea name="noticeMessage" placeholder="Write citizen notice..." required></textarea>
+                <button class="btn" type="submit">Publish Citizen Notice</button>
+            </form>
+            <div class="notice-list" th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
+                <div class="notice-item" th:each="n : ${citizenNotices}">
+                    <div th:text="${n.message}">Notice</div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' • ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="label">Notice For Ward Members</div>
+            <form class="notice-form" method="post" action="/admin/notices/ward">
+                <textarea name="noticeMessage" placeholder="Write ward member notice..." required></textarea>
+                <button class="btn" type="submit">Publish Ward Notice</button>
+            </form>
+            <div class="notice-list" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
+                <div class="notice-item" th:each="n : ${wardNotices}">
+                    <div th:text="${n.message}">Notice</div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' • ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
-
