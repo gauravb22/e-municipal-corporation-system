@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Admin Notice Center</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar-link{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+.container{
+    max-width:1020px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:16px;
+}
+.notice-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:14px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.notice-card{
+    display:flex;
+    flex-direction:column;
+    min-height:560px;
+    max-height:560px;
+}
+.label{font-size:12px;color:#7b5b45;}
+.notice-form{
+    margin-top:8px;
+}
+.notice-form textarea{
+    width:100%;
+    min-height:90px;
+    border:1px solid #e2d4c5;
+    border-radius:10px;
+    padding:10px;
+    font-family:"Segoe UI", Arial;
+    font-size:14px;
+    resize:vertical;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:10px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+.notice-form .btn{
+    width:100%;
+}
+.notice-list{
+    margin-top:10px;
+    display:grid;
+    gap:8px;
+    overflow-y:auto;
+    flex:1 1 auto;
+    align-content:start;
+    padding-right:4px;
+}
+.notice-item{
+    border:1px solid #f0e6dd;
+    border-radius:10px;
+    padding:8px 10px;
+    font-size:13px;
+    color:#4a2811;
+    background:#fffaf6;
+}
+.notice-old.notice-hidden{
+    display:none;
+}
+.notice-meta{
+    margin-top:4px;
+    font-size:11px;
+    color:#8a6a55;
+}
+.notice-actions{
+    margin-top:8px;
+}
+.delete-btn{
+    border:none;
+    border-radius:8px;
+    padding:6px 10px;
+    background:#b42318;
+    color:white;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+.toggle-btn{
+    border:none;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-top:10px;
+    background:#f1e2d3;
+    color:#4a2811;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+}
+.empty-notice{
+    margin-top:10px;
+    border:1px dashed #dcc7b2;
+    border-radius:10px;
+    padding:10px;
+    font-size:13px;
+    color:#7b5b45;
+    background:#fffaf6;
+}
+@media (max-width: 768px){
+    .notice-card{
+        min-height:auto;
+        max-height:none;
+    }
+    .notice-list{
+        max-height:280px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="brand-title">Akola Mahanagarpalika</div>
+        <div class="brand-sub">Admin Notice Center</div>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-link" href="/admin-dashboard">Back to Dashboard</a>
+        <a class="topbar-link" href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title">Publish Notices</div>
+    <div class="notice-grid">
+        <div class="card notice-card">
+            <div class="label">Notice For Citizens</div>
+            <form class="notice-form" method="post" action="/admin/notices/citizen">
+                <textarea name="noticeMessage" placeholder="Write citizen notice..." required></textarea>
+                <button class="btn" type="submit">Publish Citizen Notice</button>
+            </form>
+            <div class="notice-list" id="citizen-notices" th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
+                <div class="notice-item"
+                     th:each="n,stat : ${citizenNotices}"
+                     th:classappend="${stat.index >= 5} ? ' notice-old notice-hidden' : ''">
+                    <div th:text="${n.message}">Notice</div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
+                        <button class="delete-btn" type="submit">Delete Notice</button>
+                    </form>
+                </div>
+            </div>
+            <button class="toggle-btn"
+                    type="button"
+                    th:if="${citizenNotices != null && citizenNotices.size() > 5}"
+                    onclick="togglePreviousNotices('citizen-notices', this)">
+                Show Previous Notices
+            </button>
+            <div class="empty-notice" th:if="${citizenNotices == null || citizenNotices.isEmpty()}">No notices published yet.</div>
+        </div>
+
+        <div class="card notice-card">
+            <div class="label">Notice For Ward Members</div>
+            <form class="notice-form" method="post" action="/admin/notices/ward">
+                <textarea name="noticeMessage" placeholder="Write ward member notice..." required></textarea>
+                <button class="btn" type="submit">Publish Ward Notice</button>
+            </form>
+            <div class="notice-list" id="ward-notices" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
+                <div class="notice-item"
+                     th:each="n,stat : ${wardNotices}"
+                     th:classappend="${stat.index >= 5} ? ' notice-old notice-hidden' : ''">
+                    <div th:text="${n.message}">Notice</div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
+                        <button class="delete-btn" type="submit">Delete Notice</button>
+                    </form>
+                </div>
+            </div>
+            <button class="toggle-btn"
+                    type="button"
+                    th:if="${wardNotices != null && wardNotices.size() > 5}"
+                    onclick="togglePreviousNotices('ward-notices', this)">
+                Show Previous Notices
+            </button>
+            <div class="empty-notice" th:if="${wardNotices == null || wardNotices.isEmpty()}">No notices published yet.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePreviousNotices(listId, buttonElement) {
+    const noticeList = document.getElementById(listId);
+    if (!noticeList) {
+        return;
+    }
+
+    const olderItems = noticeList.querySelectorAll(".notice-old");
+    if (olderItems.length === 0) {
+        return;
+    }
+
+    const hasHiddenItems = Array.from(olderItems).some(function (item) {
+        return item.classList.contains("notice-hidden");
+    });
+
+    olderItems.forEach(function (item) {
+        if (hasHiddenItems) {
+            item.classList.remove("notice-hidden");
+        } else {
+            item.classList.add("notice-hidden");
+        }
+    });
+
+    buttonElement.textContent = hasHiddenItems ? "Hide Previous Notices" : "Show Previous Notices";
+}
+</script>
+</body>
+</html>

@@ -158,9 +158,20 @@ public class StaffAuthController {
         model.addAttribute("inProgressComplaints", inProgressComplaints);
         model.addAttribute("completedComplaints", completedComplaints);
         model.addAttribute("pendingComplaints", pendingComplaints);
+        return "admin-dashboard";
+    }
+
+    @GetMapping("/admin/notices")
+    public String adminNotices(HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        model.addAttribute("staffUser", staffUser);
         model.addAttribute("citizenNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN"));
         model.addAttribute("wardNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
-        return "admin-dashboard";
+        return "admin-notices";
     }
 
     @PostMapping("/admin/notices/citizen")
@@ -184,7 +195,7 @@ public class StaffAuthController {
             notice.setActive(false);
             noticeRepository.save(notice);
         });
-        return "redirect:/admin-dashboard";
+        return "redirect:/admin/notices";
     }
 
     private String publishNotice(String targetType, String noticeMessage, HttpSession session) {
@@ -203,7 +214,7 @@ public class StaffAuthController {
             noticeRepository.save(notice);
         }
 
-        return "redirect:/admin-dashboard";
+        return "redirect:/admin/notices";
     }
 
     @GetMapping("/ward-profile")
