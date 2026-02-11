@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc(String targetType);
+    List<Notice> findByTargetTypeAndActiveTrueOrderByCreatedAtDesc(String targetType);
 }
-

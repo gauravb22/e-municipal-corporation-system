@@ -158,8 +158,8 @@ public class StaffAuthController {
         model.addAttribute("inProgressComplaints", inProgressComplaints);
         model.addAttribute("completedComplaints", completedComplaints);
         model.addAttribute("pendingComplaints", pendingComplaints);
-        model.addAttribute("citizenNotices", noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN"));
-        model.addAttribute("wardNotices", noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
+        model.addAttribute("citizenNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN"));
+        model.addAttribute("wardNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
         return "admin-dashboard";
     }
 

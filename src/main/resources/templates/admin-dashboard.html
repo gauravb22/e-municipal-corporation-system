@@ -51,6 +51,15 @@ body{
     grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
     gap:14px;
 }
+.notice-card{
+    display:flex;
+    flex-direction:column;
+    min-height:560px;
+    max-height:560px;
+}
+.notice-form{
+    margin-top:8px;
+}
 .notice-form textarea{
     width:100%;
     min-height:90px;
@@ -60,6 +69,9 @@ body{
     font-family:"Segoe UI", Arial;
     font-size:14px;
     resize:vertical;
+}
+.notice-form .btn{
+    width:100%;
 }
 .btn{
     border:none;
@@ -75,6 +87,10 @@ body{
     margin-top:10px;
     display:grid;
     gap:8px;
+    overflow-y:auto;
+    flex:1 1 auto;
+    align-content:start;
+    padding-right:4px;
 }
 .notice-item{
     border:1px solid #f0e6dd;
@@ -83,6 +99,9 @@ body{
     font-size:13px;
     color:#4a2811;
     background:#fffaf6;
+}
+.notice-old.notice-hidden{
+    display:none;
 }
 .notice-meta{
     margin-top:4px;
@@ -101,6 +120,35 @@ body{
     font-size:12px;
     font-weight:600;
     cursor:pointer;
+}
+.toggle-btn{
+    border:none;
+    border-radius:8px;
+    padding:8px 10px;
+    margin-top:10px;
+    background:#f1e2d3;
+    color:#4a2811;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+}
+.empty-notice{
+    margin-top:10px;
+    border:1px dashed #dcc7b2;
+    border-radius:10px;
+    padding:10px;
+    font-size:13px;
+    color:#7b5b45;
+    background:#fffaf6;
+}
+@media (max-width: 768px){
+    .notice-card{
+        min-height:auto;
+        max-height:none;
+    }
+    .notice-list{
+        max-height:280px;
+    }
 }
 </style>
 </head>
@@ -140,14 +188,16 @@ body{
 
     <div class="title">Publish Notices</div>
     <div class="notice-grid">
-        <div class="card">
+        <div class="card notice-card">
             <div class="label">Notice For Citizens</div>
             <form class="notice-form" method="post" action="/admin/notices/citizen">
                 <textarea name="noticeMessage" placeholder="Write citizen notice..." required></textarea>
                 <button class="btn" type="submit">Publish Citizen Notice</button>
             </form>
-            <div class="notice-list" th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
-                <div class="notice-item" th:each="n : ${citizenNotices}">
+            <div class="notice-list" id="citizen-notices" th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
+                <div class="notice-item"
+                     th:each="n,stat : ${citizenNotices}"
+                     th:classappend="${stat.index >= 5} ? ' notice-old notice-hidden' : ''">
                     <div th:text="${n.message}">Notice</div>
                     <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
                     <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
@@ -155,16 +205,25 @@ body{
                     </form>
                 </div>
             </div>
+            <button class="toggle-btn"
+                    type="button"
+                    th:if="${citizenNotices != null && citizenNotices.size() > 5}"
+                    onclick="togglePreviousNotices('citizen-notices', this)">
+                Show Previous Notices
+            </button>
+            <div class="empty-notice" th:if="${citizenNotices == null || citizenNotices.isEmpty()}">No notices published yet.</div>
         </div>
 
-        <div class="card">
+        <div class="card notice-card">
             <div class="label">Notice For Ward Members</div>
             <form class="notice-form" method="post" action="/admin/notices/ward">
                 <textarea name="noticeMessage" placeholder="Write ward member notice..." required></textarea>
                 <button class="btn" type="submit">Publish Ward Notice</button>
             </form>
-            <div class="notice-list" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
-                <div class="notice-item" th:each="n : ${wardNotices}">
+            <div class="notice-list" id="ward-notices" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
+                <div class="notice-item"
+                     th:each="n,stat : ${wardNotices}"
+                     th:classappend="${stat.index >= 5} ? ' notice-old notice-hidden' : ''">
                     <div th:text="${n.message}">Notice</div>
                     <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
                     <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
@@ -172,8 +231,42 @@ body{
                     </form>
                 </div>
             </div>
+            <button class="toggle-btn"
+                    type="button"
+                    th:if="${wardNotices != null && wardNotices.size() > 5}"
+                    onclick="togglePreviousNotices('ward-notices', this)">
+                Show Previous Notices
+            </button>
+            <div class="empty-notice" th:if="${wardNotices == null || wardNotices.isEmpty()}">No notices published yet.</div>
         </div>
     </div>
 </div>
+<script>
+function togglePreviousNotices(listId, buttonElement) {
+    const noticeList = document.getElementById(listId);
+    if (!noticeList) {
+        return;
+    }
+
+    const olderItems = noticeList.querySelectorAll(".notice-old");
+    if (olderItems.length === 0) {
+        return;
+    }
+
+    const hasHiddenItems = Array.from(olderItems).some(function (item) {
+        return item.classList.contains("notice-hidden");
+    });
+
+    olderItems.forEach(function (item) {
+        if (hasHiddenItems) {
+            item.classList.remove("notice-hidden");
+        } else {
+            item.classList.add("notice-hidden");
+        }
+    });
+
+    buttonElement.textContent = hasHiddenItems ? "Hide Previous Notices" : "Show Previous Notices";
+}
+</script>
 </body>
 </html>
