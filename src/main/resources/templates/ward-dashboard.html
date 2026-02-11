@@ -74,6 +74,8 @@ body{
 .summary-list{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
 .summary-item{display:flex;justify-content:space-between;font-size:13px;color:#2f3a35;}
 .summary-item strong{color:#0f3d2e;}
+.summary-item.overdue{color:#b42318;}
+.summary-item.overdue strong{color:#b42318;}
 .member-card{
     display:flex;
     align-items:center;
@@ -168,6 +170,10 @@ body{
                 <div class="summary-item">
                     <span>Pending</span>
                     <strong th:text="${pendingSummaryCount != null ? pendingSummaryCount : 2}">2</strong>
+                </div>
+                <div class="summary-item overdue">
+                    <span>Overdue</span>
+                    <strong th:text="${overdueWorksCount != null ? overdueWorksCount : 0}">0</strong>
                 </div>
             </div>
             <div class="note">Ward workload snapshot</div>

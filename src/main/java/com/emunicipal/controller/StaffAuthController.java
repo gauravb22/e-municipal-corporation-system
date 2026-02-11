@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.repository.StaffUserRepository;
 import com.emunicipal.repository.ComplaintRepository;
+import com.emunicipal.service.ComplaintService;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.Year;
@@ -27,6 +28,8 @@ public class StaffAuthController {
     private StaffUserRepository staffUserRepository;
     @Autowired
     private ComplaintRepository complaintRepository;
+    @Autowired
+    private ComplaintService complaintService;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -70,6 +73,7 @@ public class StaffAuthController {
 
         Integer wardNo = staffUser.getWardNo();
         if (wardNo != null) {
+            complaintService.refreshOverdueForComplaints(complaintRepository.findByWardNoOrderByCreatedAtDesc(wardNo));
             int year = Year.now().getValue();
             LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0);
             LocalDateTime end = LocalDateTime.of(year, 12, 31, 23, 59, 59);
@@ -78,11 +82,14 @@ public class StaffAuthController {
                     + complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "verified", start, end)
                     + complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "solved", start, end);
             long pendingWorksCount = complaintRepository.countByWardNoAndStatusIn(
-                    wardNo, List.of("submitted", "assigned", "approved", "in_progress", "pending"));
+                    wardNo, List.of("submitted", "assigned", "approved", "in_progress", "pending", "overdue"));
+            long overdueWorksCount = complaintRepository.countByWardNoAndStatusIn(
+                    wardNo, List.of("overdue"));
             Double avgRating = complaintRepository.getAverageRatingByWard(wardNo);
 
             model.addAttribute("worksCompletedThisYear", worksCompletedThisYear);
             model.addAttribute("pendingWorksCount", pendingWorksCount);
+            model.addAttribute("overdueWorksCount", overdueWorksCount);
             model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "0.0");
         }
 

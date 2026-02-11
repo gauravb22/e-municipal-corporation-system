@@ -72,7 +72,7 @@ public class Complaint {
     private String donePhotoPath;
 
     @Column(name = "status", nullable = false)
-    private String status; // submitted, assigned, approved, in_progress, completed, verified, escalated, repeated, not_ward, wrong
+    private String status; // submitted, overdue, assigned, approved, in_progress, completed, verified, escalated, repeated, not_ward, wrong
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

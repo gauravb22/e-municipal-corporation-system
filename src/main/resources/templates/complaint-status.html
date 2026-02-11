@@ -121,6 +121,11 @@
             color: #721c24;
         }
 
+        .status-overdue {
+            background-color: #ffe7e7;
+            color: #b42318;
+        }
+
         .status-completed {
             background-color: #d4edda;
             color: #155724;
@@ -380,8 +385,8 @@
                         <span th:text="${complaint.complaintType}"></span>
                     </div>
                     <span class="status-badge" 
-                          th:classappend="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'status-submitted' : (complaint.status == 'assigned' ? 'status-assigned' : (complaint.status == 'approved' ? 'status-approved' : (complaint.status == 'in_progress' ? 'status-in-progress' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'status-completed' : (complaint.status == 'verified' ? 'status-verified' : (complaint.status == 'escalated' ? 'status-escalated' : (complaint.status == 'repeated' ? 'status-repeated' : (complaint.status == 'not_ward' ? 'status-not-ward' : (complaint.status == 'wrong' ? 'status-wrong' : 'status-completed')))))))))}"
-                          th:text="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'SUBMITTED' : (complaint.status == 'assigned' ? 'ASSIGNED TO WARD' : (complaint.status == 'approved' ? 'APPROVED' : (complaint.status == 'in_progress' ? 'IN PROGRESS' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'COMPLETED' : (complaint.status == 'verified' ? 'VERIFIED' : complaint.status.toUpperCase())))))}"></span>
+                          th:classappend="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'status-submitted' : (complaint.status == 'assigned' ? 'status-assigned' : (complaint.status == 'approved' ? 'status-approved' : (complaint.status == 'in_progress' ? 'status-in-progress' : (complaint.status == 'overdue' ? 'status-overdue' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'status-completed' : (complaint.status == 'verified' ? 'status-verified' : (complaint.status == 'escalated' ? 'status-escalated' : (complaint.status == 'repeated' ? 'status-repeated' : (complaint.status == 'not_ward' ? 'status-not-ward' : (complaint.status == 'wrong' ? 'status-wrong' : 'status-completed'))))))))))}"
+                          th:text="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'SUBMITTED' : (complaint.status == 'assigned' ? 'ASSIGNED TO WARD' : (complaint.status == 'approved' ? 'APPROVED' : (complaint.status == 'in_progress' ? 'IN PROGRESS' : (complaint.status == 'overdue' ? 'OVERDUE' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'COMPLETED' : (complaint.status == 'verified' ? 'VERIFIED' : complaint.status.toUpperCase())))))))}"></span>
                 </div>
 
                 <!-- Complaint Details Grid -->
@@ -439,12 +444,12 @@
                 </div>
 
                 <!-- Time Remaining for Escalation (only for pending) -->
-                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
+                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
                     <i class="fa-regular fa-clock" aria-hidden="true"></i> Time remaining: <span th:text="${complaintService.getTimeRemaining(complaint)}"></span>
                 </div>
 
                 <!-- Escalation Button (for pending complaints over 72 hours) -->
-                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}" style="margin-top: 15px;">
+                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}" style="margin-top: 15px;">
                     <form method="POST" th:action="'/escalate-complaint/' + ${complaint.id}" style="display: inline;">
                         <button type="submit" class="escalation-btn" th:if="${complaintService.isPendingFor72Hours(complaint)}">
                             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Escalate - 72+ Hours Pending

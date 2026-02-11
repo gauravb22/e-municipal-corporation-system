@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ComplaintService {
+
+    private static final Set<String> OVERDUE_BASE_STATUSES = Set.of("submitted", "pending");
 
     @Autowired
     private ComplaintRepository complaintRepository;
@@ -36,18 +39,25 @@ public class ComplaintService {
 
     // Get all complaints for a user
     public List<Complaint> getUserComplaints(Long userId) {
-        return complaintRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<Complaint> complaints = complaintRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        refreshOverdueForComplaints(complaints);
+        return complaints;
     }
 
     // Get a specific complaint
     public Optional<Complaint> getComplaintById(Long complaintId) {
-        return complaintRepository.findById(complaintId);
+        Optional<Complaint> complaint = complaintRepository.findById(complaintId);
+        complaint.ifPresent(this::refreshOverdueStatus);
+        return complaint;
     }
 
     // Check if complaint is pending for more than 72 hours
     public boolean isPendingFor72Hours(Complaint complaint) {
         String status = complaint.getStatus() == null ? "" : complaint.getStatus().toLowerCase();
-        if (!"submitted".equals(status) && !"pending".equals(status)) {
+        if (!OVERDUE_BASE_STATUSES.contains(status) && !"overdue".equals(status)) {
+            return false;
+        }
+        if (complaint.getCreatedAt() == null) {
             return false;
         }
         LocalDateTime createdTime = complaint.getCreatedAt();
@@ -57,6 +67,9 @@ public class ComplaintService {
 
     // Calculate time remaining for 72 hours
     public String getTimeRemaining(Complaint complaint) {
+        if (complaint.getCreatedAt() == null) {
+            return "Time data not available";
+        }
         LocalDateTime createdTime = complaint.getCreatedAt();
         LocalDateTime seventyTwoHoursLater = createdTime.plusHours(72);
         LocalDateTime now = LocalDateTime.now();
@@ -70,6 +83,33 @@ public class ComplaintService {
         long minutes = (totalSeconds % 3600) / 60;
 
         return hours + " hours " + minutes + " minutes";
+    }
+
+    public void refreshOverdueForComplaints(List<Complaint> complaints) {
+        if (complaints == null || complaints.isEmpty()) {
+            return;
+        }
+        for (Complaint complaint : complaints) {
+            refreshOverdueStatus(complaint);
+        }
+    }
+
+    public void refreshOverdueStatus(Complaint complaint) {
+        if (complaint == null) {
+            return;
+        }
+        String status = complaint.getStatus() == null ? "" : complaint.getStatus().toLowerCase();
+        if (!OVERDUE_BASE_STATUSES.contains(status)) {
+            return;
+        }
+        if (complaint.getCreatedAt() == null || !LocalDateTime.now().isAfter(complaint.getCreatedAt().plusHours(72))) {
+            return;
+        }
+        String oldStatus = complaint.getStatus();
+        complaint.setStatus("overdue");
+        complaint.setUpdatedAt(LocalDateTime.now());
+        Complaint saved = complaintRepository.save(complaint);
+        recordStatusChange(saved.getId(), oldStatus, "overdue", "SYSTEM", null, "Auto-marked overdue after 72 hours");
     }
 
     // Escalate complaint

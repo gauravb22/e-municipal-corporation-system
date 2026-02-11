@@ -19,6 +19,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .badge.submitted{background:#fff1d6;color:#9a6b10;}
 .badge.assigned{background:#e8f0ff;color:#1e3c72;}
 .badge.in-progress{background:#e6f4ff;color:#155a8a;}
+.badge.overdue{background:#ffe7e7;color:#b42318;}
 .badge.repeated{background:#fbe9e7;color:#b23a1b;}
 .badge.not-ward{background:#f1f3f5;color:#4b5563;}
 .badge.wrong{background:#fdecec;color:#b53838;}
@@ -51,6 +52,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
                 <span class="badge submitted" th:if="${c.status == 'submitted' || c.status == 'pending'}">SUBMITTED</span>
                 <span class="badge assigned" th:if="${c.status == 'assigned'}">ASSIGNED</span>
                 <span class="badge in-progress" th:if="${c.status == 'in_progress'}">IN PROGRESS</span>
+                <span class="badge overdue" th:if="${c.status == 'overdue'}">OVERDUE</span>
                 <span class="badge repeated" th:if="${c.status == 'repeated'}">REPEATED</span>
                 <span class="badge not-ward" th:if="${c.status == 'not_ward'}">NOT OUR WARD</span>
                 <span class="badge wrong" th:if="${c.status == 'wrong'}">WRONG</span>

@@ -21,6 +21,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .badge.in-progress{background:#e6f4ff;color:#155a8a;}
 .badge.completed{background:#d4edda;color:#155724;}
 .badge.verified{background:#e3fcec;color:#1f6f4a;}
+.badge.overdue{background:#ffe7e7;color:#b42318;}
 .badge.repeated{background:#fbe9e7;color:#b23a1b;}
 .badge.not-ward{background:#f1f3f5;color:#4b5563;}
 .badge.wrong{background:#fdecec;color:#b53838;}
@@ -64,6 +65,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
             <span class="badge assigned" th:if="${complaint.status == 'assigned'}">ASSIGNED</span>
             <span class="badge approved" th:if="${complaint.status == 'approved'}">APPROVED</span>
             <span class="badge in-progress" th:if="${complaint.status == 'in_progress'}">IN PROGRESS</span>
+            <span class="badge overdue" th:if="${complaint.status == 'overdue'}">OVERDUE</span>
             <span class="badge completed" th:if="${complaint.status == 'completed' || complaint.status == 'solved'}">COMPLETED</span>
             <span class="badge verified" th:if="${complaint.status == 'verified'}">VERIFIED</span>
             <span class="badge repeated" th:if="${complaint.status == 'repeated'}">REPEATED</span>
@@ -125,7 +127,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
             </div>
         </div>
 
-        <div class="actions" th:if="${complaint.status == 'submitted' || complaint.status == 'pending'}">
+        <div class="actions" th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}">
             <form method="post" th:action="'/ward-complaints/' + ${complaint.id} + '/status'">
                 <input type="hidden" name="status" value="assigned">
                 <button class="btn btn-assign" type="submit">Assign to Ward</button>

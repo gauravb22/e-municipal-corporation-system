@@ -242,6 +242,7 @@ public class ComplaintController {
         }
 
         List<Complaint> complaints = complaintRepository.findByWardNoOrderByCreatedAtDesc(wardNo);
+        complaintService.refreshOverdueForComplaints(complaints);
 
         List<Complaint> newComplaints = new ArrayList<>();
         List<Complaint> approvedComplaints = new ArrayList<>();
@@ -320,6 +321,7 @@ public class ComplaintController {
         if (complaint == null || !wardNo.equals(complaint.getWardNo())) {
             return "redirect:/ward-complaints";
         }
+        complaintService.refreshOverdueStatus(complaint);
 
         User user = userRepository.findById(complaint.getUserId()).orElse(null);
 
@@ -477,6 +479,7 @@ public class ComplaintController {
         }
 
         List<Complaint> complaints = complaintRepository.findByWardNoOrderByCreatedAtDesc(wardNo);
+        complaintService.refreshOverdueForComplaints(complaints);
         List<Complaint> result = new ArrayList<>();
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
 
