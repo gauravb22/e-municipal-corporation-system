@@ -89,6 +89,19 @@ body{
     font-size:11px;
     color:#8a6a55;
 }
+.notice-actions{
+    margin-top:8px;
+}
+.delete-btn{
+    border:none;
+    border-radius:8px;
+    padding:6px 10px;
+    background:#b42318;
+    color:white;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -136,7 +149,10 @@ body{
             <div class="notice-list" th:if="${citizenNotices != null && !citizenNotices.isEmpty()}">
                 <div class="notice-item" th:each="n : ${citizenNotices}">
                     <div th:text="${n.message}">Notice</div>
-                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' • ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
+                        <button class="delete-btn" type="submit">Delete Notice</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -150,7 +166,10 @@ body{
             <div class="notice-list" th:if="${wardNotices != null && !wardNotices.isEmpty()}">
                 <div class="notice-item" th:each="n : ${wardNotices}">
                     <div th:text="${n.message}">Notice</div>
-                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' • ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <div class="notice-meta" th:text="${(n.createdBy != null ? n.createdBy : 'admin') + ' | ' + #temporals.format(n.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                    <form class="notice-actions" method="post" th:action="@{/admin/notices/{id}/delete(id=${n.id})}">
+                        <button class="delete-btn" type="submit">Delete Notice</button>
+                    </form>
                 </div>
             </div>
         </div>

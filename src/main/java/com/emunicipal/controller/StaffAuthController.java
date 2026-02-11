@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -170,6 +171,20 @@ public class StaffAuthController {
     @PostMapping("/admin/notices/ward")
     public String publishWardNotice(@RequestParam("noticeMessage") String noticeMessage, HttpSession session) {
         return publishNotice("WARD", noticeMessage, session);
+    }
+
+    @PostMapping("/admin/notices/{id}/delete")
+    public String deleteNotice(@PathVariable("id") Long noticeId, HttpSession session) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        noticeRepository.findById(noticeId).ifPresent(notice -> {
+            notice.setActive(false);
+            noticeRepository.save(notice);
+        });
+        return "redirect:/admin-dashboard";
     }
 
     private String publishNotice(String targetType, String noticeMessage, HttpSession session) {
