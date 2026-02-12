@@ -17,13 +17,16 @@ import com.emunicipal.entity.Notice;
 import com.emunicipal.repository.StaffUserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.repository.NoticeRepository;
+import com.emunicipal.repository.WardWorkRepository;
 import com.emunicipal.service.ComplaintService;
 import com.emunicipal.service.WardService;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.Year;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 public class StaffAuthController {
@@ -38,6 +41,8 @@ public class StaffAuthController {
     private NoticeRepository noticeRepository;
     @Autowired
     private WardService wardService;
+    @Autowired
+    private WardWorkRepository wardWorkRepository;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -231,6 +236,104 @@ public class StaffAuthController {
         model.addAttribute("staffUser", staffUser);
         model.addAttribute("wardMember", wardMember);
         return "admin-ward-member-profile";
+    }
+
+    @GetMapping("/admin/ward-reports")
+    public String adminWardReports(HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("wardMembers", staffUserRepository.findByRoleIgnoreCaseOrderByWardNoAscWardZoneAscUsernameAsc("WARD"));
+        return "admin-ward-reports";
+    }
+
+    @GetMapping("/admin/ward-reports/{id}")
+    public String adminWardReport(@PathVariable("id") Long staffId, HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        StaffUser wardMember = staffUserRepository.findById(staffId).orElse(null);
+        if (wardMember == null || !"WARD".equalsIgnoreCase(wardMember.getRole())) {
+            return "redirect:/admin/ward-reports?error=notfound";
+        }
+
+        Integer wardNo = wardMember.getWardNo();
+        if (wardNo == null) {
+            return "redirect:/admin/ward-reports?error=ward";
+        }
+
+        List<String> completedStatuses = List.of("completed", "verified", "solved");
+        List<String> pendingStatuses = List.of("submitted", "assigned", "approved", "in_progress", "pending", "overdue");
+
+        long totalComplaints = complaintRepository.countByWardNo(wardNo);
+        long completedComplaints = complaintRepository.countByWardNoAndStatusIn(wardNo, completedStatuses);
+        long pendingComplaints = complaintRepository.countByWardNoAndStatusIn(wardNo, pendingStatuses);
+        long overdueComplaints = complaintRepository.countByWardNoAndStatusIn(wardNo, List.of("overdue"));
+
+        double completionRate = totalComplaints > 0 ? (completedComplaints * 100.0 / totalComplaints) : 0.0;
+        double overdueRate = totalComplaints > 0 ? (overdueComplaints * 100.0 / totalComplaints) : 0.0;
+
+        Double avgRating = complaintRepository.getAverageRatingByWard(wardNo);
+        long totalPosts = wardWorkRepository.countByWardNo(wardNo);
+
+        int currentYear = Year.now().getValue();
+        int yearsToShow = 5;
+        List<YearSummary> yearSummaries = new ArrayList<>();
+        for (int y = currentYear; y >= currentYear - (yearsToShow - 1); y--) {
+            LocalDateTime start = LocalDate.of(y, 1, 1).atStartOfDay();
+            LocalDateTime end = LocalDate.of(y, 12, 31).atTime(23, 59, 59);
+
+            long yearTotal = complaintRepository.countByWardNoAndCreatedAtBetween(wardNo, start, end);
+            long yearCompleted = complaintRepository.countByWardNoAndStatusInAndCreatedAtBetween(wardNo, completedStatuses, start, end);
+            long yearPending = complaintRepository.countByWardNoAndStatusInAndCreatedAtBetween(wardNo, pendingStatuses, start, end);
+            long yearOverdue = complaintRepository.countByWardNoAndStatusAndCreatedAtBetween(wardNo, "overdue", start, end);
+
+            double yearOverdueRate = yearTotal > 0 ? (yearOverdue * 100.0 / yearTotal) : 0.0;
+            yearSummaries.add(new YearSummary(y, yearTotal, yearCompleted, yearPending, yearOverdue, yearOverdueRate));
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("wardMember", wardMember);
+        model.addAttribute("totalComplaints", totalComplaints);
+        model.addAttribute("completedComplaints", completedComplaints);
+        model.addAttribute("pendingComplaints", pendingComplaints);
+        model.addAttribute("overdueComplaints", overdueComplaints);
+        model.addAttribute("completionRate", String.format("%.1f", completionRate));
+        model.addAttribute("overdueRate", String.format("%.1f", overdueRate));
+        model.addAttribute("avgRating", avgRating != null ? String.format("%.1f", avgRating) : "0.0");
+        model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("yearSummaries", yearSummaries);
+        return "admin-ward-report";
+    }
+
+    public static class YearSummary {
+        private final int year;
+        private final long totalComplaints;
+        private final long completedComplaints;
+        private final long pendingComplaints;
+        private final long overdueComplaints;
+        private final double overdueRate;
+
+        public YearSummary(int year, long totalComplaints, long completedComplaints, long pendingComplaints, long overdueComplaints, double overdueRate) {
+            this.year = year;
+            this.totalComplaints = totalComplaints;
+            this.completedComplaints = completedComplaints;
+            this.pendingComplaints = pendingComplaints;
+            this.overdueComplaints = overdueComplaints;
+            this.overdueRate = overdueRate;
+        }
+
+        public int getYear() { return year; }
+        public long getTotalComplaints() { return totalComplaints; }
+        public long getCompletedComplaints() { return completedComplaints; }
+        public long getPendingComplaints() { return pendingComplaints; }
+        public long getOverdueComplaints() { return overdueComplaints; }
+        public double getOverdueRate() { return overdueRate; }
     }
 
     @PostMapping("/admin/ward-members/{id}/update")

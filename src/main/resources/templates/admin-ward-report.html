@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Member Summary</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar-link{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+.container{
+    max-width:1100px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:10px;
+}
+.sub{
+    color:rgba(255,255,255,.9);
+    font-size:13px;
+    margin-bottom:16px;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    margin-bottom:14px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.label{font-size:12px;color:#7b5b45;}
+.value{font-size:26px;font-weight:800;color:#4a2811;margin-top:8px;}
+.value.danger{color:#b42318;}
+.value.ok{color:#1f7a3a;}
+.value.muted{color:#6a4a35;}
+.profile{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+}
+.profile-name{
+    font-size:18px;
+    font-weight:900;
+    color:#4a2811;
+}
+.profile-meta{
+    margin-top:6px;
+    font-size:13px;
+    color:#7b5b45;
+}
+.pill{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#f1e2d3;
+    color:#4a2811;
+    font-size:12px;
+    font-weight:800;
+}
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+.table th,.table td{
+    text-align:left;
+    padding:10px 8px;
+    border-bottom:1px solid #f0e6dd;
+    font-size:13px;
+    color:#4a2811;
+    vertical-align:top;
+}
+.table th{
+    font-size:12px;
+    color:#7b5b45;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="brand-title">Akola Mahanagarpalika</div>
+        <div class="brand-sub">Ward Member Summary Report</div>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
+        <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
+        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+        <a class="topbar-link" href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title">Work Summary</div>
+    <div class="sub">
+        <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+        <span> | </span>
+        <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> • Zone <span th:text="${wardMember.wardZone}">A</span></span>
+    </div>
+
+    <div class="card">
+        <div class="profile">
+            <div>
+                <div class="profile-name" th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Ward Member</div>
+                <div class="profile-meta">
+                    Username: <span th:text="${wardMember.username}">username</span>
+                    <span> | </span>
+                    Phone: <span th:text="${wardMember.phone != null ? wardMember.phone : '-'}">-</span>
+                </div>
+            </div>
+            <div>
+                <a class="topbar-link" th:href="@{/admin/ward-members/{id}(id=${wardMember.id})}" style="color:#7a3e0b;font-weight:900;">Open Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="label">Total Complaints</div>
+            <div class="value" th:text="${totalComplaints}">0</div>
+        </div>
+        <div class="card">
+            <div class="label">Completed Works</div>
+            <div class="value ok" th:text="${completedComplaints}">0</div>
+        </div>
+        <div class="card">
+            <div class="label">Pending Works</div>
+            <div class="value muted" th:text="${pendingComplaints}">0</div>
+        </div>
+        <div class="card">
+            <div class="label">Overdue Works</div>
+            <div class="value danger" th:text="${overdueComplaints}">0</div>
+        </div>
+        <div class="card">
+            <div class="label">Completion Rate</div>
+            <div class="value" th:text="${completionRate + '%'}">0%</div>
+        </div>
+        <div class="card">
+            <div class="label">Overdue Rate</div>
+            <div class="value danger" th:text="${overdueRate + '%'}">0%</div>
+        </div>
+        <div class="card">
+            <div class="label">Avg Star Rating</div>
+            <div class="value" th:text="${avgRating}">0.0</div>
+        </div>
+        <div class="card">
+            <div class="label">Total Posts (Ward Works)</div>
+            <div class="value" th:text="${totalPosts}">0</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="label">Year-wise Summary (Last 5 Years)</div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Year</th>
+                <th>Total Complaints</th>
+                <th>Completed</th>
+                <th>Pending</th>
+                <th>Overdue</th>
+                <th>Overdue %</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="y : ${yearSummaries}">
+                <td th:text="${y.year}">2026</td>
+                <td th:text="${y.totalComplaints}">0</td>
+                <td th:text="${y.completedComplaints}">0</td>
+                <td th:text="${y.pendingComplaints}">0</td>
+                <td th:text="${y.overdueComplaints}">0</td>
+                <td th:text="${#numbers.formatDecimal(y.overdueRate, 1, 1) + '%'}">0%</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

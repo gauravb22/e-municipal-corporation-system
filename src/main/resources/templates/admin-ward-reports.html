@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Member Reports</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar-link{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+.container{
+    max-width:1050px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:16px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+.table th,.table td{
+    text-align:left;
+    padding:10px 8px;
+    border-bottom:1px solid #f0e6dd;
+    font-size:13px;
+    color:#4a2811;
+    vertical-align:top;
+}
+.table th{
+    font-size:12px;
+    color:#7b5b45;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+.link{
+    color:#7a3e0b;
+    text-decoration:none;
+    font-weight:800;
+}
+.msg{
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    font-size:13px;
+}
+.msg.err{background:#fdecec;color:#9a1a1a;border:1px solid #f2b8b8;}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="brand-title">Akola Mahanagarpalika</div>
+        <div class="brand-sub">Ward Member Reports</div>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+        <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
+        <a class="topbar-link" href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title">Select Ward Member</div>
+    <div class="card">
+        <div class="msg err" th:if="${param.error}">Error: <span th:text="${param.error}">error</span></div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Ward</th>
+                <th>Zone</th>
+                <th>Report</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${wardMembers == null || wardMembers.isEmpty()}">
+                <td colspan="5">No ward members found.</td>
+            </tr>
+            <tr th:each="w : ${wardMembers}">
+                <td th:text="${w.fullName != null ? w.fullName : '-'}">-</td>
+                <td th:text="${w.username}">username</td>
+                <td th:text="${w.wardNo != null ? w.wardNo : '-'}">-</td>
+                <td th:text="${w.wardZone != null ? w.wardZone : '-'}">-</td>
+                <td><a class="link" th:href="@{/admin/ward-reports/{id}(id=${w.id})}">Open Summary</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
