@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpSession;
 import java.time.Year;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -309,6 +310,48 @@ public class StaffAuthController {
         model.addAttribute("totalPosts", totalPosts);
         model.addAttribute("yearSummaries", yearSummaries);
         return "admin-ward-report";
+    }
+
+    @GetMapping("/admin/ward-works")
+    public String adminWardWorks(HttpSession session,
+                                 Model model,
+                                 @RequestParam(value = "year", required = false) Integer year,
+                                 @RequestParam(value = "month", required = false) Integer month) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        Integer normalizedYear = (year == null ? 0 : year);
+        Integer normalizedMonth = (month == null ? 0 : month);
+
+        List<com.emunicipal.entity.WardWork> works;
+        if (normalizedYear > 0 && normalizedMonth > 0) {
+            YearMonth yearMonth = YearMonth.of(normalizedYear, normalizedMonth);
+            LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
+            LocalDateTime end = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+            works = wardWorkRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end);
+        } else if (normalizedYear > 0) {
+            LocalDateTime start = LocalDate.of(normalizedYear, 1, 1).atStartOfDay();
+            LocalDateTime end = LocalDate.of(normalizedYear, 12, 31).atTime(23, 59, 59);
+            works = wardWorkRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end);
+        } else {
+            works = wardWorkRepository.findAllByOrderByCreatedAtDesc();
+        }
+
+        int currentYear = Year.now().getValue();
+        List<Integer> yearOptions = new ArrayList<>();
+        yearOptions.add(0); // All
+        for (int y = currentYear; y >= currentYear - 10; y--) {
+            yearOptions.add(y);
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("works", works);
+        model.addAttribute("selectedYear", normalizedYear);
+        model.addAttribute("selectedMonth", normalizedMonth);
+        model.addAttribute("yearOptions", yearOptions);
+        return "admin-ward-works";
     }
 
     public static class YearSummary {
