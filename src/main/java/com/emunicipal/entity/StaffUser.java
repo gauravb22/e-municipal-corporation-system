@@ -10,6 +10,9 @@ public class StaffUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "full_name", length = 100)
+    private String fullName;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
@@ -36,6 +39,14 @@ public class StaffUser {
 
     public Long getId() {
         return id;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getUsername() {

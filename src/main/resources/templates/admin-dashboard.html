@@ -89,32 +89,18 @@ body{
 </div>
 
 <div class="container">
-    <div class="title">City Complaint Overview</div>
-    <div class="stats">
-        <div class="card">
-            <div class="label">Total Complaints</div>
-            <div class="value" th:text="${totalComplaints != null ? totalComplaints : 0}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Pending Complaints</div>
-            <div class="value" th:text="${pendingComplaints != null ? pendingComplaints : 0}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">In Progress</div>
-            <div class="value" th:text="${inProgressComplaints != null ? inProgressComplaints : 0}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Completed</div>
-            <div class="value" th:text="${completedComplaints != null ? completedComplaints : 0}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Overdue</div>
-            <div class="value overdue" th:text="${overdueComplaints != null ? overdueComplaints : 0}">0</div>
-        </div>
-    </div>
-
     <div class="title">Administration Actions</div>
     <div class="action-grid">
+        <div class="card">
+            <div class="action-card-title">Ward Members</div>
+            <div class="action-card-desc">
+                Add, manage, and delete ward member accounts. Total ward members:
+                <span th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</span>.
+            </div>
+            <div class="action-card-cta">
+                <a class="btn" href="/admin/ward-members">Manage Ward Members</a>
+            </div>
+        </div>
         <div class="card">
             <div class="action-card-title">Publish Notices</div>
             <div class="action-card-desc">Open notice center to publish citizen and ward member notices, view previous notices, and delete notices.</div>

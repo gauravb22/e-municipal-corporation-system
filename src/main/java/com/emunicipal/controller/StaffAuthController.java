@@ -18,6 +18,7 @@ import com.emunicipal.repository.StaffUserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.service.ComplaintService;
+import com.emunicipal.service.WardService;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.Year;
@@ -35,6 +36,8 @@ public class StaffAuthController {
     private ComplaintService complaintService;
     @Autowired
     private NoticeRepository noticeRepository;
+    @Autowired
+    private WardService wardService;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -143,21 +146,8 @@ public class StaffAuthController {
             return "redirect:/admin-login";
         }
 
-        complaintService.refreshOverdueForComplaints(complaintRepository.findAll());
-
-        long totalComplaints = complaintRepository.count();
-        long overdueComplaints = complaintRepository.countByStatus("overdue");
-        long inProgressComplaints = complaintRepository.countByStatus("in_progress");
-        long completedComplaints = complaintRepository.countByStatusIn(List.of("completed", "verified", "solved"));
-        long pendingComplaints = complaintRepository.countByStatusIn(
-                List.of("submitted", "pending", "assigned", "approved", "in_progress", "overdue"));
-
         model.addAttribute("staffUser", staffUser);
-        model.addAttribute("totalComplaints", totalComplaints);
-        model.addAttribute("overdueComplaints", overdueComplaints);
-        model.addAttribute("inProgressComplaints", inProgressComplaints);
-        model.addAttribute("completedComplaints", completedComplaints);
-        model.addAttribute("pendingComplaints", pendingComplaints);
+        model.addAttribute("totalWardMembers", staffUserRepository.countByRoleIgnoreCase("WARD"));
         return "admin-dashboard";
     }
 
@@ -172,6 +162,134 @@ public class StaffAuthController {
         model.addAttribute("citizenNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN"));
         model.addAttribute("wardNotices", noticeRepository.findByTargetTypeAndActiveTrueOrderByCreatedAtDesc("WARD"));
         return "admin-notices";
+    }
+
+    @GetMapping("/admin/ward-members")
+    public String adminWardMembers(HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("totalWardMembers", staffUserRepository.countByRoleIgnoreCase("WARD"));
+        model.addAttribute("wardMembers", staffUserRepository.findByRoleIgnoreCaseOrderByWardNoAscWardZoneAscUsernameAsc("WARD"));
+        return "admin-ward-members";
+    }
+
+    @PostMapping("/admin/ward-members/create")
+    public String createWardMember(@RequestParam("fullName") String fullName,
+                                   @RequestParam("username") String username,
+                                   @RequestParam("password") String password,
+                                   @RequestParam("wardNo") Integer wardNo,
+                                   @RequestParam("wardZone") String wardZone,
+                                   HttpSession session) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return "redirect:/admin/ward-members?error=missing";
+        }
+
+        if (wardNo == null || wardZone == null || wardZone.isBlank()) {
+            return "redirect:/admin/ward-members?error=ward";
+        }
+
+        if (staffUserRepository.findByUsername(username.trim()) != null) {
+            return "redirect:/admin/ward-members?error=exists";
+        }
+
+        StaffUser wardUser = new StaffUser();
+        wardUser.setRole("WARD");
+        wardUser.setFullName(fullName != null ? fullName.trim() : null);
+        wardUser.setUsername(username.trim());
+        wardUser.setPassword(password);
+        wardUser.setWardNo(wardNo);
+        wardUser.setWardZone(wardZone.trim().toUpperCase());
+        var ward = wardService.resolveWard(wardNo, wardZone);
+        if (ward != null) {
+            wardUser.setWardId(ward.getId());
+        }
+        staffUserRepository.save(wardUser);
+        return "redirect:/admin/ward-members?created=1";
+    }
+
+    @GetMapping("/admin/ward-members/{id}")
+    public String viewWardMember(@PathVariable("id") Long staffId, HttpSession session, Model model) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        StaffUser wardMember = staffUserRepository.findById(staffId).orElse(null);
+        if (wardMember == null || !"WARD".equalsIgnoreCase(wardMember.getRole())) {
+            return "redirect:/admin/ward-members?error=notfound";
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("wardMember", wardMember);
+        return "admin-ward-member-profile";
+    }
+
+    @PostMapping("/admin/ward-members/{id}/update")
+    public String updateWardMember(@PathVariable("id") Long staffId,
+                                   @RequestParam(value = "fullName", required = false) String fullName,
+                                   @RequestParam(value = "phone", required = false) String phone,
+                                   @RequestParam(value = "password", required = false) String password,
+                                   @RequestParam(value = "wardNo", required = false) Integer wardNo,
+                                   @RequestParam(value = "wardZone", required = false) String wardZone,
+                                   HttpSession session) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        StaffUser wardMember = staffUserRepository.findById(staffId).orElse(null);
+        if (wardMember == null || !"WARD".equalsIgnoreCase(wardMember.getRole())) {
+            return "redirect:/admin/ward-members?error=notfound";
+        }
+
+        if (fullName != null) {
+            wardMember.setFullName(fullName.isBlank() ? null : fullName.trim());
+        }
+        if (phone != null) {
+            wardMember.setPhone(phone.isBlank() ? null : phone.trim());
+        }
+        if (password != null && !password.isBlank()) {
+            wardMember.setPassword(password);
+        }
+        if (wardNo != null) {
+            wardMember.setWardNo(wardNo);
+        }
+        if (wardZone != null && !wardZone.isBlank()) {
+            wardMember.setWardZone(wardZone.trim().toUpperCase());
+        }
+
+        var ward = wardService.resolveWard(wardMember.getWardNo(), wardMember.getWardZone());
+        if (ward != null) {
+            wardMember.setWardId(ward.getId());
+        }
+
+        staffUserRepository.save(wardMember);
+        return "redirect:/admin/ward-members/" + staffId + "?saved=1";
+    }
+
+    @PostMapping("/admin/ward-members/{id}/delete")
+    public String deleteWardMember(@PathVariable("id") Long staffId, HttpSession session) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        StaffUser wardMember = staffUserRepository.findById(staffId).orElse(null);
+        if (wardMember == null || !"WARD".equalsIgnoreCase(wardMember.getRole())) {
+            return "redirect:/admin/ward-members?error=notfound";
+        }
+
+        staffUserRepository.deleteById(staffId);
+        return "redirect:/admin/ward-members?deleted=1";
     }
 
     @PostMapping("/admin/notices/citizen")

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Member Profile</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar-link{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+.container{
+    max-width:900px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:16px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.label{font-size:12px;color:#7b5b45;}
+.field{
+    width:100%;
+    border:1px solid #e2d4c5;
+    border-radius:10px;
+    padding:10px;
+    font-family:"Segoe UI", Arial;
+    font-size:14px;
+    box-sizing:border-box;
+    margin-top:8px;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:10px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+.danger{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:10px;
+    background:#b42318;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+.msg{
+    margin-top:10px;
+    padding:10px;
+    border-radius:10px;
+    font-size:13px;
+}
+.msg.ok{background:#e9f7ef;color:#1f7a3a;border:1px solid #bfe6cb;}
+@media (max-width: 760px){
+    .row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="brand-title">Akola Mahanagarpalika</div>
+        <div class="brand-sub">Ward Member Profile</div>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-link" href="/admin/ward-members">Back to Ward Members</a>
+        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+        <a class="topbar-link" href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title" th:text="${wardMember != null ? wardMember.username : 'Ward Member'}">Ward Member</div>
+    <div class="card" th:if="${wardMember != null}">
+        <div class="label">Update Details</div>
+        <form method="post" th:action="@{/admin/ward-members/{id}/update(id=${wardMember.id})}">
+            <input class="field" name="fullName" placeholder="Full name" th:value="${wardMember.fullName}" />
+            <div class="row">
+                <input class="field" name="phone" placeholder="Phone" th:value="${wardMember.phone}" />
+                <input class="field" name="password" placeholder="New password (leave blank to keep)" />
+            </div>
+            <div class="row">
+                <input class="field" name="wardNo" placeholder="Ward No" type="number" min="1" th:value="${wardMember.wardNo}" />
+                <input class="field" name="wardZone" placeholder="Zone (A/B/C/D)" maxlength="5" th:value="${wardMember.wardZone}" />
+            </div>
+            <button class="btn" type="submit">Save Changes</button>
+        </form>
+
+        <form method="post" th:action="@{/admin/ward-members/{id}/delete(id=${wardMember.id})}">
+            <button class="danger" type="submit">Delete Ward Member</button>
+        </form>
+
+        <div class="msg ok" th:if="${param.saved}">Saved successfully.</div>
+    </div>
+</div>
+</body>
+</html>
