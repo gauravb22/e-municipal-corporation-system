@@ -1,6 +1,7 @@
 package com.emunicipal.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +37,12 @@ public class User {
 
     @Column(name = "ward_id")
     private Long wardId;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
     // ===== GETTERS & SETTERS =====
 
     public Long getId() {
@@ -112,5 +119,21 @@ public class User {
 
     public void setWardId(Long wardId) {
         this.wardId = wardId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

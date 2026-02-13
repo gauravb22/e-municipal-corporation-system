@@ -10,6 +10,40 @@ body{
     background:linear-gradient(135deg,#2b1a0f,#9b5a13);
     min-height:100vh;
 }
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:220px;
+    background:#3b1f0d;
+    color:white;
+    padding:18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.sidebar-title{
+    font-weight:800;
+    font-size:15px;
+    margin-bottom:6px;
+}
+.nav-link{
+    color:white;
+    text-decoration:none;
+    font-size:13px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.06);
+}
+.nav-link:hover{
+    background:rgba(255,255,255,0.14);
+}
+.content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
 .topbar{
     background:#4a2811;
     color:white;
@@ -132,31 +166,46 @@ body{
     text-transform:uppercase;
     letter-spacing:.04em;
 }
+@media (max-width: 900px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
+}
 </style>
 </head>
 <body>
-<div class="topbar">
-    <div>
-        <div class="brand-title">Akola Mahanagarpalika</div>
-        <div class="brand-sub">Ward Member Summary Report</div>
-    </div>
-    <div class="topbar-actions">
-        <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
-        <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
-        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
-        <a class="topbar-link" href="/logout">Logout</a>
-    </div>
-</div>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        <a class="nav-link" href="/admin/users">View Citizens</a>
+        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
+        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
+        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
+        <a class="nav-link" href="/admin/notices">Notice Center</a>
+    </aside>
+    <div class="content">
+        <div class="topbar">
+            <div>
+                <div class="brand-title">Akola Mahanagarpalika</div>
+                <div class="brand-sub">Ward Member Summary Report</div>
+            </div>
+            <div class="topbar-actions">
+                <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
+                <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
+                <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+                <a class="topbar-link" href="/logout">Logout</a>
+            </div>
+        </div>
 
-<div class="container">
-    <div class="title">Work Summary</div>
-    <div class="sub">
-        <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
-        <span> | </span>
-        <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> • Zone <span th:text="${wardMember.wardZone}">A</span></span>
-    </div>
+        <div class="container">
+            <div class="title">Work Summary</div>
+            <div class="sub">
+                <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+                <span> | </span>
+                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> • Zone <span th:text="${wardMember.wardZone}">A</span></span>
+            </div>
 
-    <div class="card">
+            <div class="card">
         <div class="profile">
             <div class="profile-left">
                 <div th:if="${wardMember.photoBase64 == null || #strings.isEmpty(wardMember.photoBase64)}" class="avatar-fallback">WM</div>
@@ -180,7 +229,7 @@ body{
         </div>
     </div>
 
-    <div class="grid">
+            <div class="grid">
         <div class="card">
             <div class="label">Total Complaints</div>
             <div class="value" th:text="${totalComplaints}">0</div>
@@ -222,7 +271,7 @@ body{
         </div>
     </div>
 
-    <div class="card">
+            <div class="card">
         <div class="label">Year-wise Summary (Last 5 Years)</div>
         <table class="table">
             <thead>
@@ -246,6 +295,8 @@ body{
             </tr>
             </tbody>
         </table>
+    </div>
+        </div>
     </div>
 </div>
 </body>

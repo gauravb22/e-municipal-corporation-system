@@ -389,7 +389,7 @@ public class StaffAuthController {
         } else if (normalizedYear > 0) {
             start = LocalDate.of(normalizedYear, 1, 1).atStartOfDay();
             end = LocalDate.of(normalizedYear, 12, 31).atTime(23, 59, 59);
-        }
+         }
 
         List<WardWork> wardWorks;
         if (start != null && end != null) {

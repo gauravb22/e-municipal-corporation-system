@@ -10,6 +10,40 @@ body{
     background:linear-gradient(135deg,#2b1a0f,#9b5a13);
     min-height:100vh;
 }
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:220px;
+    background:#3b1f0d;
+    color:white;
+    padding:18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.sidebar-title{
+    font-weight:800;
+    font-size:15px;
+    margin-bottom:6px;
+}
+.nav-link{
+    color:white;
+    text-decoration:none;
+    font-size:13px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.06);
+}
+.nav-link:hover{
+    background:rgba(255,255,255,0.14);
+}
+.content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
 .topbar{
     background:#4a2811;
     color:white;
@@ -128,25 +162,40 @@ body{
 @media (max-width: 980px){
     .grid{grid-template-columns:1fr;}
 }
+@media (max-width: 900px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
+}
 </style>
 </head>
 <body>
-<div class="topbar">
-    <div>
-        <div class="brand-title">Akola Mahanagarpalika</div>
-        <div class="brand-sub">Ward Members</div>
-    </div>
-    <div class="topbar-actions">
-        <a class="topbar-link" href="/admin-dashboard">Back to Dashboard</a>
-        <a class="topbar-link" href="/logout">Logout</a>
-    </div>
-</div>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        <a class="nav-link" href="/admin/users">View Citizens</a>
+        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
+        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
+        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
+        <a class="nav-link" href="/admin/notices">Notice Center</a>
+    </aside>
+    <div class="content">
+        <div class="topbar">
+            <div>
+                <div class="brand-title">Akola Mahanagarpalika</div>
+                <div class="brand-sub">Ward Members</div>
+            </div>
+            <div class="topbar-actions">
+                <a class="topbar-link" href="/admin-dashboard">Back to Dashboard</a>
+                <a class="topbar-link" href="/logout">Logout</a>
+            </div>
+        </div>
 
-<div class="container">
-    <div class="title">Manage Ward Members <span class="badge" th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</span></div>
+        <div class="container">
+            <div class="title">Manage Ward Members <span class="badge" th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</span></div>
 
-    <div class="grid">
-        <div class="card">
+            <div class="grid">
+                <div class="card">
             <div class="label">Create Ward Member</div>
             <form method="post" action="/admin/ward-members/create">
                 <input class="field" name="fullName" placeholder="Full name (e.g., Rahul Patil)" />
@@ -165,7 +214,7 @@ body{
             </div>
         </div>
 
-        <div class="card">
+                <div class="card">
             <div class="label">All Ward Members</div>
             <table class="table">
                 <thead>
@@ -195,6 +244,8 @@ body{
                 </tr>
                 </tbody>
             </table>
+        </div>
+            </div>
         </div>
     </div>
 </div>

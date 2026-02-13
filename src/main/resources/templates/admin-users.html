@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Citizen Users</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:220px;
+    background:#3b1f0d;
+    color:white;
+    padding:18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.sidebar-title{
+    font-weight:800;
+    font-size:15px;
+    margin-bottom:6px;
+}
+.nav-link{
+    color:white;
+    text-decoration:none;
+    font-size:13px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.06);
+}
+.nav-link:hover{
+    background:rgba(255,255,255,0.14);
+}
+.content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.logout-link{color:white;text-decoration:none;font-size:14px;}
+.container{
+    max-width:1050px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:12px;
+}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+    margin-bottom:16px;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.label{font-size:12px;color:#7b5b45;}
+.value{font-size:24px;font-weight:800;color:#4a2811;margin-top:6px;}
+.value.danger{color:#b42318;}
+.value.ok{color:#1f7a3a;}
+.filters{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+}
+.field{
+    border:1px solid #e2d4c5;
+    border-radius:10px;
+    padding:10px;
+    font-family:"Segoe UI", Arial;
+    font-size:14px;
+    background:white;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:800;
+    cursor:pointer;
+}
+.btn.secondary{
+    background:#f1e2d3;
+    color:#4a2811;
+}
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+.table th,.table td{
+    text-align:left;
+    padding:10px 8px;
+    border-bottom:1px solid #f0e6dd;
+    font-size:13px;
+    color:#4a2811;
+    vertical-align:top;
+}
+.table th{
+    font-size:12px;
+    color:#7b5b45;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+.badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#f1e2d3;
+    color:#4a2811;
+    font-size:12px;
+    font-weight:800;
+}
+.badge.blocked{background:#fdecec;color:#b42318;}
+.action-form{display:inline;}
+.danger{
+    border:none;
+    border-radius:8px;
+    padding:6px 10px;
+    background:#b42318;
+    color:white;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+.safe{
+    border:none;
+    border-radius:8px;
+    padding:6px 10px;
+    background:#1f7a3a;
+    color:white;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+@media (max-width: 900px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        <a class="nav-link" href="/admin/users">View Citizens</a>
+        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
+        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
+        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
+        <a class="nav-link" href="/admin/notices">Notice Center</a>
+    </aside>
+    <div class="content">
+        <div class="topbar">
+            <div>
+                <div class="brand-title">Akola Mahanagarpalika</div>
+                <div class="brand-sub">Citizen Users</div>
+            </div>
+            <a class="logout-link" href="/logout">Logout</a>
+        </div>
+
+        <div class="container">
+            <div class="title">Citizen Management</div>
+
+            <div class="stats">
+                <div class="card">
+                    <div class="label">Total Users</div>
+                    <div class="value" th:text="${totalUsers}">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Active Users</div>
+                    <div class="value ok" th:text="${activeUsers}">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">Blocked Users</div>
+                    <div class="value danger" th:text="${blockedUsers}">0</div>
+                </div>
+                <div class="card">
+                    <div class="label">New Users (30 days)</div>
+                    <div class="value" th:text="${newUsers}">0</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:16px;">
+                <form method="get" action="/admin/users" class="filters">
+                    <div>
+                        <div class="label">Ward No</div>
+                        <input class="field" type="number" name="wardNo" min="1" th:value="${selectedWardNo}" placeholder="Ward No" />
+                    </div>
+                    <div>
+                        <div class="label">Zone</div>
+                        <input class="field" name="wardZone" maxlength="5" th:value="${selectedWardZone}" placeholder="Zone (A/B/C/D)" />
+                    </div>
+                    <div>
+                        <div class="label">Status</div>
+                        <select class="field" name="status">
+                            <option value="" th:selected="${selectedStatus == ''}">All</option>
+                            <option value="active" th:selected="${selectedStatus == 'active'}">Active</option>
+                            <option value="blocked" th:selected="${selectedStatus == 'blocked'}">Blocked</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="label">View</div>
+                        <select class="field" name="view">
+                            <option value="" th:selected="${selectedView == ''}">All Users</option>
+                            <option value="new" th:selected="${selectedView == 'new'}">New Users</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn" type="submit">Apply</button>
+                    </div>
+                    <div>
+                        <a class="btn secondary" href="/admin/users">Reset</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Ward</th>
+                        <th>Zone</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${users == null || users.isEmpty()}">
+                        <td colspan="7">No users found.</td>
+                    </tr>
+                    <tr th:each="u : ${users}">
+                        <td th:text="${u.fullName}">Name</td>
+                        <td th:text="${u.phone}">Phone</td>
+                        <td th:text="${u.wardNo != null ? u.wardNo : '-'}">-</td>
+                        <td th:text="${u.wardZone != null ? u.wardZone : '-'}">-</td>
+                        <td th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd-MMM-yyyy') : '-'}">-</td>
+                        <td>
+                            <span class="badge" th:if="${u.active == null || u.active}">Active</span>
+                            <span class="badge blocked" th:if="${u.active != null && !u.active}">Blocked</span>
+                        </td>
+                        <td>
+                            <form class="action-form" method="post" th:if="${u.active == null || u.active}" th:action="@{/admin/users/{id}/block(id=${u.id})}">
+                                <button class="danger" type="submit">Block</button>
+                            </form>
+                            <form class="action-form" method="post" th:if="${u.active != null && !u.active}" th:action="@{/admin/users/{id}/unblock(id=${u.id})}">
+                                <button class="safe" type="submit">Unblock</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

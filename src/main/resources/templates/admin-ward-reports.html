@@ -10,6 +10,40 @@ body{
     background:linear-gradient(135deg,#2b1a0f,#9b5a13);
     min-height:100vh;
 }
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:220px;
+    background:#3b1f0d;
+    color:white;
+    padding:18px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.sidebar-title{
+    font-weight:800;
+    font-size:15px;
+    margin-bottom:6px;
+}
+.nav-link{
+    color:white;
+    text-decoration:none;
+    font-size:13px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.06);
+}
+.nav-link:hover{
+    background:rgba(255,255,255,0.14);
+}
+.content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
 .topbar{
     background:#4a2811;
     color:white;
@@ -77,25 +111,40 @@ body{
     font-size:13px;
 }
 .msg.err{background:#fdecec;color:#9a1a1a;border:1px solid #f2b8b8;}
+@media (max-width: 900px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
+}
 </style>
 </head>
 <body>
-<div class="topbar">
-    <div>
-        <div class="brand-title">Akola Mahanagarpalika</div>
-        <div class="brand-sub">Ward Member Reports</div>
-    </div>
-    <div class="topbar-actions">
-        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
-        <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
-        <a class="topbar-link" href="/logout">Logout</a>
-    </div>
-</div>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        <a class="nav-link" href="/admin/users">View Citizens</a>
+        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
+        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
+        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
+        <a class="nav-link" href="/admin/notices">Notice Center</a>
+    </aside>
+    <div class="content">
+        <div class="topbar">
+            <div>
+                <div class="brand-title">Akola Mahanagarpalika</div>
+                <div class="brand-sub">Ward Member Reports</div>
+            </div>
+            <div class="topbar-actions">
+                <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+                <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
+                <a class="topbar-link" href="/logout">Logout</a>
+            </div>
+        </div>
 
-<div class="container">
-    <div class="title">Select Ward Member</div>
-    <div class="card">
-        <div class="msg err" th:if="${param.error}">Error: <span th:text="${param.error}">error</span></div>
+        <div class="container">
+            <div class="title">Select Ward Member</div>
+            <div class="card">
+                <div class="msg err" th:if="${param.error}">Error: <span th:text="${param.error}">error</span></div>
 
         <table class="table">
             <thead>
@@ -120,6 +169,8 @@ body{
             </tr>
             </tbody>
         </table>
+            </div>
+        </div>
     </div>
 </div>
 </body>

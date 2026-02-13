@@ -97,6 +97,10 @@ public class AuthController {
         if (user == null) {
             return "redirect:/login";
         }
+        if (user.getActive() != null && !user.getActive()) {
+            model.addAttribute("error", "Account is blocked. Please contact administration.");
+            return "login";
+        }
 
         String otp = String.format("%06d", new Random().nextInt(999999));
 
@@ -174,6 +178,13 @@ public class AuthController {
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             user.setEmail("user" + phone + "@municipal.local");
+        }
+
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(java.time.LocalDateTime.now());
+        }
+        if (user.getActive() == null) {
+            user.setActive(true);
         }
 
         Ward ward = wardService.resolveWard(user.getWardNo(), user.getWardZone());
