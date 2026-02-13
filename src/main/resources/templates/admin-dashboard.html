@@ -10,39 +10,61 @@ body{
     background:linear-gradient(135deg,#2b1a0f,#9b5a13);
     min-height:100vh;
 }
-.layout{
-    display:flex;
-    min-height:100vh;
-}
 .sidebar{
-    width:220px;
-    background:#3b1f0d;
-    color:white;
-    padding:18px 14px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+    position:fixed;
+    top:0;
+    left:-260px;
+    width:260px;
+    height:100%;
+    background:white;
+    box-shadow:4px 0 20px rgba(0,0,0,.3);
+    transition:.3s;
+    z-index:100;
+    overflow-y:auto;
+}
+.sidebar.open{
+    left:0;
 }
 .sidebar-title{
-    font-weight:800;
-    font-size:15px;
-    margin-bottom:6px;
+    margin:0;
+    padding:16px;
+    background:#1e3c72;
+    color:white;
+    font-weight:700;
 }
 .nav-link{
-    color:white;
+    display:block;
+    padding:14px 18px;
     text-decoration:none;
-    font-size:13px;
-    padding:8px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.06);
+    color:#333;
+    border-bottom:1px solid #eee;
+    font-size:14px;
 }
 .nav-link:hover{
-    background:rgba(255,255,255,0.14);
+    background:#f2f2f2;
+}
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    display:none;
+    z-index:90;
+}
+.overlay.show{
+    display:block;
 }
 .content{
-    flex:1;
+    min-height:100vh;
+}
+.topbar-left{
     display:flex;
-    flex-direction:column;
+    align-items:center;
+    gap:12px;
+}
+.menu-btn{
+    font-size:22px;
+    cursor:pointer;
+    text-decoration:none;
 }
 .topbar{
     background:#4a2811;
@@ -111,40 +133,32 @@ body{
 .action-card-cta{
     margin-top:14px;
 }
-@media (max-width: 900px){
-    .layout{
-        flex-direction:column;
-    }
-    .sidebar{
-        width:100%;
-        flex-direction:row;
-        flex-wrap:wrap;
-        align-items:center;
-    }
-}
 </style>
 </head>
 <body>
-<div class="layout">
-    <aside class="sidebar">
-        <div class="sidebar-title">Admin Panel</div>
-        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
-        <a class="nav-link" href="/admin/users">View Citizens</a>
-        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
-        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
-        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
-        <a class="nav-link" href="/admin/notices">Notice Center</a>
-    </aside>
-    <div class="content">
-        <div class="topbar">
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Admin Panel</div>
+    <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+    <a class="nav-link" href="/admin/users">View Citizens</a>
+    <a class="nav-link" href="/admin/ward-members">Ward Members</a>
+    <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
+    <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
+    <a class="nav-link" href="/admin/notices">Notice Center</a>
+</aside>
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+<div class="content">
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="menu-btn" onclick="toggleMenu()">☰</div>
             <div>
                 <div class="brand-title">Akola Mahanagarpalika</div>
                 <div class="brand-sub">Administration Dashboard</div>
             </div>
-            <a class="logout-link" href="/logout">Logout</a>
         </div>
+        <a class="logout-link" href="/logout">Logout</a>
+    </div>
 
-        <div class="container">
+    <div class="container">
     <div class="title">Administration Actions</div>
     <div class="action-grid">
         <div class="card">
@@ -179,8 +193,21 @@ body{
             </div>
         </div>
     </div>
-        </div>
     </div>
 </div>
+<script>
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+function toggleMenu() {
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+}
+
+function closeMenu() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+}
+</script>
 </body>
 </html>
