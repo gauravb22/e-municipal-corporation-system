@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.entity.Notice;
+import com.emunicipal.entity.WardWork;
 import com.emunicipal.repository.StaffUserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.repository.NoticeRepository;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 @Controller
 public class StaffAuthController {
@@ -352,6 +354,151 @@ public class StaffAuthController {
         model.addAttribute("selectedMonth", normalizedMonth);
         model.addAttribute("yearOptions", yearOptions);
         return "admin-ward-works";
+    }
+
+    @GetMapping("/admin/ward-reports/{id}/posts")
+    public String adminWardMemberPosts(@PathVariable("id") Long staffId,
+                                       HttpSession session,
+                                       Model model,
+                                       @RequestParam(value = "year", required = false) Integer year,
+                                       @RequestParam(value = "month", required = false) Integer month) {
+        StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
+        if (staffUser == null || !"ADMIN".equalsIgnoreCase(staffUser.getRole())) {
+            return "redirect:/admin-login";
+        }
+
+        StaffUser wardMember = staffUserRepository.findById(staffId).orElse(null);
+        if (wardMember == null || !"WARD".equalsIgnoreCase(wardMember.getRole())) {
+            return "redirect:/admin/ward-reports?error=notfound";
+        }
+
+        Integer wardNo = wardMember.getWardNo();
+        if (wardNo == null) {
+            return "redirect:/admin/ward-reports?error=ward";
+        }
+
+        Integer normalizedYear = (year == null ? 0 : year);
+        Integer normalizedMonth = (month == null ? 0 : month);
+
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        if (normalizedYear > 0 && normalizedMonth > 0) {
+            YearMonth ym = YearMonth.of(normalizedYear, normalizedMonth);
+            start = ym.atDay(1).atStartOfDay();
+            end = ym.atEndOfMonth().atTime(23, 59, 59);
+        } else if (normalizedYear > 0) {
+            start = LocalDate.of(normalizedYear, 1, 1).atStartOfDay();
+            end = LocalDate.of(normalizedYear, 12, 31).atTime(23, 59, 59);
+        }
+
+        List<WardWork> wardWorks;
+        if (start != null && end != null) {
+            wardWorks = wardWorkRepository.findByWardNoAndCreatedAtBetweenOrderByCreatedAtDesc(wardNo, start, end);
+        } else {
+            wardWorks = wardWorkRepository.findByWardNoOrderByCreatedAtDesc(wardNo);
+        }
+
+        List<String> completedStatuses = List.of("completed", "verified", "solved");
+        List<com.emunicipal.entity.Complaint> completedComplaints;
+        if (start != null && end != null) {
+            completedComplaints = complaintRepository.findByWardNoAndStatusInAndCompletedBetween(wardNo, completedStatuses, start, end);
+        } else {
+            LocalDateTime farPast = LocalDate.of(2000, 1, 1).atStartOfDay();
+            LocalDateTime farFuture = LocalDate.of(2100, 12, 31).atTime(23, 59, 59);
+            completedComplaints = complaintRepository.findByWardNoAndStatusInAndCompletedBetween(wardNo, completedStatuses, farPast, farFuture);
+        }
+
+        List<PostItem> feed = new ArrayList<>();
+        for (WardWork w : wardWorks) {
+            feed.add(PostItem.fromWardWork(w));
+        }
+        for (com.emunicipal.entity.Complaint c : completedComplaints) {
+            feed.add(PostItem.fromCompletedComplaint(c));
+        }
+        feed.sort(Comparator.comparing(PostItem::getDateTime, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+
+        int currentYear = Year.now().getValue();
+        List<Integer> yearOptions = new ArrayList<>();
+        yearOptions.add(0);
+        for (int y = currentYear; y >= currentYear - 10; y--) {
+            yearOptions.add(y);
+        }
+
+        model.addAttribute("staffUser", staffUser);
+        model.addAttribute("wardMember", wardMember);
+        model.addAttribute("feed", feed);
+        model.addAttribute("selectedYear", normalizedYear);
+        model.addAttribute("selectedMonth", normalizedMonth);
+        model.addAttribute("yearOptions", yearOptions);
+        return "admin-ward-member-posts";
+    }
+
+    public static class PostItem {
+        private final String typeLabel;
+        private final String title;
+        private final String description;
+        private final String imageSrc;
+        private final String metaLeft;
+        private final String metaRight;
+        private final LocalDateTime dateTime;
+
+        private PostItem(String typeLabel, String title, String description, String imageSrc, String metaLeft, String metaRight, LocalDateTime dateTime) {
+            this.typeLabel = typeLabel;
+            this.title = title;
+            this.description = description;
+            this.imageSrc = imageSrc;
+            this.metaLeft = metaLeft;
+            this.metaRight = metaRight;
+            this.dateTime = dateTime;
+        }
+
+        public static PostItem fromWardWork(WardWork w) {
+            String imageSrc = null;
+            if (w.getImageBase64() != null && !w.getImageBase64().isBlank()) {
+                String raw = w.getImageBase64().trim();
+                imageSrc = raw.startsWith("data:") ? raw : ("data:image/jpeg;base64," + raw);
+            }
+            String title = w.getTitle() != null ? w.getTitle() : "Ward Work";
+            String desc = w.getDescription() != null ? w.getDescription() : "";
+            String metaLeft = "Ward " + (w.getWardNo() != null ? w.getWardNo() : "-") + " • Zone " + (w.getWardZone() != null ? w.getWardZone() : "-");
+            String metaRight = "Rating: " + (w.getRating() != null ? String.format("%.1f", w.getRating()) : "0.0");
+            return new PostItem("WORK POST", title, desc, imageSrc, metaLeft, metaRight, w.getCreatedAt());
+        }
+
+        public static PostItem fromCompletedComplaint(com.emunicipal.entity.Complaint c) {
+            String imageSrc = null;
+            if (c.getDonePhotoPath() != null && !c.getDonePhotoPath().isBlank()) {
+                imageSrc = c.getDonePhotoPath();
+            } else if (c.getDonePhotoBase64() != null && !c.getDonePhotoBase64().isBlank()) {
+                String raw = c.getDonePhotoBase64().trim();
+                imageSrc = raw.startsWith("data:") ? raw : ("data:image/jpeg;base64," + raw);
+            }
+
+            String title = (c.getComplaintType() != null ? c.getComplaintType() : "Complaint") + " (Completed)";
+            String desc = "";
+            if (c.getLocation() != null && !c.getLocation().isBlank()) {
+                desc = "Location: " + c.getLocation();
+            }
+            if (c.getHouseNo() != null && !c.getHouseNo().isBlank()) {
+                desc = desc.isBlank() ? ("House: " + c.getHouseNo()) : (desc + "\nHouse: " + c.getHouseNo());
+            }
+            if (c.getFeedbackRating() != null) {
+                desc = desc.isBlank() ? ("Star Rating: " + c.getFeedbackRating() + "/5") : (desc + "\nStar Rating: " + c.getFeedbackRating() + "/5");
+            }
+
+            String metaLeft = "Ward " + (c.getWardNo() != null ? c.getWardNo() : "-") + " • Zone " + (c.getWardZone() != null ? c.getWardZone() : "-");
+            String metaRight = "Status: " + (c.getStatus() != null ? c.getStatus() : "-");
+            LocalDateTime dt = (c.getUpdatedAt() != null ? c.getUpdatedAt() : c.getCreatedAt());
+            return new PostItem("COMPLAINT COMPLETED", title, desc, imageSrc, metaLeft, metaRight, dt);
+        }
+
+        public String getTypeLabel() { return typeLabel; }
+        public String getTitle() { return title; }
+        public String getDescription() { return description; }
+        public String getImageSrc() { return imageSrc; }
+        public String getMetaLeft() { return metaLeft; }
+        public String getMetaRight() { return metaRight; }
+        public LocalDateTime getDateTime() { return dateTime; }
     }
 
     public static class YearSummary {

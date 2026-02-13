@@ -24,5 +24,18 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     @Query("select avg(c.feedbackRating) from Complaint c where c.wardNo = :wardNo and c.feedbackRating is not null")
     Double getAverageRatingByWard(@Param("wardNo") Integer wardNo);
+
+    @Query("""
+            select c from Complaint c
+            where c.wardNo = :wardNo
+              and c.status in :statuses
+              and coalesce(c.updatedAt, c.createdAt) between :start and :end
+            order by coalesce(c.updatedAt, c.createdAt) desc
+            """)
+    List<Complaint> findByWardNoAndStatusInAndCompletedBetween(
+            @Param("wardNo") Integer wardNo,
+            @Param("statuses") List<String> statuses,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
  

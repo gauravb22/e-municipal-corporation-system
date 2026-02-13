@@ -213,6 +213,13 @@ body{
             <div class="label">Total Posts (Ward Works)</div>
             <div class="value" th:text="${totalPosts}">0</div>
         </div>
+        <div class="card">
+            <div class="label">Posts Feed</div>
+            <div class="value muted">View</div>
+            <div style="margin-top:10px;">
+                <a class="pill" th:href="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}">See Work Posts</a>
+            </div>
+        </div>
     </div>
 
     <div class="card">

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Ward Member Posts</title>
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial;
+    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    min-height:100vh;
+}
+.topbar{
+    background:#4a2811;
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+.brand-title{font-weight:700;}
+.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.topbar-link{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+.container{
+    max-width:980px;
+    margin:24px auto;
+    padding:12px;
+}
+.title{
+    color:white;
+    font-size:22px;
+    margin-bottom:8px;
+}
+.sub{
+    color:rgba(255,255,255,.9);
+    font-size:13px;
+    margin-bottom:14px;
+}
+.pill{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#f1e2d3;
+    color:#4a2811;
+    font-size:12px;
+    font-weight:900;
+}
+.card{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.filters{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+}
+.label{font-size:12px;color:#7b5b45;}
+.select{
+    border:1px solid #e2d4c5;
+    border-radius:10px;
+    padding:10px;
+    font-family:"Segoe UI", Arial;
+    font-size:14px;
+    background:white;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:900;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+}
+.btn.secondary{
+    background:#f1e2d3;
+    color:#4a2811;
+}
+.feed{
+    margin-top:14px;
+    display:grid;
+    gap:14px;
+}
+.post{
+    background:white;
+    border-radius:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+    overflow:hidden;
+}
+.post-head{
+    padding:12px 14px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    background:linear-gradient(180deg,#fffaf6,#ffffff);
+}
+.post-type{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    background:#4a2811;
+    color:white;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.02em;
+}
+.meta{
+    color:#7b5b45;
+    font-size:12px;
+    margin-top:6px;
+}
+.post-title{
+    font-size:16px;
+    font-weight:900;
+    color:#4a2811;
+    margin:0;
+}
+.img{
+    width:100%;
+    max-height:440px;
+    object-fit:cover;
+    border-top:1px solid #f0e6dd;
+    border-bottom:1px solid #f0e6dd;
+    background:#fffaf6;
+}
+.post-body{
+    padding:12px 14px 14px;
+}
+.post-desc{
+    margin:0;
+    color:#5f3f2b;
+    font-size:13px;
+    line-height:1.45;
+    white-space:pre-wrap;
+}
+.foot{
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    color:#7b5b45;
+    font-size:12px;
+    background:#fffaf6;
+}
+.strong{font-weight:900;color:#4a2811;}
+.empty{
+    margin-top:14px;
+    border:1px dashed #dcc7b2;
+    border-radius:16px;
+    padding:14px;
+    background:#fffaf6;
+    color:#7b5b45;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="brand-title">Akola Mahanagarpalika</div>
+        <div class="brand-sub">Ward Member Posts</div>
+    </div>
+    <div class="topbar-actions">
+        <a class="topbar-link" th:href="@{/admin/ward-reports/{id}(id=${wardMember.id})}">Back to Summary</a>
+        <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+        <a class="topbar-link" href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="title">Posts Feed</div>
+    <div class="sub">
+        <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+        <span> | </span>
+        <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> • Zone <span th:text="${wardMember.wardZone}">A</span></span>
+    </div>
+
+    <div class="card">
+        <form method="get" th:action="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}" class="filters">
+            <div>
+                <div class="label">Year</div>
+                <select class="select" name="year">
+                    <option th:each="y : ${yearOptions}"
+                            th:value="${y}"
+                            th:selected="${y == selectedYear}"
+                            th:text="${y == 0 ? 'All' : y}">
+                        All
+                    </option>
+                </select>
+            </div>
+            <div>
+                <div class="label">Month</div>
+                <select class="select" name="month">
+                    <option value="0" th:selected="${selectedMonth == 0}">All</option>
+                    <option value="1" th:selected="${selectedMonth == 1}">Jan</option>
+                    <option value="2" th:selected="${selectedMonth == 2}">Feb</option>
+                    <option value="3" th:selected="${selectedMonth == 3}">Mar</option>
+                    <option value="4" th:selected="${selectedMonth == 4}">Apr</option>
+                    <option value="5" th:selected="${selectedMonth == 5}">May</option>
+                    <option value="6" th:selected="${selectedMonth == 6}">Jun</option>
+                    <option value="7" th:selected="${selectedMonth == 7}">Jul</option>
+                    <option value="8" th:selected="${selectedMonth == 8}">Aug</option>
+                    <option value="9" th:selected="${selectedMonth == 9}">Sep</option>
+                    <option value="10" th:selected="${selectedMonth == 10}">Oct</option>
+                    <option value="11" th:selected="${selectedMonth == 11}">Nov</option>
+                    <option value="12" th:selected="${selectedMonth == 12}">Dec</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn" type="submit">Apply Filter</button>
+            </div>
+            <div>
+                <a class="btn secondary" th:href="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="feed" th:if="${feed != null && !feed.isEmpty()}">
+        <div class="post" th:each="p : ${feed}">
+            <div class="post-head">
+                <div>
+                    <div class="post-title" th:text="${p.title}">Title</div>
+                    <div class="meta">
+                        <span class="post-type" th:text="${p.typeLabel}">TYPE</span>
+                        <span th:if="${p.dateTime != null}"> • <span th:text="${#temporals.format(p.dateTime, 'dd-MMM-yyyy HH:mm')}">date</span></span>
+                    </div>
+                    <div class="meta" th:text="${p.metaLeft}">meta</div>
+                </div>
+                <div class="pill" th:text="${p.metaRight}">meta</div>
+            </div>
+
+            <img class="img" th:if="${p.imageSrc != null}" th:src="${p.imageSrc}" alt="Post photo" />
+
+            <div class="post-body">
+                <p class="post-desc" th:text="${p.description}"></p>
+            </div>
+
+            <div class="foot">
+                <div><span class="strong">Type</span>: <span th:text="${p.typeLabel}">TYPE</span></div>
+                <div th:if="${p.dateTime != null}"><span class="strong">Time</span>: <span th:text="${#temporals.format(p.dateTime, 'dd-MMM-yyyy')}">date</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="empty" th:if="${feed == null || feed.isEmpty()}">
+        No posts found for the selected filter.
+    </div>
+</div>
+</body>
+</html>

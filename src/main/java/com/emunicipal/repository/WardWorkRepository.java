@@ -12,5 +12,6 @@ public interface WardWorkRepository extends JpaRepository<WardWork, Long> {
     List<WardWork> findByWardNoOrderByCreatedAtDesc(Integer wardNo);
     long countByWardNo(Integer wardNo);
     List<WardWork> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
+    List<WardWork> findByWardNoAndCreatedAtBetweenOrderByCreatedAtDesc(Integer wardNo, LocalDateTime start, LocalDateTime end);
 
 }
