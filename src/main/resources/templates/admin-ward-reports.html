@@ -115,6 +115,10 @@ body{
     .layout{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
 }
+/* Sidebar visible only on admin dashboard */
+.layout{display:block !important;}
+.sidebar,.overlay,.menu-btn{display:none !important;}
+.content{display:block !important;}
 </style>
 </head>
 <body>

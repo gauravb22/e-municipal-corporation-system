@@ -16,8 +16,8 @@ body{
     left:-260px;
     width:260px;
     height:100%;
-    background:white;
-    box-shadow:4px 0 20px rgba(0,0,0,.3);
+    background:linear-gradient(180deg,#102a43 0%,#0f3a54 55%,#145374 100%);
+    box-shadow:8px 0 24px rgba(0,0,0,.35);
     transition:.3s;
     z-index:100;
     overflow-y:auto;
@@ -28,20 +28,23 @@ body{
 .sidebar-title{
     margin:0;
     padding:16px;
-    background:#1e3c72;
-    color:white;
+    background:rgba(255,255,255,.08);
+    color:#f5fbff;
     font-weight:700;
+    border-bottom:1px solid rgba(255,255,255,.18);
 }
 .nav-link{
     display:block;
     padding:14px 18px;
     text-decoration:none;
-    color:#333;
-    border-bottom:1px solid #eee;
+    color:#e8f3ff;
+    border-bottom:1px solid rgba(255,255,255,.12);
     font-size:14px;
+    background:transparent;
 }
 .nav-link:hover{
-    background:#f2f2f2;
+    background:rgba(255,255,255,.14);
+    color:#ffffff;
 }
 .overlay{
     position:fixed;

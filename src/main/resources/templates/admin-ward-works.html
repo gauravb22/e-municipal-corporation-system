@@ -205,6 +205,10 @@ body{
     .layout{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
 }
+/* Sidebar visible only on admin dashboard */
+.layout{display:block !important;}
+.sidebar,.overlay,.menu-btn{display:none !important;}
+.content{display:block !important;}
 </style>
 </head>
 <body>
@@ -282,9 +286,9 @@ body{
                     <div class="who" th:text="${p.doneBy != null ? p.doneBy : 'Ward Member'}">Ward Member</div>
                     <div class="meta">
                         Ward <span th:text="${p.wardNo != null ? p.wardNo : '-'}">-</span>
-                        <span> • </span>
+                        <span> â€¢ </span>
                         Zone <span th:text="${p.wardZone != null ? p.wardZone : '-'}">-</span>
-                        <span th:if="${p.createdAt != null}"> • <span th:text="${#temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm')}">date</span></span>
+                        <span th:if="${p.createdAt != null}"> â€¢ <span th:text="${#temporals.format(p.createdAt, 'dd-MMM-yyyy HH:mm')}">date</span></span>
                     </div>
                 </div>
                 <div class="pill" th:text="${p.workDoneDate != null ? #temporals.format(p.workDoneDate, 'dd-MMM-yyyy') : 'Work'}">Work</div>

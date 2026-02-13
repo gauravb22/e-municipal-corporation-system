@@ -170,6 +170,10 @@ body{
     .layout{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
 }
+/* Sidebar visible only on admin dashboard */
+.layout{display:block !important;}
+.sidebar,.overlay,.menu-btn{display:none !important;}
+.content{display:block !important;}
 </style>
 </head>
 <body>
@@ -202,7 +206,7 @@ body{
             <div class="sub">
                 <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
                 <span> | </span>
-                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> • Zone <span th:text="${wardMember.wardZone}">A</span></span>
+                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> â€¢ Zone <span th:text="${wardMember.wardZone}">A</span></span>
             </div>
 
             <div class="card">
