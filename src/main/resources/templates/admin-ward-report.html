@@ -4,192 +4,215 @@
 <meta charset="UTF-8">
 <title>Ward Member Summary</title>
 <style>
+:root{
+    --bg-start:#2b1a0f;
+    --bg-end:#9b5a13;
+    --panel:#ffffff;
+    --text:#4a2811;
+    --muted:#7b5b45;
+    --ok:#1f7a3a;
+    --danger:#b42318;
+    --line:#f0e6dd;
+    --primary:#7a3e0b;
+}
+*{
+    box-sizing:border-box;
+}
 body{
     margin:0;
-    font-family:"Segoe UI", Arial;
-    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:linear-gradient(135deg,var(--bg-start),var(--bg-end));
     min-height:100vh;
-}
-.layout{
-    display:flex;
-    min-height:100vh;
-}
-.sidebar{
-    width:220px;
-    background:#3b1f0d;
-    color:white;
-    padding:18px 14px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-.sidebar-title{
-    font-weight:800;
-    font-size:15px;
-    margin-bottom:6px;
-}
-.nav-link{
-    color:white;
-    text-decoration:none;
-    font-size:13px;
-    padding:8px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.06);
-}
-.nav-link:hover{
-    background:rgba(255,255,255,0.14);
-}
-.content{
-    flex:1;
-    display:flex;
-    flex-direction:column;
+    color:var(--text);
 }
 .topbar{
     background:#4a2811;
-    color:white;
+    color:#fff;
     padding:12px 16px;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap:12px;
+    gap:14px;
+    flex-wrap:wrap;
 }
-.brand-title{font-weight:700;}
-.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
+.brand-title{
+    font-weight:700;
+}
+.brand-sub{
+    font-size:12px;
+    opacity:.85;
+    margin-top:2px;
+}
 .topbar-actions{
     display:flex;
     align-items:center;
     gap:12px;
+    flex-wrap:wrap;
 }
 .topbar-link{
-    color:white;
+    color:#fff;
     text-decoration:none;
     font-size:14px;
 }
+.topbar-link:hover{
+    text-decoration:underline;
+}
 .container{
-    max-width:1100px;
-    margin:24px auto;
-    padding:12px;
+    max-width:1120px;
+    margin:24px auto 30px;
+    padding:0 12px;
 }
-.title{
-    color:white;
-    font-size:22px;
-    margin-bottom:10px;
+.page-title{
+    color:#fff;
+    font-size:24px;
+    margin:0 0 8px;
 }
-.sub{
+.page-subtitle{
     color:rgba(255,255,255,.9);
     font-size:13px;
-    margin-bottom:16px;
-}
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:14px;
-    margin-bottom:14px;
-}
-.card{
-    background:white;
-    border-radius:16px;
-    padding:16px;
-    box-shadow:0 10px 24px rgba(0,0,0,.2);
-}
-.label{font-size:12px;color:#7b5b45;}
-.value{font-size:26px;font-weight:800;color:#4a2811;margin-top:8px;}
-.value.danger{color:#b42318;}
-.value.ok{color:#1f7a3a;}
-.value.muted{color:#6a4a35;}
-.profile{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-}
-.profile-left{
-    display:flex;
-    align-items:flex-start;
-    gap:12px;
-}
-.avatar{
-    width:54px;
-    height:54px;
-    border-radius:14px;
-    object-fit:cover;
-    border:1px solid #f0e6dd;
-    background:#fffaf6;
-}
-.avatar-fallback{
-    width:54px;
-    height:54px;
-    border-radius:14px;
-    border:1px solid #f0e6dd;
-    background:#fffaf6;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:900;
-    color:#7b5b45;
-}
-.profile-name{
-    font-size:18px;
-    font-weight:900;
-    color:#4a2811;
-}
-.profile-meta{
-    margin-top:6px;
-    font-size:13px;
-    color:#7b5b45;
+    margin:0 0 18px;
 }
 .pill{
     display:inline-block;
     padding:4px 10px;
     border-radius:999px;
     background:#f1e2d3;
-    color:#4a2811;
+    color:var(--text);
     font-size:12px;
     font-weight:800;
     text-decoration:none;
+}
+.card{
+    background:var(--panel);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.hero{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+}
+.profile{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+}
+.avatar{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    object-fit:cover;
+    border:1px solid var(--line);
+    background:#fffaf6;
+}
+.avatar-fallback{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:#fffaf6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    color:var(--muted);
+}
+.profile-name{
+    font-size:19px;
+    font-weight:900;
+    margin-top:1px;
+}
+.profile-meta{
+    margin-top:7px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.45;
+}
+.actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
 }
 .btn{
     border:none;
     border-radius:10px;
     padding:10px 14px;
-    background:#7a3e0b;
-    color:white;
+    background:var(--primary);
+    color:#fff;
     font-weight:700;
     font-size:13px;
     cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+}
+.btn.secondary{
+    background:#f1e2d3;
+    color:var(--text);
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(205px,1fr));
+    gap:12px;
+    margin-bottom:14px;
+}
+.label{
+    font-size:12px;
+    color:var(--muted);
+}
+.value{
+    font-size:27px;
+    font-weight:800;
+    color:var(--text);
+    margin-top:8px;
+}
+.value.ok{
+    color:var(--ok);
+}
+.value.danger{
+    color:var(--danger);
+}
+.value.muted{
+    color:#6a4a35;
+}
+.table-wrap{
+    overflow-x:auto;
 }
 .table{
     width:100%;
     border-collapse:collapse;
+    min-width:650px;
 }
 .table th,.table td{
     text-align:left;
     padding:10px 8px;
-    border-bottom:1px solid #f0e6dd;
+    border-bottom:1px solid var(--line);
     font-size:13px;
-    color:#4a2811;
     vertical-align:top;
 }
 .table th{
     font-size:12px;
-    color:#7b5b45;
+    color:var(--muted);
     text-transform:uppercase;
     letter-spacing:.04em;
 }
-@media (max-width: 900px){
-    .layout{flex-direction:column;}
-    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center;}
+@media (max-width:700px){
+    .page-title{
+        font-size:21px;
+    }
+    .value{
+        font-size:24px;
+    }
 }
-/* Sidebar visible only on admin dashboard */
-.layout{display:block !important;}
-.sidebar,.overlay,.menu-btn{display:none !important;}
-.content{display:block !important;}
 @media print{
     body{
         background:#fff;
     }
-    .topbar,.sidebar,.btn{
+    .topbar,.actions{
         display:none !important;
     }
     .container{
@@ -197,48 +220,40 @@ body{
         margin:0;
         padding:0;
     }
-    .title,.sub{
+    .page-title,.page-subtitle{
         color:#222;
+    }
+    .card{
+        box-shadow:none;
+        border:1px solid #ddd;
     }
 }
 </style>
 </head>
 <body>
-<div class="layout">
-    <aside class="sidebar">
-        <div class="sidebar-title">Admin Panel</div>
-        <a class="nav-link" href="/admin-dashboard">Dashboard</a>
-        <a class="nav-link" href="/admin/users">View Citizens</a>
-        <a class="nav-link" href="/admin/ward-members">Ward Members</a>
-        <a class="nav-link" href="/admin/ward-reports">Ward Reports</a>
-        <a class="nav-link" href="/admin/ward-works">Ward Works Feed</a>
-        <a class="nav-link" href="/admin/notices">Notice Center</a>
-    </aside>
-    <div class="content">
-        <div class="topbar">
-            <div>
-                <div class="brand-title">Akola Mahanagarpalika</div>
-                <div class="brand-sub">Ward Member Summary Report</div>
-            </div>
-            <div class="topbar-actions">
-                <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
-                <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
-                <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
-                <a class="topbar-link" href="/logout">Logout</a>
-            </div>
+    <div class="topbar">
+        <div>
+            <div class="brand-title">Akola Mahanagarpalika</div>
+            <div class="brand-sub">Ward Member Summary Report</div>
         </div>
+        <div class="topbar-actions">
+            <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
+            <a class="topbar-link" href="/admin/ward-members">Ward Members</a>
+            <a class="topbar-link" href="/admin-dashboard">Dashboard</a>
+            <a class="topbar-link" href="/logout">Logout</a>
+        </div>
+    </div>
 
-        <div class="container">
-            <div class="title">Work Summary</div>
-            <div class="sub">
-                <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
-                <span> | </span>
-                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> | Zone <span th:text="${wardMember.wardZone}">A</span></span>
-            </div>
+    <div class="container">
+        <h1 class="page-title">Work Summary</h1>
+        <p class="page-subtitle">
+            <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+            <span> | </span>
+            <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> | Zone <span th:text="${wardMember.wardZone}">A</span></span>
+        </p>
 
-            <div class="card">
-        <div class="profile">
-            <div class="profile-left">
+        <div class="card hero">
+            <div class="profile">
                 <div th:if="${wardMember.photoBase64 == null || #strings.isEmpty(wardMember.photoBase64)}" class="avatar-fallback">WM</div>
                 <img th:if="${wardMember.photoBase64 != null && !#strings.isEmpty(wardMember.photoBase64) && #strings.startsWith(wardMember.photoBase64, 'data:')}"
                      class="avatar"
@@ -251,92 +266,81 @@ body{
                 <div>
                     <div class="profile-name" th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Ward Member</div>
                     <div class="profile-meta">
-                        Username: <span th:text="${wardMember.username}">username</span>
-                        <span> | </span>
+                        Username: <span th:text="${wardMember.username}">username</span><br />
                         Phone: <span th:text="${wardMember.phone != null ? wardMember.phone : '-'}">-</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-            <div class="grid">
-        <div class="card">
-            <div class="label">Total Complaints</div>
-            <div class="value" th:text="${totalComplaints}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Completed Works</div>
-            <div class="value ok" th:text="${completedComplaints}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Pending Works</div>
-            <div class="value muted" th:text="${pendingComplaints}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Overdue Works</div>
-            <div class="value danger" th:text="${overdueComplaints}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Completion Rate</div>
-            <div class="value" th:text="${completionRate + '%'}">0%</div>
-        </div>
-        <div class="card">
-            <div class="label">Overdue Rate</div>
-            <div class="value danger" th:text="${overdueRate + '%'}">0%</div>
-        </div>
-        <div class="card">
-            <div class="label">Avg Star Rating</div>
-            <div class="value" th:text="${avgRating}">0.0</div>
-        </div>
-        <div class="card">
-            <div class="label">Total Posts (Ward Works)</div>
-            <div class="value" th:text="${totalPosts}">0</div>
-        </div>
-        <div class="card">
-            <div class="label">Posts Feed</div>
-            <div class="value muted">View</div>
-            <div style="margin-top:10px;">
-                <a class="pill" th:href="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}">See Work Posts</a>
-            </div>
-        </div>
-        <div class="card">
-            <div class="label">Print Ward Member Report</div>
-            <div class="value muted">PDF / Hard Copy</div>
-            <div style="margin-top:10px;">
+            <div class="actions">
+                <a class="btn secondary" th:href="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}">See Work Posts</a>
                 <button class="btn" type="button" onclick="printWardReport()">Print Report</button>
             </div>
         </div>
-    </div>
 
+        <div class="grid">
             <div class="card">
-        <div class="label">Year-wise Summary (Last 5 Years)</div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Year</th>
-                <th>Total Complaints</th>
-                <th>Completed</th>
-                <th>Pending</th>
-                <th>Overdue</th>
-                <th>Overdue %</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="y : ${yearSummaries}">
-                <td th:text="${y.year}">2026</td>
-                <td th:text="${y.totalComplaints}">0</td>
-                <td th:text="${y.completedComplaints}">0</td>
-                <td th:text="${y.pendingComplaints}">0</td>
-                <td th:text="${y.overdueComplaints}">0</td>
-                <td th:text="${#numbers.formatDecimal(y.overdueRate, 1, 1) + '%'}">0%</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                <div class="label">Total Complaints</div>
+                <div class="value" th:text="${totalComplaints}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Completed Works</div>
+                <div class="value ok" th:text="${completedComplaints}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Pending Works</div>
+                <div class="value muted" th:text="${pendingComplaints}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Overdue Works</div>
+                <div class="value danger" th:text="${overdueComplaints}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Completion Rate</div>
+                <div class="value" th:text="${completionRate + '%'}">0%</div>
+            </div>
+            <div class="card">
+                <div class="label">Overdue Rate</div>
+                <div class="value danger" th:text="${overdueRate + '%'}">0%</div>
+            </div>
+            <div class="card">
+                <div class="label">Avg Star Rating</div>
+                <div class="value" th:text="${avgRating}">0.0</div>
+            </div>
+            <div class="card">
+                <div class="label">Total Posts (Ward Works)</div>
+                <div class="value" th:text="${totalPosts}">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="label">Year-wise Summary (Last 5 Years)</div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Total Complaints</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
+                            <th>Overdue</th>
+                            <th>Overdue %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="y : ${yearSummaries}">
+                            <td th:text="${y.year}">2026</td>
+                            <td th:text="${y.totalComplaints}">0</td>
+                            <td th:text="${y.completedComplaints}">0</td>
+                            <td th:text="${y.pendingComplaints}">0</td>
+                            <td th:text="${y.overdueComplaints}">0</td>
+                            <td th:text="${#numbers.formatDecimal(y.overdueRate, 1, 1) + '%'}">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+
 <script>
 function printWardReport(){
     window.print();
