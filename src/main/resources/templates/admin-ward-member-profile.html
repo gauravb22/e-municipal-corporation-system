@@ -162,7 +162,7 @@ body{
         </div>
 
         <div class="container">
-            <div class="title" th:text="${wardMember != null ? wardMember.username : 'Ward Member'}">Ward Member</div>
+            <div class="title" th:text="${wardMember != null && wardMember.fullName != null && !#strings.isEmpty(wardMember.fullName) ? wardMember.fullName : 'Ward Member'}">Ward Member</div>
             <div class="card" th:if="${wardMember != null}">
         <div class="label">Update Details</div>
         <form method="post" th:action="@{/admin/ward-members/{id}/update(id=${wardMember.id})}">

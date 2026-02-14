@@ -154,7 +154,6 @@ body{
             <thead>
             <tr>
                 <th>Name</th>
-                <th>Username</th>
                 <th>Ward</th>
                 <th>Zone</th>
                 <th>Report</th>
@@ -162,11 +161,10 @@ body{
             </thead>
             <tbody>
             <tr th:if="${wardMembers == null || wardMembers.isEmpty()}">
-                <td colspan="5">No ward members found.</td>
+                <td colspan="4">No ward members found.</td>
             </tr>
             <tr th:each="w : ${wardMembers}">
                 <td th:text="${w.fullName != null ? w.fullName : '-'}">-</td>
-                <td th:text="${w.username}">username</td>
                 <td th:text="${w.wardNo != null ? w.wardNo : '-'}">-</td>
                 <td th:text="${w.wardZone != null ? w.wardZone : '-'}">-</td>
                 <td><a class="link" th:href="@{/admin/ward-reports/{id}(id=${w.id})}">Open Summary</a></td>

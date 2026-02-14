@@ -152,7 +152,7 @@ body{
     <div class="card member-card">
         <img class="member-photo" th:src="${staffUser.photoBase64 != null ? staffUser.photoBase64 : '/images/ward-member.png'}" alt="Ward Member">
         <div>
-            <div class="member-name" th:text="${staffUser.fullName != null ? staffUser.fullName : staffUser.username}">Ward Member</div>
+            <div class="member-name" th:text="${staffUser.fullName != null && !#strings.isEmpty(staffUser.fullName) ? staffUser.fullName : 'Ward Member'}">Ward Member</div>
             <div class="member-meta">
                 Ward No: <span th:text="${staffUser.wardNo != null ? staffUser.wardNo : 'N/A'}">10</span> |
                 Zone: <span th:text="${staffUser.wardZone != null ? staffUser.wardZone : 'N/A'}">A</span>

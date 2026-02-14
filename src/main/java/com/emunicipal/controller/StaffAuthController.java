@@ -32,6 +32,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 
 @Controller
 public class StaffAuthController {
@@ -431,6 +432,20 @@ public class StaffAuthController {
             works = wardWorkRepository.findAllByOrderByCreatedAtDesc();
         }
 
+        Map<Long, String> workOwnerNames = new HashMap<>();
+        for (WardWork work : works) {
+            String ownerName = "Ward Member";
+            if (work.getDoneByName() != null && !work.getDoneByName().isBlank()) {
+                ownerName = work.getDoneByName();
+            } else if (work.getDoneBy() != null && !work.getDoneBy().isBlank()) {
+                StaffUser owner = staffUserRepository.findByUsername(work.getDoneBy());
+                if (owner != null && owner.getFullName() != null && !owner.getFullName().isBlank()) {
+                    ownerName = owner.getFullName();
+                }
+            }
+            workOwnerNames.put(work.getId(), ownerName);
+        }
+
         int currentYear = Year.now().getValue();
         List<Integer> yearOptions = new ArrayList<>();
         yearOptions.add(0); // All
@@ -443,6 +458,7 @@ public class StaffAuthController {
         model.addAttribute("selectedYear", normalizedYear);
         model.addAttribute("selectedMonth", normalizedMonth);
         model.addAttribute("yearOptions", yearOptions);
+        model.addAttribute("workOwnerNames", workOwnerNames);
         return "admin-ward-works";
     }
 
@@ -770,6 +786,19 @@ public class StaffAuthController {
         }
 
         staffUserRepository.save(staffUser);
+
+        if (staffUser.getUsername() != null
+                && staffUser.getFullName() != null
+                && !staffUser.getFullName().isBlank()) {
+            List<WardWork> ownPosts = wardWorkRepository.findByDoneBy(staffUser.getUsername());
+            if (!ownPosts.isEmpty()) {
+                for (WardWork post : ownPosts) {
+                    post.setDoneByName(staffUser.getFullName().trim());
+                }
+                wardWorkRepository.saveAll(ownPosts);
+            }
+        }
+
         session.setAttribute("staffUser", staffUser);
         model.addAttribute("success", "Profile updated successfully");
         model.addAttribute("staffUser", staffUser);

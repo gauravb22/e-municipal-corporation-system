@@ -25,6 +25,9 @@ public class WardWork {
 
     private String doneBy;
 
+    @Column(name = "done_by_name")
+    private String doneByName;
+
     @Column(name = "image_base64", columnDefinition = "CLOB")
     private String imageBase64;
 
@@ -65,6 +68,10 @@ public class WardWork {
     public String getDoneBy() { return doneBy; }
 
     public void setDoneBy(String doneBy) { this.doneBy = doneBy; }
+
+    public String getDoneByName() { return doneByName; }
+
+    public void setDoneByName(String doneByName) { this.doneByName = doneByName; }
 
     public String getImageBase64() { return imageBase64; }
 

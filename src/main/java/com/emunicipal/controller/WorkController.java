@@ -81,6 +81,7 @@ public class WorkController {
         Map<Long, Boolean> userLiked = new HashMap<>();
         Map<Long, Double> avgRatings = new HashMap<>();
         Map<Long, String> postPhotos = new HashMap<>();
+        Map<Long, String> postOwnerNames = new HashMap<>();
 
         Long viewerId = user != null ? user.getId() : null;
 
@@ -104,6 +105,15 @@ public class WorkController {
                 if (postOwner != null && postOwner.getPhotoBase64() != null && !postOwner.getPhotoBase64().isBlank()) {
                     postPhotos.put(post.getId(), postOwner.getPhotoBase64());
                 }
+                if (post.getDoneByName() != null && !post.getDoneByName().isBlank()) {
+                    postOwnerNames.put(post.getId(), post.getDoneByName());
+                } else if (postOwner != null && postOwner.getFullName() != null && !postOwner.getFullName().isBlank()) {
+                    postOwnerNames.put(post.getId(), postOwner.getFullName());
+                }
+            }
+
+            if (!postOwnerNames.containsKey(post.getId())) {
+                postOwnerNames.put(post.getId(), "Ward Member");
             }
 
             if (viewerId != null) {
@@ -124,6 +134,7 @@ public class WorkController {
         model.addAttribute("userLiked", userLiked);
         model.addAttribute("avgRatings", avgRatings);
         model.addAttribute("postPhotos", postPhotos);
+        model.addAttribute("postOwnerNames", postOwnerNames);
         return staffUser != null ? "ward-works" : "ward-works-citizen";
     }
 
@@ -186,6 +197,7 @@ public class WorkController {
         post.setWardNo(wardNo != null ? wardNo : staffUser.getWardNo());
         post.setWardZone(wardZone != null && !wardZone.isBlank() ? wardZone.trim() : staffUser.getWardZone());
         post.setDoneBy(staffUser.getUsername());
+        post.setDoneByName(staffUser.getFullName() != null && !staffUser.getFullName().isBlank() ? staffUser.getFullName().trim() : "Ward Member");
         post.setImageBase64(imageBase64);
         post.setCreatedAt(LocalDateTime.now());
         if (workDoneDate != null && !workDoneDate.isBlank()) {

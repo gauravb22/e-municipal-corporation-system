@@ -240,7 +240,7 @@ body{
         <div class="container">
             <div class="title">Posts Feed</div>
             <div class="sub">
-                <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+                <span th:text="${wardMember.fullName != null && !#strings.isEmpty(wardMember.fullName) ? wardMember.fullName : 'Ward Member'}">Name</span>
                 <span> | </span>
                 <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> â€¢ Zone <span th:text="${wardMember.wardZone}">A</span></span>
             </div>

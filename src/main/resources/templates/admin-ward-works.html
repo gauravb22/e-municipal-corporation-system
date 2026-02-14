@@ -283,7 +283,7 @@ body{
         <div class="post" th:each="p : ${works}">
             <div class="post-head">
                 <div>
-                    <div class="who" th:text="${p.doneBy != null ? p.doneBy : 'Ward Member'}">Ward Member</div>
+                    <div class="who" th:text="${workOwnerNames[p.id] != null ? workOwnerNames[p.id] : 'Ward Member'}">Ward Member</div>
                     <div class="meta">
                         Ward <span th:text="${p.wardNo != null ? p.wardNo : '-'}">-</span>
                         <span> â€¢ </span>

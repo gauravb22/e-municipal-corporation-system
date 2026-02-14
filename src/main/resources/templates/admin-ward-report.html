@@ -247,7 +247,7 @@ body{
     <div class="container">
         <h1 class="page-title">Work Summary</h1>
         <p class="page-subtitle">
-            <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
+            <span th:text="${wardMember.fullName != null && !#strings.isEmpty(wardMember.fullName) ? wardMember.fullName : 'Ward Member'}">Name</span>
             <span> | </span>
             <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> | Zone <span th:text="${wardMember.wardZone}">A</span></span>
         </p>
@@ -264,9 +264,8 @@ body{
                      th:src="${'data:image/jpeg;base64,' + wardMember.photoBase64}"
                      alt="Ward member photo" />
                 <div>
-                    <div class="profile-name" th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Ward Member</div>
+                    <div class="profile-name" th:text="${wardMember.fullName != null && !#strings.isEmpty(wardMember.fullName) ? wardMember.fullName : 'Ward Member'}">Ward Member</div>
                     <div class="profile-meta">
-                        Username: <span th:text="${wardMember.username}">username</span><br />
                         Phone: <span th:text="${wardMember.phone != null ? wardMember.phone : '-'}">-</span>
                     </div>
                 </div>
