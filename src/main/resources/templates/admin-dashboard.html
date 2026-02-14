@@ -4,10 +4,26 @@
 <meta charset="UTF-8">
 <title>Administration Dashboard</title>
 <style>
+:root{
+    --bg-start:#2b1a0f;
+    --bg-end:#9b5a13;
+    --header:#4a2811;
+    --panel:#ffffff;
+    --text:#4a2811;
+    --muted:#7b5b45;
+    --primary:#7a3e0b;
+    --line:#f0e6dd;
+    --sidebar-start:#102a43;
+    --sidebar-mid:#0f3a54;
+    --sidebar-end:#145374;
+}
+*{
+    box-sizing:border-box;
+}
 body{
     margin:0;
-    font-family:"Segoe UI", Arial;
-    background:linear-gradient(135deg,#2b1a0f,#9b5a13);
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:linear-gradient(135deg,var(--bg-start),var(--bg-end));
     min-height:100vh;
 }
 .sidebar{
@@ -16,7 +32,7 @@ body{
     left:-260px;
     width:260px;
     height:100%;
-    background:linear-gradient(180deg,#102a43 0%,#0f3a54 55%,#145374 100%);
+    background:linear-gradient(180deg,var(--sidebar-start) 0%,var(--sidebar-mid) 55%,var(--sidebar-end) 100%);
     box-shadow:8px 0 24px rgba(0,0,0,.35);
     transition:.3s;
     z-index:100;
@@ -40,7 +56,6 @@ body{
     color:#e8f3ff;
     border-bottom:1px solid rgba(255,255,255,.12);
     font-size:14px;
-    background:transparent;
 }
 .nav-link:hover{
     background:rgba(255,255,255,.14);
@@ -59,6 +74,16 @@ body{
 .content{
     min-height:100vh;
 }
+.topbar{
+    background:var(--header);
+    color:white;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
 .topbar-left{
     display:flex;
     align-items:center;
@@ -67,74 +92,121 @@ body{
 .menu-btn{
     font-size:22px;
     cursor:pointer;
-    text-decoration:none;
+    line-height:1;
+    user-select:none;
 }
-.topbar{
-    background:#4a2811;
-    color:white;
-    padding:12px 16px;
+.brand-title{
+    font-weight:700;
+}
+.brand-sub{
+    font-size:12px;
+    opacity:.85;
+    margin-top:2px;
+}
+.topbar-right{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    gap:12px;
 }
-.brand-title{font-weight:700;}
-.brand-sub{font-size:12px;opacity:.85;margin-top:2px;}
-.logout-link{color:white;text-decoration:none;font-size:14px;}
-.container{
-    max-width:980px;
-    margin:24px auto;
-    padding:12px;
-}
-.title{
+.topbar-link{
     color:white;
-    font-size:22px;
+    text-decoration:none;
+    font-size:14px;
+}
+.topbar-link:hover{
+    text-decoration:underline;
+}
+.container{
+    max-width:1100px;
+    margin:24px auto;
+    padding:0 12px 24px;
+}
+.hero{
+    color:white;
     margin-bottom:16px;
+}
+.hero-title{
+    margin:0;
+    font-size:24px;
+}
+.hero-sub{
+    margin:7px 0 0;
+    font-size:13px;
+    color:rgba(255,255,255,.9);
 }
 .stats{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:14px;
     margin-bottom:16px;
 }
 .card{
-    background:white;
+    background:var(--panel);
     border-radius:16px;
     padding:16px;
     box-shadow:0 10px 24px rgba(0,0,0,.2);
 }
-.label{font-size:12px;color:#7b5b45;}
-.value{font-size:28px;font-weight:700;color:#4a2811;margin-top:8px;}
-.value.overdue{color:#b42318;}
+.label{
+    font-size:12px;
+    color:var(--muted);
+}
+.value{
+    font-size:30px;
+    font-weight:800;
+    color:var(--text);
+    margin-top:8px;
+}
+.value.small{
+    font-size:18px;
+    font-weight:700;
+}
 .action-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
     gap:14px;
+}
+.action-card{
+    border:1px solid #f5eadf;
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+.action-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 28px rgba(0,0,0,.22);
+}
+.action-card-title{
+    color:var(--text);
+    font-size:18px;
+    font-weight:700;
+}
+.action-card-desc{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:8px;
+    line-height:1.45;
+    min-height:56px;
+}
+.action-card-cta{
+    margin-top:14px;
 }
 .btn{
     border:none;
     border-radius:10px;
     padding:10px 12px;
-    margin-top:10px;
-    background:#7a3e0b;
+    background:var(--primary);
     color:white;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
     text-decoration:none;
     display:inline-block;
-}
-.action-card-title{
-    color:#4a2811;
-    font-size:18px;
-    font-weight:700;
-}
-.action-card-desc{
-    color:#7b5b45;
     font-size:13px;
-    margin-top:8px;
-    line-height:1.4;
 }
-.action-card-cta{
-    margin-top:14px;
+@media (max-width:700px){
+    .hero-title{
+        font-size:21px;
+    }
+    .value{
+        font-size:26px;
+    }
 }
 </style>
 </head>
@@ -149,55 +221,83 @@ body{
     <a class="nav-link" href="/admin/notices">Notice Center</a>
 </aside>
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
 <div class="content">
     <div class="topbar">
         <div class="topbar-left">
-            <div class="menu-btn" onclick="toggleMenu()">☰</div>
+            <div class="menu-btn" onclick="toggleMenu()">&#9776;</div>
             <div>
                 <div class="brand-title">Akola Mahanagarpalika</div>
                 <div class="brand-sub">Administration Dashboard</div>
             </div>
         </div>
-        <a class="logout-link" href="/logout">Logout</a>
+        <div class="topbar-right">
+            <a class="topbar-link" href="/admin/notices">Notices</a>
+            <a class="topbar-link" href="/logout">Logout</a>
+        </div>
     </div>
 
     <div class="container">
-    <div class="title">Administration Actions</div>
-    <div class="action-grid">
-        <div class="card">
-            <div class="action-card-title">Ward Members</div>
-            <div class="action-card-desc">
-                Add, manage, and delete ward member accounts. Total ward members:
-                <span th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</span>.
+        <div class="hero">
+            <h1 class="hero-title">Administration Actions</h1>
+            <p class="hero-sub">Manage ward members, monitor reports, review work feed, and publish notices from one dashboard.</p>
+        </div>
+
+        <div class="stats">
+            <div class="card">
+                <div class="label">Total Ward Members</div>
+                <div class="value" th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</div>
             </div>
-            <div class="action-card-cta">
-                <a class="btn" href="/admin/ward-members">Manage Ward Members</a>
+            <div class="card">
+                <div class="label">Quick Access</div>
+                <div class="value small">Ward Reports + Notices</div>
             </div>
         </div>
-        <div class="card">
-            <div class="action-card-title">Ward Work Summary</div>
-            <div class="action-card-desc">Select any ward member and open a full year-wise summary report: complaints, completed/pending, overdue %, average rating, and ward work posts.</div>
-            <div class="action-card-cta">
-                <a class="btn" href="/admin/ward-reports">Open Summary Reports</a>
+
+        <div class="action-grid">
+            <div class="card action-card">
+                <div class="action-card-title">Ward Members</div>
+                <div class="action-card-desc">Add, manage, and delete ward member accounts with ward and zone mapping.</div>
+                <div class="action-card-cta">
+                    <a class="btn" href="/admin/ward-members">Manage Ward Members</a>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <div class="action-card-title">Ward Work Summary</div>
+                <div class="action-card-desc">Open detailed year-wise reports: completed, pending, overdue rate, star rating, and work history.</div>
+                <div class="action-card-cta">
+                    <a class="btn" href="/admin/ward-reports">Open Summary Reports</a>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <div class="action-card-title">Ward Works Feed</div>
+                <div class="action-card-desc">View all ward work posts in one feed with year and month filters for monitoring.</div>
+                <div class="action-card-cta">
+                    <a class="btn" href="/admin/ward-works">Open Works Feed</a>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <div class="action-card-title">Publish Notices</div>
+                <div class="action-card-desc">Publish and manage notices for citizens and ward members from the notice center.</div>
+                <div class="action-card-cta">
+                    <a class="btn" href="/admin/notices">Open Notice Center</a>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <div class="action-card-title">View Citizens</div>
+                <div class="action-card-desc">Review citizen records by ward and zone, and remove invalid accounts when required.</div>
+                <div class="action-card-cta">
+                    <a class="btn" href="/admin/users">Open Citizen View</a>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="action-card-title">Ward Works Feed</div>
-            <div class="action-card-desc">Review all ward member work posts in a single feed. Filter by year and month.</div>
-            <div class="action-card-cta">
-                <a class="btn" href="/admin/ward-works">Open Works Feed</a>
-            </div>
-        </div>
-        <div class="card">
-            <div class="action-card-title">Publish Notices</div>
-            <div class="action-card-desc">Open notice center to publish citizen and ward member notices, view previous notices, and delete notices.</div>
-            <div class="action-card-cta">
-                <a class="btn" href="/admin/notices">Open Notice Center</a>
-            </div>
-        </div>
-    </div>
     </div>
 </div>
+
 <script>
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
