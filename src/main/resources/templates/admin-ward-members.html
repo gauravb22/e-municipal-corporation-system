@@ -202,11 +202,16 @@ body{
                 <div class="card">
             <div class="label">Create Ward Member</div>
             <form method="post" action="/admin/ward-members/create">
-                <input class="field" name="fullName" placeholder="Full name (e.g., Rahul Patil)" />
-                <input class="field" name="username" placeholder="Username" required />
-                <input class="field" name="password" placeholder="Password" required />
-                <input class="field" name="wardNo" placeholder="Ward No" type="number" min="1" required />
-                <input class="field" name="wardZone" placeholder="Zone (A/B/C/D)" maxlength="5" required />
+                <label class="label" for="fullNameField">Full Name</label>
+                <input class="field" id="fullNameField" name="fullName" placeholder="Full name (e.g., Rahul Patil)" />
+                <label class="label" for="usernameField">Username</label>
+                <input class="field" id="usernameField" name="username" placeholder="Username" required />
+                <label class="label" for="passwordField">Password</label>
+                <input class="field" id="passwordField" name="password" placeholder="Password" required />
+                <label class="label" for="wardNoField">Ward No</label>
+                <input class="field" id="wardNoField" name="wardNo" placeholder="Ward No" type="number" min="1" required />
+                <label class="label" for="wardZoneField">Zone</label>
+                <input class="field" id="wardZoneField" name="wardZone" placeholder="Zone (A/B/C/D)" maxlength="5" required />
                 <button class="btn" type="submit">Create Ward Member</button>
             </form>
             <div class="hint">Ward members can login using the created username/password in ward login.</div>

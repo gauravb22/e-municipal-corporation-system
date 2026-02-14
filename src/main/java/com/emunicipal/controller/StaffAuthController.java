@@ -730,7 +730,8 @@ public class StaffAuthController {
     }
 
     @PostMapping("/ward-profile")
-    public String updateWardProfile(@RequestParam(value = "phone", required = false) String phone,
+    public String updateWardProfile(@RequestParam(value = "fullName", required = false) String fullName,
+                                    @RequestParam(value = "phone", required = false) String phone,
                                     @RequestParam(value = "photoBase64", required = false) String photoBase64,
                                     @RequestParam(value = "currentPassword", required = false) String currentPassword,
                                     @RequestParam(value = "newPassword", required = false) String newPassword,
@@ -740,6 +741,10 @@ public class StaffAuthController {
         StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
         if (staffUser == null || !"WARD".equalsIgnoreCase(staffUser.getRole())) {
             return "redirect:/ward-login";
+        }
+
+        if (fullName != null && !fullName.isBlank()) {
+            staffUser.setFullName(fullName.trim());
         }
 
         if (phone != null && !phone.isBlank()) {

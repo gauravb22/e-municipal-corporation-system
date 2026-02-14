@@ -87,10 +87,15 @@ input:focus{outline:none;border-color:#2e8b57;box-shadow:0 0 0 3px rgba(46,139,8
         <div class="profile">
             <img class="photo" id="photoPreview" th:src="${staffUser.photoBase64 != null ? staffUser.photoBase64 : '/images/ward-member.png'}" alt="Profile">
             <div>
-                <div class="name" th:text="${staffUser.username}">Ward Member</div>
+                <div class="name" th:text="${staffUser.fullName != null ? staffUser.fullName : staffUser.username}">Ward Member</div>
                 <div class="meta">Ward No: <span th:text="${staffUser.wardNo}">10</span> | Zone: <span th:text="${staffUser.wardZone}">A</span></div>
                 <div class="note">Tap below to change photo.</div>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="fullName" placeholder="Enter full name" th:value="${staffUser.fullName}">
         </div>
 
         <div class="form-group">
