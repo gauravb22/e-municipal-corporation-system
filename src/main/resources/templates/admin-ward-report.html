@@ -147,6 +147,17 @@ body{
     color:#4a2811;
     font-size:12px;
     font-weight:800;
+    text-decoration:none;
+}
+.btn{
+    border:none;
+    border-radius:10px;
+    padding:10px 14px;
+    background:#7a3e0b;
+    color:white;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
 }
 .table{
     width:100%;
@@ -174,6 +185,22 @@ body{
 .layout{display:block !important;}
 .sidebar,.overlay,.menu-btn{display:none !important;}
 .content{display:block !important;}
+@media print{
+    body{
+        background:#fff;
+    }
+    .topbar,.sidebar,.btn{
+        display:none !important;
+    }
+    .container{
+        max-width:100%;
+        margin:0;
+        padding:0;
+    }
+    .title,.sub{
+        color:#222;
+    }
+}
 </style>
 </head>
 <body>
@@ -206,7 +233,7 @@ body{
             <div class="sub">
                 <span th:text="${wardMember.fullName != null ? wardMember.fullName : wardMember.username}">Name</span>
                 <span> | </span>
-                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> â€¢ Zone <span th:text="${wardMember.wardZone}">A</span></span>
+                <span class="pill">Ward <span th:text="${wardMember.wardNo}">0</span> | Zone <span th:text="${wardMember.wardZone}">A</span></span>
             </div>
 
             <div class="card">
@@ -273,6 +300,13 @@ body{
                 <a class="pill" th:href="@{/admin/ward-reports/{id}/posts(id=${wardMember.id})}">See Work Posts</a>
             </div>
         </div>
+        <div class="card">
+            <div class="label">Print Ward Member Report</div>
+            <div class="value muted">PDF / Hard Copy</div>
+            <div style="margin-top:10px;">
+                <button class="btn" type="button" onclick="printWardReport()">Print Report</button>
+            </div>
+        </div>
     </div>
 
             <div class="card">
@@ -303,5 +337,10 @@ body{
         </div>
     </div>
 </div>
+<script>
+function printWardReport(){
+    window.print();
+}
+</script>
 </body>
 </html>
