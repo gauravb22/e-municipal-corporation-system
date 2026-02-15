@@ -1,58 +1,246 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>Ward Complaints</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
+:root{
+    --bg-start:#0f3d2e;
+    --bg-end:#2e8b57;
+    --header:#123a2b;
+    --panel:#ffffff;
+    --text:#153a2a;
+    --muted:#5c7469;
+    --line:#e7ecea;
+    --new:#0b8a5a;
+    --approved:#155a8a;
+    --pending:#9a6b10;
+    --completed:#2f855a;
+}
+*{
+    box-sizing:border-box;
+}
 body{
     margin:0;
-    font-family:"Segoe UI", Arial;
-    background:linear-gradient(135deg,#0f3d2e,#2e8b57);
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:linear-gradient(135deg,var(--bg-start),var(--bg-end));
     min-height:100vh;
 }
 .topbar{
-    background:#123a2b;
-    color:white;
+    background:var(--header);
+    color:#fff;
     padding:12px 16px;
     display:flex;
     align-items:center;
     justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
 }
 .brand{
     display:flex;
     align-items:center;
     gap:12px;
 }
-.brand img{width:44px;height:44px;}
-.brand-title{font-weight:700;}
-.brand-sub{font-size:12px;opacity:.85;}
+.brand img{
+    width:44px;
+    height:44px;
+}
+.brand-title{
+    font-weight:700;
+}
+.brand-sub{
+    font-size:12px;
+    opacity:.85;
+}
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+.top-link{
+    color:#fff;
+    text-decoration:none;
+    font-size:14px;
+}
+.top-link:hover{
+    text-decoration:underline;
+}
 .container{
-    max-width:1000px;
+    max-width:1100px;
     margin:24px auto;
-    padding:12px;
+    padding:0 12px 24px;
+}
+.hero{
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.24);
+    border-radius:16px;
+    padding:16px;
+    color:#fff;
+    margin-bottom:14px;
+    backdrop-filter:blur(2px);
+}
+.hero-title{
+    margin:0;
+    font-size:23px;
+}
+.hero-meta{
+    margin-top:8px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:13px;
+}
+.pill{
+    display:inline-block;
+    background:rgba(255,255,255,.2);
+    border:1px solid rgba(255,255,255,.28);
+    color:#fff;
+    border-radius:999px;
+    padding:5px 10px;
 }
 .cards{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
     gap:14px;
 }
-.summary-card{
-    background:white;
-    border-radius:14px;
-    padding:24px;
-    box-shadow:0 10px 24px rgba(0,0,0,.18);
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-.summary-card h3{margin:0;}
-.count{font-size:32px;font-weight:700;color:#1f6f4a;}
 .summary-link{
     text-decoration:none;
     color:inherit;
 }
-.note{font-size:12px;color:#6b6b6b;}
+.summary-card{
+    background:var(--panel);
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+    border:1px solid #f0f4f3;
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+.summary-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 26px rgba(0,0,0,.22);
+}
+.summary-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+.summary-title{
+    margin:0;
+    font-size:16px;
+    color:var(--text);
+}
+.icon{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+}
+.count{
+    font-size:32px;
+    font-weight:800;
+    margin-top:10px;
+}
+.note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+}
+.new .count{color:var(--new);}
+.approved .count{color:var(--approved);}
+.pending .count{color:var(--pending);}
+.completed .count{color:var(--completed);}
+.new .icon{background:#e8f7ee;color:var(--new);}
+.approved .icon{background:#e7f1fb;color:var(--approved);}
+.pending .icon{background:#fff2d9;color:var(--pending);}
+.completed .icon{background:#e9f8ee;color:var(--completed);}
+.lower-grid{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:14px;
+}
+.card{
+    background:var(--panel);
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.card-title{
+    margin:0 0 12px;
+    font-size:15px;
+    color:var(--text);
+}
+.type-list{
+    display:grid;
+    gap:10px;
+}
+.type-row{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+}
+.type-name{
+    font-size:13px;
+    color:var(--text);
+    font-weight:600;
+}
+.type-count{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+}
+.bar{
+    grid-column:1 / -1;
+    width:100%;
+    height:8px;
+    border-radius:999px;
+    background:#eef3f1;
+    overflow:hidden;
+}
+.fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#0f7a52,#2e8b57);
+}
+.empty{
+    padding:12px;
+    border:1px dashed #d9e4df;
+    border-radius:10px;
+    color:var(--muted);
+    font-size:13px;
+    background:#f8fbfa;
+}
+.quick-list{
+    display:grid;
+    gap:10px;
+}
+.quick-link{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 11px;
+    text-decoration:none;
+    color:var(--text);
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.quick-link:hover{
+    background:#f8fbfa;
+}
+@media (max-width:900px){
+    .lower-grid{
+        grid-template-columns:1fr;
+    }
+}
 </style>
 </head>
 <body>
@@ -64,41 +252,103 @@ body{
             <div class="brand-sub">Ward Complaints</div>
         </div>
     </div>
-    <a href="/ward-dashboard" style="color:white;text-decoration:none;">Back to Dashboard</a>
+    <div class="top-actions">
+        <a class="top-link" href="/ward-dashboard">Dashboard</a>
+        <a class="top-link" href="/ward-profile">Profile</a>
+    </div>
 </div>
 
-<div class="container">
+<div class="container"
+     th:with="totalCount=${#lists.size(newComplaints) + #lists.size(approvedComplaints) + #lists.size(pendingComplaints) + #lists.size(completedComplaints)}">
+    <div class="hero">
+        <h1 class="hero-title">Complaint Control Panel</h1>
+        <div class="hero-meta">
+            <span class="pill">Ward <span th:text="${staffUser != null && staffUser.wardNo != null ? staffUser.wardNo : '-'}">-</span></span>
+            <span class="pill">Zone <span th:text="${staffUser != null && staffUser.wardZone != null ? staffUser.wardZone : '-'}">-</span></span>
+            <span class="pill">Total Complaints <span th:text="${totalCount}">0</span></span>
+        </div>
+    </div>
+
     <div class="cards">
         <a class="summary-link" href="/ward-complaints/new">
-            <div class="summary-card">
-                <h3>New Complaints</h3>
+            <div class="summary-card new">
+                <div class="summary-head">
+                    <h3 class="summary-title">New Complaints</h3>
+                    <div class="icon"><i class="fa-solid fa-bell"></i></div>
+                </div>
                 <div class="count" th:text="${#lists.size(newComplaints)}">0</div>
                 <div class="note">Last 24 hours</div>
             </div>
         </a>
+
         <a class="summary-link" href="/ward-complaints/approved">
-            <div class="summary-card">
-                <h3>Approved Complaints</h3>
+            <div class="summary-card approved">
+                <div class="summary-head">
+                    <h3 class="summary-title">Approved</h3>
+                    <div class="icon"><i class="fa-solid fa-check-circle"></i></div>
+                </div>
                 <div class="count" th:text="${#lists.size(approvedComplaints)}">0</div>
                 <div class="note">Accepted by ward</div>
             </div>
         </a>
+
         <a class="summary-link" href="/ward-complaints/pending">
-            <div class="summary-card">
-                <h3>Pending Complaints</h3>
+            <div class="summary-card pending">
+                <div class="summary-head">
+                    <h3 class="summary-title">Pending</h3>
+                    <div class="icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                </div>
                 <div class="count" th:text="${#lists.size(pendingComplaints)}">0</div>
                 <div class="note">Awaiting action</div>
             </div>
         </a>
+
         <a class="summary-link" href="/ward-complaints/completed">
-            <div class="summary-card">
-                <h3>Completed Complaints</h3>
+            <div class="summary-card completed">
+                <div class="summary-head">
+                    <h3 class="summary-title">Completed</h3>
+                    <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
                 <div class="count" th:text="${#lists.size(completedComplaints)}">0</div>
-                <div class="note">Resolved</div>
+                <div class="note">Resolved cases</div>
             </div>
         </a>
     </div>
 
+    <div class="lower-grid">
+        <div class="card">
+            <h3 class="card-title">Complaint Type Distribution</h3>
+            <div class="type-list" th:if="${typeCounts != null && !typeCounts.isEmpty()}">
+                <div class="type-row" th:each="entry : ${typeCounts}">
+                    <div class="type-name" th:text="${entry.key}">Complaint Type</div>
+                    <div class="type-count" th:text="${entry.value + ' cases'}">0 cases</div>
+                    <div class="bar">
+                        <div class="fill"
+                             th:style="'width:' + (${totalCount > 0} ? (${(entry.value * 100.0) / totalCount}) : 0) + '%'"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="empty" th:if="${typeCounts == null || typeCounts.isEmpty()}">No complaint data available yet.</div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Quick Actions</h3>
+            <div class="quick-list">
+                <a class="quick-link" href="/ward-complaints/new">
+                    <span>Review New</span>
+                    <span th:text="${#lists.size(newComplaints)}">0</span>
+                </a>
+                <a class="quick-link" href="/ward-complaints/pending">
+                    <span>Continue Pending</span>
+                    <span th:text="${#lists.size(pendingComplaints)}">0</span>
+                </a>
+                <a class="quick-link" href="/ward-complaints/completed">
+                    <span>Check Completed</span>
+                    <span th:text="${#lists.size(completedComplaints)}">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
