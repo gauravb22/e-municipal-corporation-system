@@ -35,6 +35,16 @@ body{
     gap:14px;
     flex-wrap:wrap;
 }
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.brand img{
+    width:40px;
+    height:40px;
+    object-fit:contain;
+}
 .brand-title{
     font-weight:700;
 }
@@ -232,9 +242,12 @@ body{
 </head>
 <body>
     <div class="topbar">
-        <div>
-            <div class="brand-title">Akola Mahanagarpalika</div>
-            <div class="brand-sub">Ward Member Summary Report</div>
+        <div class="brand">
+            <img src="/images/municipalLogo.png" alt="Municipal Logo">
+            <div>
+                <div class="brand-title">Akola Mahanagarpalika</div>
+                <div class="brand-sub">Ward Member Summary Report</div>
+            </div>
         </div>
         <div class="topbar-actions">
             <a class="topbar-link" href="/admin/ward-reports">Back to List</a>
