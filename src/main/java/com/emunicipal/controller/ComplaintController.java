@@ -9,6 +9,7 @@ import com.emunicipal.entity.User;
 import com.emunicipal.entity.Complaint;
 import com.emunicipal.entity.StaffUser;
 import com.emunicipal.service.ComplaintService;
+import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.UploadStorageService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.entity.Ward;
@@ -40,6 +41,9 @@ public class ComplaintController {
 
     @Autowired
     private UploadStorageService uploadStorageService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/raise-complaint")
     public String raiseComplaint(HttpSession session, Model model) {
@@ -367,6 +371,9 @@ public class ComplaintController {
                                 staffUser.getId(),
                                 "Status updated"
                         );
+                        if ("approved".equals(normalized) && (oldStatus == null || !"approved".equalsIgnoreCase(oldStatus))) {
+                            notificationService.notifyComplaintApproved(c);
+                        }
                         break;
                     default:
                         break;
@@ -463,6 +470,7 @@ public class ComplaintController {
                 staffUser.getId(),
                 "Work completed"
         );
+        notificationService.notifyComplaintCompleted(complaint);
 
         return "redirect:/ward-complaints/" + complaintId;
     }

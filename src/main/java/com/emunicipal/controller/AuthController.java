@@ -12,6 +12,7 @@ import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.service.SmsService;
+import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.entity.Ward;
 
@@ -40,6 +41,9 @@ public class AuthController {
 
     @Autowired
     private WardService wardService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /*
     =====================================
@@ -243,6 +247,8 @@ public class AuthController {
 
         List<Notice> citizenNotices = noticeRepository.findTop5ByTargetTypeAndActiveTrueOrderByCreatedAtDesc("CITIZEN");
         model.addAttribute("citizenNotices", citizenNotices);
+        model.addAttribute("recentNotifications", notificationService.getRecentForUser(user.getId(), 10));
+        model.addAttribute("unreadNotificationCount", notificationService.countUnread(user.getId()));
 
         return "dashboard";
     }

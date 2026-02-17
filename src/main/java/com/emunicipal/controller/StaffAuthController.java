@@ -22,6 +22,7 @@ import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.repository.WardWorkRepository;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.service.ComplaintService;
+import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
 
 import jakarta.servlet.http.HttpSession;
@@ -51,6 +52,8 @@ public class StaffAuthController {
     private WardWorkRepository wardWorkRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -728,7 +731,10 @@ public class StaffAuthController {
             notice.setActive(true);
             notice.setCreatedAt(LocalDateTime.now());
             notice.setCreatedBy(staffUser.getUsername());
-            noticeRepository.save(notice);
+            Notice saved = noticeRepository.save(notice);
+            if ("CITIZEN".equalsIgnoreCase(targetType)) {
+                notificationService.notifyCitizensForAdminNotice(saved);
+            }
         }
 
         return "redirect:/admin/notices";

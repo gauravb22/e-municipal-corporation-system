@@ -14,6 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByWardNo(Integer wardNo);
     List<User> findByWardZone(String wardZone);
     List<User> findByWardNoAndWardZone(Integer wardNo, String wardZone);
+    List<User> findByActiveTrueOrActiveIsNull();
     long countByActiveTrue();
     long countByActiveFalse();
     long countByCreatedAtAfter(LocalDateTime since);
