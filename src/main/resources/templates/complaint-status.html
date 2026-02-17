@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,508 +12,666 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            --bg-a: #112f63;
+            --bg-b: #285b9f;
+            --surface: #ffffff;
+            --surface-soft: #f7fbff;
+            --text-main: #143053;
+            --text-muted: #5f7390;
+            --line: #d7e3f3;
+            --accent: #1f5faa;
+            --accent-soft: #eef4ff;
+            --danger: #c9362b;
+            --success: #1f7c4c;
+            --warning: #b26a0f;
+            --shadow: 0 14px 30px rgba(10, 35, 68, 0.2);
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
         }
 
-        .container {
-            max-width: 900px;
+        body {
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(108, 184, 247, 0.2), transparent 40%),
+                radial-gradient(circle at 92% 14%, rgba(94, 206, 225, 0.2), transparent 42%),
+                linear-gradient(145deg, var(--bg-a), var(--bg-b));
+            color: var(--text-main);
+            padding: 18px 12px 28px;
+        }
+
+        .page-shell {
+            max-width: 1080px;
             margin: 0 auto;
         }
 
-        .header {
-            background-color: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        .topbar {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
         }
 
-        .header h1 {
-            color: #1e3c72;
-            font-size: 28px;
+        .topbar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .topbar-title .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: linear-gradient(145deg, var(--accent), #2f73bf);
+            font-size: 18px;
         }
 
         .back-btn {
-            background-color: #f0f0f0;
-            color: #1e3c72;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
             text-decoration: none;
-            display: inline-block;
+            border-radius: 999px;
+            border: 1px solid #cedcee;
+            background: #edf4ff;
+            color: #144b87;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .back-btn:hover {
-            background-color: #e0e0e0;
+            background: #dce9fb;
         }
 
-        .no-complaints {
-            background-color: white;
-            border-radius: 12px;
-            padding: 40px;
+        .summary {
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .summary b {
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .empty-state {
+            margin-top: 14px;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .no-complaints p {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 20px;
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state .cta {
+            text-decoration: none;
+            background: linear-gradient(145deg, var(--accent), #2f73bf);
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .complaints {
+            margin-top: 14px;
+            display: grid;
+            gap: 14px;
         }
 
         .complaint-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow);
+            padding: 16px;
         }
 
         .complaint-header {
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
+            gap: 10px;
+            border-bottom: 1px solid #e7eef8;
+            padding-bottom: 12px;
         }
 
-        .complaint-type {
+        .complaint-title {
             font-size: 18px;
-            font-weight: 600;
-            color: #1e3c72;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.25;
+        }
+
+        .complaint-id {
+            margin-top: 4px;
+            color: #70829c;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
 
         .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 11px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
-        .status-submitted {
-            background-color: #fff3cd;
-            color: #856404;
-        }
+        .status-submitted { background: #fff4d7; color: #8a6112; }
+        .status-assigned { background: #e8f1ff; color: #1d4f90; }
+        .status-approved { background: #e8f7ee; color: #1f6f4a; }
+        .status-in-progress { background: #e5f4ff; color: #1a5f8f; }
+        .status-overdue { background: #ffe8e8; color: #b22318; }
+        .status-completed { background: #def4e6; color: #206b42; }
+        .status-verified { background: #e2f8ec; color: #1d704b; }
+        .status-escalated { background: #f8d7da; color: #70232a; }
+        .status-repeated { background: #fbe9e7; color: #a43a1d; }
+        .status-not-ward { background: #f1f3f5; color: #4b5563; }
+        .status-wrong { background: #fdecec; color: #b53838; }
 
-        .status-assigned {
-            background-color: #e8f0ff;
-            color: #1e3c72;
-        }
-
-        .status-in-progress {
-            background-color: #e6f4ff;
-            color: #155a8a;
-        }
-
-        .status-escalated {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-overdue {
-            background-color: #ffe7e7;
-            color: #b42318;
-        }
-
-        .status-completed {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-verified{
-            background:#e3fcec;
-            color:#1f6f4a;
-        }
-        .status-approved{
-            background:#e8f7ee;
-            color:#1f6f4a;
-        }
-        .status-repeated{
-            background:#fbe9e7;
-            color:#b23a1b;
-        }
-.status-not-ward{
-    background:#f1f3f5;
-    color:#4b5563;
-}
-.status-wrong{
-    background:#fdecec;
-    color:#b53838;
-}
-
-        .complaint-details {
+        .details-grid {
+            margin-top: 12px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px 0;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .detail-item {
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
+            border: 1px solid #dbe6f4;
+            background: var(--surface-soft);
+            border-radius: 10px;
+            padding: 9px 10px;
         }
 
         .detail-label {
-            color: #666;
-            font-size: 12px;
+            color: #667b96;
+            font-size: 11px;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .detail-value {
-            color: #1e3c72;
-            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
             word-break: break-word;
         }
 
-        .photos-section {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
+        .detail-value.link a {
+            color: #1b579a;
+            text-decoration: none;
+            font-weight: 700;
         }
 
-        .photos-section h4 {
-            color: #1e3c72;
-            margin-bottom: 10px;
+        .detail-value.link a:hover {
+            text-decoration: underline;
+        }
+
+        .description-box {
+            margin-top: 10px;
+            border: 1px solid #dde8f6;
+            background: #f9fbff;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .description-box .label {
+            color: #5f7390;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .description-box .value {
+            color: #334e70;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .photos-wrap {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .photo-panel {
+            border: 1px solid #dce8f6;
+            background: #f8fbff;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .photo-panel h4 {
+            color: var(--text-main);
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .photo-meta {
+            font-size: 12px;
+            color: #5f7390;
+            margin-bottom: 5px;
+        }
+
+        .photo-meta a {
+            color: #1b579a;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .photo-meta a:hover {
+            text-decoration: underline;
         }
 
         .complaint-photo {
-            max-width: 300px;
-            border-radius: 6px;
-            margin-top: 10px;
+            width: 100%;
+            max-height: 290px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #d6e3f2;
+            margin-top: 8px;
+            background: #fff;
         }
 
         .time-remaining {
-            padding: 10px;
-            background-color: #fff3cd;
-            border-left: 4px solid #ff9800;
-            border-radius: 4px;
-            margin: 15px 0;
-            color: #856404;
+            margin-top: 12px;
+            border: 1px solid #f3d799;
+            background: #fff5de;
+            border-left: 4px solid #f0a727;
+            border-radius: 8px;
+            color: #8a6112;
             font-size: 13px;
+            font-weight: 700;
+            padding: 10px;
         }
 
         .escalation-btn {
-            background-color: #dc3545;
-            color: white;
+            margin-top: 10px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 9px;
+            background: linear-gradient(145deg, #d53945, #b9242f);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 10px 13px;
             cursor: pointer;
-            font-weight: 600;
-            margin-top: 15px;
-            transition: all 0.3s ease;
         }
 
         .escalation-btn:hover {
-            background-color: #c82333;
+            filter: brightness(1.05);
         }
 
         .feedback-section {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
+            margin-top: 14px;
+            border: 1px solid #dce8f6;
+            background: #f8fbff;
+            border-radius: 10px;
+            padding: 12px;
         }
 
         .feedback-section h4 {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 16px;
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .feedback-submitted {
+            border: 1px solid #cce9d9;
+            background: #eaf8ef;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .feedback-submitted h5 {
+            color: var(--success);
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        .feedback-submitted p {
+            color: #2c654a;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .submitted-stars {
+            color: #f1b90d;
+            font-size: 14px;
+            margin-right: 6px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
-            color: #1e3c72;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            font-size: 13px;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Segoe UI', Arial;
+            border: 1px solid #ccd9ea;
+            border-radius: 9px;
+            padding: 10px 11px;
             font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #1e3c72;
-            box-shadow: 0 0 5px rgba(30, 60, 114, 0.3);
+            color: var(--text-main);
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #fff;
         }
 
         .form-group textarea {
-            min-height: 100px;
+            min-height: 95px;
             resize: vertical;
         }
 
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6d95c7;
+            box-shadow: 0 0 0 3px rgba(47, 115, 191, 0.15);
+        }
+
         .star-rating {
-            display: flex;
-            gap: 10px;
-            font-size: 30px;
-            margin: 15px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 26px;
+            user-select: none;
         }
 
         .star {
+            color: #d6dce4;
             cursor: pointer;
-            color: #ddd;
-            transition: all 0.2s ease;
+            transition: transform 0.15s ease, color 0.15s ease;
         }
 
-        .star:hover,
         .star.active {
-            color: #ffc107;
-            transform: scale(1.1);
+            color: #f1b90d;
+        }
+
+        .star:hover {
+            transform: scale(1.08);
         }
 
         .button-group {
+            margin-top: 10px;
             display: flex;
             gap: 10px;
-            margin-top: 20px;
         }
 
         .btn {
-            flex: 1;
-            padding: 12px;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-submit {
-            background-color: #2a5298;
-            color: white;
-        }
-
-        .btn-submit:hover {
-            background-color: #1e3c72;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
-        }
-
-        .feedback-submitted {
-            background-color: #d4edda;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #28a745;
-            margin-top: 15px;
-        }
-
-        .feedback-submitted h5 {
-            color: #155724;
-            margin-bottom: 10px;
-        }
-
-        .feedback-submitted p {
-            color: #155724;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: linear-gradient(145deg, var(--accent), #2f73bf);
+            color: #fff;
             font-size: 13px;
-            margin: 5px 0;
+            font-weight: 800;
+            cursor: pointer;
         }
 
-        .feedback-submitted .stars {
-            font-size: 16px;
-            color: #ffc107;
+        .btn:hover {
+            filter: brightness(1.04);
         }
 
-        @media (max-width: 768px) {
-            .complaint-header {
-                flex-direction: column;
-                gap: 10px;
+        .muted {
+            color: #697d97;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .details-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .complaint-details {
+            .photos-wrap {
                 grid-template-columns: 1fr;
             }
+        }
 
-            .button-group {
+        @media (max-width: 720px) {
+            .topbar {
                 flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .summary {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .complaint-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1><i class="fa-regular fa-clipboard" aria-hidden="true"></i> Complaint Status</h1>
-            <a href="/dashboard" class="back-btn"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
+    <div class="page-shell">
+        <div class="topbar">
+            <div class="topbar-title">
+                <span class="icon"><i class="fa-regular fa-clipboard" aria-hidden="true"></i></span>
+                <span>Complaint Status</span>
+            </div>
+            <a href="/dashboard" class="back-btn">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                Back to Dashboard
+            </a>
         </div>
 
-        <!-- Complaints List or No Complaints Message -->
+        <div class="summary">
+            <span>Total complaints: <b th:text="${complaints != null ? #lists.size(complaints) : 0}">0</b></span>
+            <span class="muted">Track updates, escalate overdue cases, and submit feedback for completed work.</span>
+        </div>
+
         <div th:if="${complaints.isEmpty()}">
-            <div class="no-complaints">
+            <div class="empty-state">
                 <p>No complaints filed yet.</p>
-                <a href="/raise-complaint" class="back-btn" style="background-color: #2a5298; color: white;">
+                <a href="/raise-complaint" class="cta">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     File a New Complaint
                 </a>
             </div>
         </div>
 
-        <!-- Complaints List -->
-        <div th:if="${!complaints.isEmpty()}">
-            <div th:each="complaint : ${complaints}" class="complaint-card">
-                <!-- Header with Type and Status -->
+        <div class="complaints" th:if="${!complaints.isEmpty()}">
+            <article th:each="complaint : ${complaints}" class="complaint-card">
                 <div class="complaint-header">
-                    <div class="complaint-type">
-                        <span th:text="${complaint.complaintType}"></span>
+                    <div>
+                        <div class="complaint-title" th:text="${complaint.complaintType}">Complaint Type</div>
+                        <div class="complaint-id">Complaint #<span th:text="${complaint.id}">0</span></div>
                     </div>
-                    <span class="status-badge" 
-                          th:classappend="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'status-submitted' : (complaint.status == 'assigned' ? 'status-assigned' : (complaint.status == 'approved' ? 'status-approved' : (complaint.status == 'in_progress' ? 'status-in-progress' : (complaint.status == 'overdue' ? 'status-overdue' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'status-completed' : (complaint.status == 'verified' ? 'status-verified' : (complaint.status == 'escalated' ? 'status-escalated' : (complaint.status == 'repeated' ? 'status-repeated' : (complaint.status == 'not_ward' ? 'status-not-ward' : (complaint.status == 'wrong' ? 'status-wrong' : 'status-completed'))))))))))}"
-                          th:text="${complaint.status == 'submitted' || complaint.status == 'pending' ? 'SUBMITTED' : (complaint.status == 'assigned' ? 'ASSIGNED TO WARD' : (complaint.status == 'approved' ? 'APPROVED' : (complaint.status == 'in_progress' ? 'IN PROGRESS' : (complaint.status == 'overdue' ? 'OVERDUE' : (complaint.status == 'completed' || complaint.status == 'solved' ? 'COMPLETED' : (complaint.status == 'verified' ? 'VERIFIED' : complaint.status.toUpperCase())))))))}"></span>
+
+                    <span class="status-badge"
+                          th:classappend="${' ' + complaintService.getStatusBadgeClass(complaint.status)}"
+                          th:text="${complaintService.getStatusLabel(complaint.status)}">
+                        SUBMITTED
+                    </span>
                 </div>
 
-                <!-- Complaint Details Grid -->
-                <div class="complaint-details">
+                <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Location</div>
-                        <div class="detail-value" th:text="${complaint.location}"></div>
+                        <div class="detail-value" th:text="${complaint.location}">Location</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label"><i class="fa-solid fa-house" aria-hidden="true"></i> House Number</div>
-                        <div class="detail-value" th:text="${complaint.houseNo}"></div>
+                        <div class="detail-value" th:text="${complaint.houseNo}">House</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Date Filed</div>
-                        <div class="detail-value" th:text="${#temporals.format(complaint.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                        <div class="detail-value" th:text="${#temporals.format(complaint.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label"><i class="fa-regular fa-clock" aria-hidden="true"></i> Status Updated</div>
-                        <div class="detail-value" 
-                             th:text="${complaint.updatedAt != null ? #temporals.format(complaint.updatedAt, 'dd-MMM-yyyy HH:mm') : 'Not updated yet'}"></div>
+                        <div class="detail-value"
+                             th:text="${complaint.updatedAt != null ? #temporals.format(complaint.updatedAt, 'dd-MMM-yyyy HH:mm') : 'Not updated yet'}">
+                            Not updated yet
+                        </div>
                     </div>
                     <div class="detail-item" th:if="${complaint.notComingFromDate != null}">
                         <div class="detail-label"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i> Not Coming From</div>
-                        <div class="detail-value" th:text="${#temporals.format(complaint.notComingFromDate, 'dd-MMM-yyyy')}"></div>
+                        <div class="detail-value" th:text="${#temporals.format(complaint.notComingFromDate, 'dd-MMM-yyyy')}">Date</div>
                     </div>
                 </div>
 
-                <!-- Description if provided -->
-                <div th:if="${complaint.description != null}" class="detail-item" style="grid-column: 1/-1;">
-                    <div class="detail-label"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Description</div>
-                    <div class="detail-value" th:text="${complaint.description}" style="color: #666; font-weight: normal;"></div>
+                <div class="description-box" th:if="${complaint.description != null && !#strings.isEmpty(complaint.description)}">
+                    <div class="label"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Description</div>
+                    <div class="value" th:text="${complaint.description}">Description text</div>
                 </div>
 
-                <!-- Photo Section -->
-                <div th:if="${complaint.photoPath != null || complaint.photoBase64 != null}" class="photos-section">
-                    <h4><i class="fa-solid fa-camera" aria-hidden="true"></i> Complaint Photo</h4>
-                    <p style="font-size: 12px; color: #666; margin: 8px 0;">
-                        <strong>Captured:</strong> <span th:text="${complaint.photoTimestamp}"></span>
-                    </p>
-                    <p style="font-size: 12px; color: #666; margin: 8px 0;">
-                        <strong>Location:</strong> <span th:text="${complaint.photoLocation}"></span>
-                    </p>
-                    <img th:src="${complaint.photoPath != null ? complaint.photoPath : complaint.photoBase64}" alt="Complaint photo" class="complaint-photo">
+                <div class="photos-wrap" th:if="${complaint.photoPath != null || complaint.photoBase64 != null || complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}">
+                    <div class="photo-panel" th:if="${complaint.photoPath != null || complaint.photoBase64 != null}">
+                        <h4><i class="fa-solid fa-camera" aria-hidden="true"></i> Complaint Photo</h4>
+                        <div class="photo-meta"><strong>Captured:</strong> <span th:text="${complaint.photoTimestamp}">-</span></div>
+                        <div class="photo-meta"><strong>Location:</strong> <span th:text="${complaint.photoLocation}">-</span></div>
+                        <img class="complaint-photo"
+                             th:src="${complaint.photoPath != null ? complaint.photoPath : complaint.photoBase64}"
+                             alt="Complaint photo">
+                    </div>
+
+                    <div class="photo-panel" th:if="${complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}">
+                        <h4><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Work Completed Photo</h4>
+                        <div class="photo-meta"><strong>Captured:</strong> <span th:text="${complaint.donePhotoTimestamp}">-</span></div>
+                        <div class="photo-meta">
+                            <strong>Location:</strong>
+                            <a th:if="${complaint.donePhotoLatitude != null && complaint.donePhotoLongitude != null && complaint.donePhotoLatitude != '0' && complaint.donePhotoLongitude != '0'}"
+                               th:href="'https://www.google.com/maps?q=' + ${complaint.donePhotoLatitude} + ',' + ${complaint.donePhotoLongitude}"
+                               target="_blank" rel="noopener"
+                               th:text="${complaint.donePhotoLocation}">Open Map</a>
+                            <span th:if="${complaint.donePhotoLatitude == null || complaint.donePhotoLongitude == null || complaint.donePhotoLatitude == '0' || complaint.donePhotoLongitude == '0'}"
+                                  th:text="${complaint.donePhotoLocation}">Location</span>
+                        </div>
+                        <img class="complaint-photo"
+                             th:src="${complaint.donePhotoPath != null ? complaint.donePhotoPath : complaint.donePhotoBase64}"
+                             alt="Completed work photo">
+                    </div>
                 </div>
 
-                <!-- Work Completed Photo (from ward member) -->
-                <div th:if="${complaint.donePhotoPath != null || complaint.donePhotoBase64 != null}" class="photos-section">
-                    <h4><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Work Completed Photo</h4>
-                    <p style="font-size: 12px; color: #666; margin: 8px 0;">
-                        <strong>Captured:</strong> <span th:text="${complaint.donePhotoTimestamp}"></span>
-                    </p>
-                    <p style="font-size: 12px; color: #666; margin: 8px 0;">
-                        <strong>Location:</strong>
-                        <a th:href="'https://www.google.com/maps?q=' + ${complaint.donePhotoLatitude} + ',' + ${complaint.donePhotoLongitude}"
-                           target="_blank" rel="noopener"
-                           th:text="${complaint.donePhotoLocation}">Open Map</a>
-                    </p>
-                    <img th:src="${complaint.donePhotoPath != null ? complaint.donePhotoPath : complaint.donePhotoBase64}" alt="Completed work photo" class="complaint-photo">
-                </div>
+                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}">
+                    <div class="time-remaining" th:id="'time-' + ${complaint.id}">
+                        <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                        Time remaining:
+                        <span th:text="${complaintService.getTimeRemaining(complaint)}">0 hours</span>
+                    </div>
 
-                <!-- Time Remaining for Escalation (only for pending) -->
-                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}" class="time-remaining" th:id="'time-' + ${complaint.id}">
-                    <i class="fa-regular fa-clock" aria-hidden="true"></i> Time remaining: <span th:text="${complaintService.getTimeRemaining(complaint)}"></span>
-                </div>
-
-                <!-- Escalation Button (for pending complaints over 72 hours) -->
-                <div th:if="${complaint.status == 'submitted' || complaint.status == 'pending' || complaint.status == 'overdue'}" style="margin-top: 15px;">
-                    <form method="POST" th:action="'/escalate-complaint/' + ${complaint.id}" style="display: inline;">
+                    <form method="POST" th:action="'/escalate-complaint/' + ${complaint.id}">
                         <button type="submit" class="escalation-btn" th:if="${complaintService.isPendingFor72Hours(complaint)}">
-                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Escalate - 72+ Hours Pending
+                            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                            Escalate - 72+ Hours Pending
                         </button>
                     </form>
                 </div>
 
-                <!-- Feedback Section (for completed complaints) -->
-                <div th:if="${complaint.status == 'completed' || complaint.status == 'verified' || complaint.status == 'solved'}" class="feedback-section">
+                <section th:if="${complaint.status == 'completed' || complaint.status == 'verified' || complaint.status == 'solved'}" class="feedback-section">
                     <h4><i class="fa-regular fa-comment-dots" aria-hidden="true"></i> Complaint Feedback</h4>
 
-                    <!-- If feedback already submitted -->
                     <div th:if="${complaint.feedbackSubmitted}" class="feedback-submitted">
                         <h5><i class="fa-solid fa-check" aria-hidden="true"></i> Feedback Submitted</h5>
                         <p>
                             <strong>Solved:</strong>
-                            <span th:if="${complaint.feedbackSolved}">Yes <i class="fa-solid fa-check" aria-hidden="true"></i></span>
-                            <span th:if="${!complaint.feedbackSolved}">No <i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
+                            <span th:if="${complaint.feedbackSolved}">Yes</span>
+                            <span th:if="${!complaint.feedbackSolved}">No</span>
                         </p>
-                        <p>
+                        <p th:if="${complaint.feedbackRating != null}">
                             <strong>Rating:</strong>
-                            <span class="stars">
+                            <span class="submitted-stars">
                                 <i class="fa-solid fa-star" th:each="i : ${#numbers.sequence(1, complaint.feedbackRating)}" aria-hidden="true"></i>
                             </span>
-                            <span th:text="${complaint.feedbackRating} + ' / 5 stars'"></span>
+                            <span th:text="${complaint.feedbackRating} + ' / 5'">0 / 5</span>
                         </p>
-                        <p><strong>Feedback:</strong> <span th:text="${complaint.feedbackDescription}"></span></p>
-                        <p th:if="${complaint.feedbackSolvedBy != null && !complaint.feedbackSolvedBy.isEmpty()}"><strong>Solved By:</strong> <span th:text="${complaint.feedbackSolvedBy}"></span></p>
-                        <p style="font-size: 11px; color: #666; margin-top: 10px;">
-                            Submitted: <span th:text="${#temporals.format(complaint.feedbackSubmittedAt, 'dd-MMM-yyyy HH:mm')}"></span>
+                        <p th:if="${complaint.feedbackRating == null}">
+                            <strong>Rating:</strong> Not provided
+                        </p>
+                        <p><strong>Feedback:</strong> <span th:text="${complaint.feedbackDescription}">Feedback text</span></p>
+                        <p th:if="${complaint.feedbackSolvedBy != null && !complaint.feedbackSolvedBy.isEmpty()}">
+                            <strong>Solved By:</strong> <span th:text="${complaint.feedbackSolvedBy}">Name</span>
+                        </p>
+                        <p class="muted">
+                            Submitted:
+                            <span th:text="${complaint.feedbackSubmittedAt != null ? #temporals.format(complaint.feedbackSubmittedAt, 'dd-MMM-yyyy HH:mm') : '-'}">-</span>
                         </p>
                     </div>
 
-                    <!-- If feedback NOT submitted, show form -->
-                    <div th:if="!${complaint.feedbackSubmitted}">
-                        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
-                            Please provide your feedback about the complaint resolution.
+                    <div th:if="${complaint.feedbackSubmitted == null || !complaint.feedbackSubmitted}">
+                        <p class="muted" style="margin-bottom: 10px;">
+                            Please share your feedback about the resolution quality.
                         </p>
 
-                        <form method="POST" th:action="'/submit-feedback/' + ${complaint.id}">
-                            <!-- Question: Is complaint solved? -->
+                        <form class="feedback-form" method="POST" th:action="'/submit-feedback/' + ${complaint.id}">
                             <div class="form-group">
                                 <label><i class="fa-solid fa-check" aria-hidden="true"></i> Is your complaint solved?</label>
-                                <select name="solved" required style="cursor: pointer;">
+                                <select name="solved" required>
                                     <option value="">-- Select --</option>
-                                    <option value="true">Yes, it's completely solved</option>
-                                    <option value="false">No, it's still not solved</option>
+                                    <option value="true">Yes, fully solved</option>
+                                    <option value="false">No, still not solved</option>
                                 </select>
                             </div>
 
-                            <!-- Feedback Description -->
                             <div class="form-group">
-                                <label><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Feedback Description (Required)</label>
-                                <textarea name="description" placeholder="Share your experience and any suggestions..." required></textarea>
+                                <label><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Feedback Description</label>
+                                <textarea name="description" placeholder="Share your experience and suggestions..." required></textarea>
                             </div>
 
-                            <!-- Star Rating -->
                             <div class="form-group">
-                                <label><i class="fa-solid fa-star" aria-hidden="true"></i> Rating (Select)</label>
-                                <div class="star-rating" th:id="'rating-' + ${complaint.id}">
+                                <label><i class="fa-solid fa-star" aria-hidden="true"></i> Rating</label>
+                                <div class="star-rating" th:attr="data-complaint-id=${complaint.id}">
                                     <span class="star" data-value="1"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                                     <span class="star" data-value="2"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
                                     <span class="star" data-value="3"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
@@ -523,65 +681,63 @@
                                 <input type="hidden" name="rating" th:id="'ratingValue-' + ${complaint.id}" value="0" required>
                             </div>
 
-                            <!-- Submit Button -->
                             <div class="button-group">
-                                <button type="submit" class="btn btn-submit">Submit Feedback</button>
+                                <button type="submit" class="btn">Submit Feedback</button>
                             </div>
                         </form>
                     </div>
-                </div>
-            </div>
+                </section>
+            </article>
         </div>
     </div>
 
     <script>
-        // Star rating functionality
-        document.querySelectorAll('.star-rating').forEach((rating) => {
-            const complaintId = rating.id.split('-')[1];
-            const stars = rating.querySelectorAll('.star');
+        document.querySelectorAll('.star-rating').forEach((ratingContainer) => {
+            const complaintId = ratingContainer.getAttribute('data-complaint-id');
+            const stars = ratingContainer.querySelectorAll('.star');
             const ratingValue = document.getElementById('ratingValue-' + complaintId);
 
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    const value = this.dataset.value;
-                    ratingValue.value = value;
+            if (!ratingValue) {
+                return;
+            }
 
-                    stars.forEach(s => {
-                        const starValue = s.dataset.value;
-                        if (starValue <= value) {
-                            s.classList.add('active');
-                        } else {
-                            s.classList.remove('active');
-                        }
-                    });
+            function paintStars(value) {
+                const numericValue = Number(value) || 0;
+                stars.forEach((star) => {
+                    const starValue = Number(star.getAttribute('data-value'));
+                    star.classList.toggle('active', starValue <= numericValue);
+                });
+            }
+
+            stars.forEach((star) => {
+                star.addEventListener('click', function () {
+                    const value = Number(this.getAttribute('data-value'));
+                    ratingValue.value = String(value);
+                    paintStars(value);
                 });
 
-                star.addEventListener('mouseover', function() {
-                    const value = this.dataset.value;
-                    stars.forEach(s => {
-                        const starValue = s.dataset.value;
-                        if (starValue <= value) {
-                            s.style.color = '#ffc107';
-                        } else {
-                            s.style.color = '#ddd';
-                        }
-                    });
+                star.addEventListener('mouseenter', function () {
+                    const value = Number(this.getAttribute('data-value'));
+                    paintStars(value);
                 });
             });
 
-            rating.addEventListener('mouseleave', function() {
-                const activeValue = ratingValue.value;
-                stars.forEach(s => {
-                    const starValue = s.dataset.value;
-                    if (starValue <= activeValue) {
-                        s.style.color = '#ffc107';
-                    } else {
-                        s.style.color = '#ddd';
-                    }
-                });
+            ratingContainer.addEventListener('mouseleave', function () {
+                paintStars(ratingValue.value);
+            });
+
+            paintStars(ratingValue.value);
+        });
+
+        document.querySelectorAll('.feedback-form').forEach((form) => {
+            form.addEventListener('submit', function (event) {
+                const ratingInput = form.querySelector('input[name="rating"]');
+                if (!ratingInput || Number(ratingInput.value) < 1) {
+                    event.preventDefault();
+                    alert('Please select a star rating before submitting feedback.');
+                }
             });
         });
     </script>
 </body>
 </html>
-

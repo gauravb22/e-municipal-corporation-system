@@ -216,4 +216,68 @@ public class ComplaintService {
         img.setCreatedAt(LocalDateTime.now());
         complaintImageRepository.save(img);
     }
+
+    public String getStatusBadgeClass(String status) {
+        String normalized = status == null ? "submitted" : status.trim().toLowerCase();
+        switch (normalized) {
+            case "submitted":
+            case "pending":
+                return "status-submitted";
+            case "assigned":
+                return "status-assigned";
+            case "approved":
+                return "status-approved";
+            case "in_progress":
+                return "status-in-progress";
+            case "overdue":
+                return "status-overdue";
+            case "completed":
+            case "solved":
+                return "status-completed";
+            case "verified":
+                return "status-verified";
+            case "escalated":
+                return "status-escalated";
+            case "repeated":
+                return "status-repeated";
+            case "not_ward":
+                return "status-not-ward";
+            case "wrong":
+                return "status-wrong";
+            default:
+                return "status-completed";
+        }
+    }
+
+    public String getStatusLabel(String status) {
+        String normalized = status == null ? "submitted" : status.trim().toLowerCase();
+        switch (normalized) {
+            case "submitted":
+            case "pending":
+                return "SUBMITTED";
+            case "assigned":
+                return "ASSIGNED TO WARD";
+            case "approved":
+                return "APPROVED";
+            case "in_progress":
+                return "IN PROGRESS";
+            case "overdue":
+                return "OVERDUE";
+            case "completed":
+            case "solved":
+                return "COMPLETED";
+            case "verified":
+                return "VERIFIED";
+            case "escalated":
+                return "ESCALATED";
+            case "repeated":
+                return "REPEATED";
+            case "not_ward":
+                return "NOT OUR WARD";
+            case "wrong":
+                return "WRONG";
+            default:
+                return normalized.toUpperCase();
+        }
+    }
 }
