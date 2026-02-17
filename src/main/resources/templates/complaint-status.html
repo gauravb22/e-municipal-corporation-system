@@ -408,6 +408,10 @@
                         <div class="detail-value" 
                              th:text="${complaint.updatedAt != null ? #temporals.format(complaint.updatedAt, 'dd-MMM-yyyy HH:mm') : 'Not updated yet'}"></div>
                     </div>
+                    <div class="detail-item" th:if="${complaint.notComingFromDate != null}">
+                        <div class="detail-label"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i> Not Coming From</div>
+                        <div class="detail-value" th:text="${#temporals.format(complaint.notComingFromDate, 'dd-MMM-yyyy')}"></div>
+                    </div>
                 </div>
 
                 <!-- Description if provided -->

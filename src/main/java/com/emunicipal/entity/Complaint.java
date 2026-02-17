@@ -1,6 +1,7 @@
 package com.emunicipal.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,9 @@ public class Complaint {
 
     @Column(name = "description", length = 1000)
     private String description;
+
+    @Column(name = "not_coming_from_date")
+    private LocalDate notComingFromDate;
 
     @Column(name = "photo_timestamp", nullable = false)
     private String photoTimestamp;
@@ -190,6 +194,14 @@ public class Complaint {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public LocalDate getNotComingFromDate() {
+        return notComingFromDate;
+    }
+
+    public void setNotComingFromDate(LocalDate notComingFromDate) {
+        this.notComingFromDate = notComingFromDate;
     }
 
     public String getPhotoTimestamp() {

@@ -273,7 +273,7 @@ body {
 </style>
 </head>
 
-<body>
+<body th:attr="data-requires-photo=${requiresPhoto}">
 
 <div class="container">
     <div class="card">
@@ -287,6 +287,12 @@ body {
         <div class="complaint-type">
             <label>Complaint Type</label>
             <div class="value" th:text="${complaintType}"></div>
+        </div>
+
+        <div th:if="${error != null}"
+             style="margin-bottom: 20px; padding: 12px; border-radius: 8px; background: #fdecea; color: #b42318; font-size: 14px; font-weight: 600;"
+             th:text="${error}">
+            Validation error
         </div>
 
         <!-- User Information -->
@@ -361,8 +367,19 @@ body {
                 <textarea name="description" placeholder="Provide detailed information about the complaint (optional). Include what, when, and how it happened."></textarea>
             </div>
 
+            <div class="form-group" th:if="${requiresNotComingDate}">
+                <label>
+                    Not Coming From Date
+                    <span class="required">*</span>
+                </label>
+                <input type="date" name="notComingFromDate" th:value="${param.notComingFromDate}" required>
+                <p style="margin-top: 8px; color: #666; font-size: 12px;">
+                    Photo is not required for this complaint type.
+                </p>
+            </div>
+
             <!-- Camera Photo Capture -->
-            <div class="form-group">
+            <div class="form-group" th:if="${requiresPhoto}">
                 <label>
                     Complaint Photo
                     <span class="marathi">(शिकायतीचा फोटो)</span>
@@ -418,6 +435,8 @@ body {
 </div>
 
 <script>
+const requiresPhoto = document.body.getAttribute('data-requires-photo') === 'true';
+const notComingDateInput = document.querySelector('input[name="notComingFromDate"]');
 // Initialize timestamp display
 function updateTimestamp() {
     const now = new Date();
@@ -430,13 +449,21 @@ function updateTimestamp() {
         second: '2-digit',
         hour12: true
     });
-    document.getElementById('timestampDisplay').textContent = timestamp;
-    document.getElementById('photoTimestamp').value = now.toISOString();
+    const timestampDisplay = document.getElementById('timestampDisplay');
+    const photoTimestamp = document.getElementById('photoTimestamp');
+    if (timestampDisplay) {
+        timestampDisplay.textContent = timestamp;
+    }
+    if (photoTimestamp) {
+        photoTimestamp.value = now.toISOString();
+    }
 }
 
 // Update timestamp every second
-setInterval(updateTimestamp, 1000);
-updateTimestamp();
+if (requiresPhoto) {
+    setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+}
 
 // Get location once on page load
 function getLocation() {
@@ -461,11 +488,16 @@ function getLocation() {
 }
 
 // Get location on page load
-getLocation();
+if (requiresPhoto) {
+    getLocation();
+}
 
 // Trigger camera capture
 function capturePhoto() {
-    document.getElementById('photoInput').click();
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.click();
+    }
 }
 
 // Handle photo capture
@@ -475,17 +507,22 @@ function handlePhotoCapture(event) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const photoPreview = document.getElementById('photoPreview');
-            photoPreview.src = e.target.result;
-            photoPreview.classList.add('active');
+            if (photoPreview) {
+                photoPreview.src = e.target.result;
+                photoPreview.classList.add('active');
+            }
             
             // Show confirmation
-            document.getElementById('photoCapturedMsg').classList.add('show');
+            const photoCapturedMsg = document.getElementById('photoCapturedMsg');
+            if (photoCapturedMsg) {
+                photoCapturedMsg.classList.add('show');
+            }
             
             // Store base64 for submission
-            document.getElementById('photoBase64').value = e.target.result;
-            
-            // Enable submit button
-            document.getElementById('submitBtn').disabled = false;
+            const photoBase64 = document.getElementById('photoBase64');
+            if (photoBase64) {
+                photoBase64.value = e.target.result;
+            }
         };
         reader.readAsDataURL(file);
     }
@@ -493,9 +530,15 @@ function handlePhotoCapture(event) {
 
 // Form validation
 document.querySelector('form').addEventListener('submit', function(e) {
-    if (!document.getElementById('photoBase64').value) {
+    const photoBase64 = document.getElementById('photoBase64');
+    if (requiresPhoto && (!photoBase64 || !photoBase64.value)) {
         e.preventDefault();
-        alert('Please capture a photo before submitting');
+        alert('Please capture a photo before submitting.');
+        return false;
+    }
+    if (!requiresPhoto && (!notComingDateInput || !notComingDateInput.value)) {
+        e.preventDefault();
+        alert('Please select not coming from date before submitting.');
         return false;
     }
 });

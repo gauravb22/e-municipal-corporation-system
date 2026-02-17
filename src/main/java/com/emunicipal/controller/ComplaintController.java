@@ -18,7 +18,10 @@ import com.emunicipal.repository.ComplaintRepository;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -26,6 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class ComplaintController {
+
+    private static final Set<String> NO_PHOTO_REQUIRED_TYPES = Set.of(
+            "garbage vehicle not coming",
+            "safai karmachari absent",
+            "safai karmachari not coming"
+    );
 
     @Autowired
     private ComplaintService complaintService;
@@ -62,9 +71,8 @@ public class ComplaintController {
         if (user == null) {
             return "redirect:/login";
         }
-        
-        model.addAttribute("user", user);
-        model.addAttribute("complaintType", type);
+
+        populateComplaintFormModel(model, user, type);
         return "complaint-form";
     }
 
@@ -81,26 +89,55 @@ public class ComplaintController {
             @RequestParam(value = "photoLatitude", required = false) String photoLatitude,
             @RequestParam(value = "photoLongitude", required = false) String photoLongitude,
             @RequestParam(value = "photoBase64", required = false) String photoBase64,
+            @RequestParam(value = "notComingFromDate", required = false) String notComingFromDate,
             HttpSession session, Model model) {
         
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
-        
-        // Create and save complaint
-        String resolvedPhotoTimestamp = (photoTimestamp != null && !photoTimestamp.isBlank())
-                ? photoTimestamp
-                : LocalDateTime.now().toString();
-        String resolvedPhotoLocation = (photoLocation != null && !photoLocation.isBlank())
-                ? photoLocation
-                : "Location not available";
-        String resolvedPhotoLatitude = (photoLatitude != null && !photoLatitude.isBlank())
-                ? photoLatitude
-                : "0";
-        String resolvedPhotoLongitude = (photoLongitude != null && !photoLongitude.isBlank())
-                ? photoLongitude
-                : "0";
+
+        boolean requiresNotComingDate = isNoPhotoRequiredComplaintType(type);
+        boolean requiresPhoto = !requiresNotComingDate;
+
+        LocalDate parsedNotComingFromDate = null;
+        if (requiresNotComingDate) {
+            if (notComingFromDate == null || notComingFromDate.isBlank()) {
+                return complaintFormWithError(model, user, type, "Please select the not coming from date.");
+            }
+            try {
+                parsedNotComingFromDate = LocalDate.parse(notComingFromDate);
+            } catch (DateTimeParseException ex) {
+                return complaintFormWithError(model, user, type, "Please select a valid not coming from date.");
+            }
+        } else if (photoBase64 == null || photoBase64.isBlank()) {
+            return complaintFormWithError(model, user, type, "Please capture a complaint photo before submitting.");
+        }
+
+        String resolvedPhotoTimestamp;
+        String resolvedPhotoLocation;
+        String resolvedPhotoLatitude;
+        String resolvedPhotoLongitude;
+        if (requiresPhoto) {
+            resolvedPhotoTimestamp = (photoTimestamp != null && !photoTimestamp.isBlank())
+                    ? photoTimestamp
+                    : LocalDateTime.now().toString();
+            resolvedPhotoLocation = (photoLocation != null && !photoLocation.isBlank())
+                    ? photoLocation
+                    : "Location not available";
+            resolvedPhotoLatitude = (photoLatitude != null && !photoLatitude.isBlank())
+                    ? photoLatitude
+                    : "0";
+            resolvedPhotoLongitude = (photoLongitude != null && !photoLongitude.isBlank())
+                    ? photoLongitude
+                    : "0";
+        } else {
+            resolvedPhotoTimestamp = "Not required for this complaint type";
+            resolvedPhotoLocation = "Not required for this complaint type";
+            resolvedPhotoLatitude = "0";
+            resolvedPhotoLongitude = "0";
+            photoBase64 = null;
+        }
 
         Complaint complaint = new Complaint(
             user.getId(),
@@ -114,6 +151,7 @@ public class ComplaintController {
             resolvedPhotoLongitude,
             photoBase64
         );
+        complaint.setNotComingFromDate(parsedNotComingFromDate);
 
         Integer resolvedWardNo = null;
         if (wardNo != null && !wardNo.isBlank()) {
@@ -522,5 +560,26 @@ public class ComplaintController {
         model.addAttribute("complaints", result);
         model.addAttribute("feedType", type);
         return "ward-complaints-" + type;
+    }
+
+    private boolean isNoPhotoRequiredComplaintType(String complaintType) {
+        if (complaintType == null) {
+            return false;
+        }
+        return NO_PHOTO_REQUIRED_TYPES.contains(complaintType.trim().toLowerCase());
+    }
+
+    private void populateComplaintFormModel(Model model, User user, String complaintType) {
+        boolean requiresNotComingDate = isNoPhotoRequiredComplaintType(complaintType);
+        model.addAttribute("user", user);
+        model.addAttribute("complaintType", complaintType);
+        model.addAttribute("requiresNotComingDate", requiresNotComingDate);
+        model.addAttribute("requiresPhoto", !requiresNotComingDate);
+    }
+
+    private String complaintFormWithError(Model model, User user, String complaintType, String errorMessage) {
+        populateComplaintFormModel(model, user, complaintType);
+        model.addAttribute("error", errorMessage);
+        return "complaint-form";
     }
 }

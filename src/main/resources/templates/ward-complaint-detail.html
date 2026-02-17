@@ -89,9 +89,12 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
             <div class="item">
                 <div class="label">Location</div>
                 <div class="value">
-                    <a th:href="'https://www.google.com/maps?q=' + ${complaint.photoLatitude} + ',' + ${complaint.photoLongitude}"
+                    <a th:if="${complaint.photoLatitude != null && complaint.photoLongitude != null && complaint.photoLatitude != '0' && complaint.photoLongitude != '0'}"
+                       th:href="'https://www.google.com/maps?q=' + ${complaint.photoLatitude} + ',' + ${complaint.photoLongitude}"
                        target="_blank" rel="noopener"
                        th:text="${complaint.location}">Location</a>
+                    <span th:if="${complaint.photoLatitude == null || complaint.photoLongitude == null || complaint.photoLatitude == '0' || complaint.photoLongitude == '0'}"
+                          th:text="${complaint.location}">Location</span>
                 </div>
             </div>
             <div class="item">
@@ -109,6 +112,10 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
             <div class="item">
                 <div class="label">Complaint ID</div>
                 <div class="value" th:text="${complaint.id}">ID</div>
+            </div>
+            <div class="item" th:if="${complaint.notComingFromDate != null}">
+                <div class="label">Not Coming From</div>
+                <div class="value" th:text="${#temporals.format(complaint.notComingFromDate, 'dd-MMM-yyyy')}">Date</div>
             </div>
         </div>
 
