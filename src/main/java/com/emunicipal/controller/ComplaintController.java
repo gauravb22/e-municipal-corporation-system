@@ -97,6 +97,16 @@ public class ComplaintController {
             return "redirect:/login";
         }
 
+        String normalizedLocation = normalizeField(location);
+        if (normalizedLocation == null) {
+            return complaintFormWithError(model, user, type, "Please enter complaint location before submitting.");
+        }
+
+        String normalizedHouseNo = normalizeField(houseNo);
+        if (normalizedHouseNo == null) {
+            return complaintFormWithError(model, user, type, "Please enter house number before submitting.");
+        }
+
         boolean requiresNotComingDate = isNoPhotoRequiredComplaintType(type);
         boolean requiresPhoto = !requiresNotComingDate;
 
@@ -112,6 +122,8 @@ public class ComplaintController {
             }
         } else if (photoBase64 == null || photoBase64.isBlank()) {
             return complaintFormWithError(model, user, type, "Please capture a complaint photo before submitting.");
+        } else if (!hasValidPhotoLocation(photoLocation, photoLatitude, photoLongitude)) {
+            return complaintFormWithError(model, user, type, "Photo complaint requires current location. Please enable GPS and capture photo again.");
         }
 
         String resolvedPhotoTimestamp;
@@ -122,15 +134,9 @@ public class ComplaintController {
             resolvedPhotoTimestamp = (photoTimestamp != null && !photoTimestamp.isBlank())
                     ? photoTimestamp
                     : LocalDateTime.now().toString();
-            resolvedPhotoLocation = (photoLocation != null && !photoLocation.isBlank())
-                    ? photoLocation
-                    : "Location not available";
-            resolvedPhotoLatitude = (photoLatitude != null && !photoLatitude.isBlank())
-                    ? photoLatitude
-                    : "0";
-            resolvedPhotoLongitude = (photoLongitude != null && !photoLongitude.isBlank())
-                    ? photoLongitude
-                    : "0";
+            resolvedPhotoLocation = photoLocation.trim();
+            resolvedPhotoLatitude = photoLatitude.trim();
+            resolvedPhotoLongitude = photoLongitude.trim();
         } else {
             resolvedPhotoTimestamp = "Not required for this complaint type";
             resolvedPhotoLocation = "Not required for this complaint type";
@@ -142,8 +148,8 @@ public class ComplaintController {
         Complaint complaint = new Complaint(
             user.getId(),
             type,
-            location,
-            houseNo,
+            normalizedLocation,
+            normalizedHouseNo,
             description,
             resolvedPhotoTimestamp,
             resolvedPhotoLocation,
@@ -202,8 +208,8 @@ public class ComplaintController {
         
         System.out.println("================== COMPLAINT SUBMITTED ==================");
         System.out.println("Complaint Type: " + type);
-        System.out.println("Location: " + location);
-        System.out.println("House Number: " + houseNo);
+        System.out.println("Location: " + normalizedLocation);
+        System.out.println("House Number: " + normalizedHouseNo);
         System.out.println("Description: " + (description != null ? description : "Not provided"));
         System.out.println("User: " + user.getFullName() + " (" + user.getPhone() + ")");
         System.out.println("Photo Timestamp: " + photoTimestamp);
@@ -567,6 +573,34 @@ public class ComplaintController {
             return false;
         }
         return NO_PHOTO_REQUIRED_TYPES.contains(complaintType.trim().toLowerCase());
+    }
+
+    private String normalizeField(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean hasValidPhotoLocation(String photoLocation, String photoLatitude, String photoLongitude) {
+        String normalizedPhotoLocation = normalizeField(photoLocation);
+        String normalizedPhotoLatitude = normalizeField(photoLatitude);
+        String normalizedPhotoLongitude = normalizeField(photoLongitude);
+        if (normalizedPhotoLocation == null
+                || normalizedPhotoLatitude == null
+                || normalizedPhotoLongitude == null
+                || "location not available".equalsIgnoreCase(normalizedPhotoLocation)) {
+            return false;
+        }
+
+        try {
+            double latitude = Double.parseDouble(normalizedPhotoLatitude);
+            double longitude = Double.parseDouble(normalizedPhotoLongitude);
+            return !(Math.abs(latitude) < 0.000001 && Math.abs(longitude) < 0.000001);
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
 
     private void populateComplaintFormModel(Model model, User user, String complaintType) {

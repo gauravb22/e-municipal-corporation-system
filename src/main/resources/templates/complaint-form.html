@@ -543,6 +543,7 @@ form {
 <script>
 const requiresPhoto = document.body.getAttribute('data-requires-photo') === 'true';
 const notComingDateInput = document.querySelector('input[name="notComingFromDate"]');
+const locationInput = document.querySelector('input[name="location"]');
 
 function updateTimestamp() {
     const now = new Date();
@@ -600,9 +601,21 @@ function getLocation() {
         },
         function(error) {
             console.error('Geolocation error:', error);
+            const photoLatitude = document.getElementById('photoLatitude');
+            const photoLongitude = document.getElementById('photoLongitude');
+            const photoLocation = document.getElementById('photoLocation');
             const locationDisplay = document.getElementById('locationDisplay');
+            if (photoLatitude) {
+                photoLatitude.value = '';
+            }
+            if (photoLongitude) {
+                photoLongitude.value = '';
+            }
+            if (photoLocation) {
+                photoLocation.value = '';
+            }
             if (locationDisplay) {
-                locationDisplay.textContent = 'Location not available';
+                locationDisplay.textContent = 'Location required. Please enable GPS.';
             }
         }
     );
@@ -613,6 +626,7 @@ if (requiresPhoto) {
 }
 
 function capturePhoto() {
+    getLocation();
     const photoInput = document.getElementById('photoInput');
     if (photoInput) {
         photoInput.click();
@@ -645,13 +659,44 @@ function handlePhotoCapture(event) {
     reader.readAsDataURL(file);
 }
 
+function hasCapturedLocation() {
+    const photoLocation = document.getElementById('photoLocation');
+    const photoLatitude = document.getElementById('photoLatitude');
+    const photoLongitude = document.getElementById('photoLongitude');
+    const locationValue = photoLocation && photoLocation.value ? photoLocation.value.trim() : '';
+    const latValue = photoLatitude && photoLatitude.value ? photoLatitude.value.trim() : '';
+    const lonValue = photoLongitude && photoLongitude.value ? photoLongitude.value.trim() : '';
+
+    if (!locationValue || locationValue.toLowerCase() === 'location not available') {
+        return false;
+    }
+    if (!latValue || !lonValue) {
+        return false;
+    }
+    if (latValue === '0' && lonValue === '0') {
+        return false;
+    }
+    return true;
+}
+
 const complaintForm = document.querySelector('form');
 if (complaintForm) {
     complaintForm.addEventListener('submit', function(e) {
+        if (!locationInput || !locationInput.value || !locationInput.value.trim()) {
+            e.preventDefault();
+            alert('Please enter complaint location before submitting.');
+            return false;
+        }
+
         const photoBase64 = document.getElementById('photoBase64');
         if (requiresPhoto && (!photoBase64 || !photoBase64.value)) {
             e.preventDefault();
             alert('Please capture a photo before submitting.');
+            return false;
+        }
+        if (requiresPhoto && !hasCapturedLocation()) {
+            e.preventDefault();
+            alert('Location is mandatory for photo complaints. Please enable GPS and capture photo again.');
             return false;
         }
         if (!requiresPhoto && (!notComingDateInput || !notComingDateInput.value)) {
