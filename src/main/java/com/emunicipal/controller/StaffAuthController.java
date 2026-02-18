@@ -236,7 +236,7 @@ public class StaffAuthController {
             user.setActive(false);
             userRepository.save(user);
         });
-        return "redirect:/admin/users";
+        return "redirect:/admin/users?blocked=1";
     }
 
     @PostMapping("/admin/users/{id}/unblock")
@@ -250,7 +250,7 @@ public class StaffAuthController {
             user.setActive(true);
             userRepository.save(user);
         });
-        return "redirect:/admin/users";
+        return "redirect:/admin/users?unblocked=1";
     }
 
     @PostMapping("/admin/users/{id}/delete")
@@ -260,10 +260,7 @@ public class StaffAuthController {
             return "redirect:/admin-login";
         }
 
-        if (userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
-        }
-        return "redirect:/admin/users?deleted=1";
+        return "redirect:/admin/users?deleteDisabled=1";
     }
 
     @GetMapping("/admin/ward-members")

@@ -131,6 +131,37 @@ body{
     font-weight:800;
     cursor:pointer;
 }
+.action-btn{
+    border:none;
+    border-radius:8px;
+    padding:7px 10px;
+    color:white;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+.action-btn.block{
+    background:#b42318;
+}
+.action-btn.unblock{
+    background:#157347;
+}
+.status-pill{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.03em;
+}
+.status-pill.active{
+    background:#dcfce7;
+    color:#166534;
+}
+.status-pill.blocked{
+    background:#fee2e2;
+    color:#991b1b;
+}
 @media (max-width:700px){
     .table{
         display:block;
@@ -157,8 +188,16 @@ body{
     <div class="container">
         <div class="title">View Citizens</div>
 
-        <div class="notice" th:if="${param.deleted}">
-            User deleted successfully.
+        <div class="notice" th:if="${param.blocked}">
+            User blocked successfully.
+        </div>
+
+        <div class="notice" th:if="${param.unblocked}">
+            User unblocked successfully.
+        </div>
+
+        <div class="notice" th:if="${param.deleteDisabled}">
+            Delete is disabled. Admin can only block or unblock users.
         </div>
 
         <div class="stats">
@@ -200,12 +239,13 @@ body{
                         <th>Zone</th>
                         <th>House No</th>
                         <th>Address</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${users == null || users.isEmpty()}">
-                        <td colspan="6">No users found.</td>
+                        <td colspan="7">No users found.</td>
                     </tr>
                     <tr th:each="u : ${users}">
                         <td th:text="${u.fullName != null ? u.fullName : '-'}">-</td>
@@ -214,8 +254,21 @@ body{
                         <td th:text="${u.houseNo != null ? u.houseNo : '-'}">-</td>
                         <td th:text="${u.address != null ? u.address : '-'}">-</td>
                         <td>
-                            <form method="post" th:action="@{/admin/users/{id}/delete(id=${u.id})}" onsubmit="return confirm('Delete this user permanently?');">
-                                <button class="danger" type="submit">Delete</button>
+                            <span class="status-pill active" th:if="${u.active == null || u.active}">ACTIVE</span>
+                            <span class="status-pill blocked" th:if="${u.active != null && !u.active}">BLOCKED</span>
+                        </td>
+                        <td>
+                            <form method="post"
+                                  th:if="${u.active == null || u.active}"
+                                  th:action="@{/admin/users/{id}/block(id=${u.id})}"
+                                  onsubmit="return confirm('Block this user?');">
+                                <button class="action-btn block" type="submit">Block</button>
+                            </form>
+                            <form method="post"
+                                  th:if="${u.active != null && !u.active}"
+                                  th:action="@{/admin/users/{id}/unblock(id=${u.id})}"
+                                  onsubmit="return confirm('Unblock this user?');">
+                                <button class="action-btn unblock" type="submit">Unblock</button>
                             </form>
                         </td>
                     </tr>
