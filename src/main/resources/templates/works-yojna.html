@@ -1,192 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>Works & Yojna | E-Municipal Corporation</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
 body{
     margin:0;
-    font-family:"Segoe UI", Arial;
+    font-family:"Segoe UI", Arial, sans-serif;
     background:linear-gradient(135deg,#1e3c72,#2a5298);
     min-height:100vh;
 }
-
-/* TOP BAR */
 .topbar{
     background:#16325c;
-    color:white;
+    color:#fff;
     display:flex;
     align-items:center;
+    justify-content:space-between;
     padding:12px 16px;
     gap:12px;
-}
-.topbar img{ width:42px; }
-.topbar strong{ font-size:16px; }
-
-/* CONTAINER */
-.container{
-    max-width:900px;
-    margin:25px auto;
-    padding:12px;
-}
-
-/* FILTER */
-.filter{
-    display:flex;
-    gap:12px;
-    margin-bottom:18px;
     flex-wrap:wrap;
 }
-select{
-    padding:10px;
-    border-radius:10px;
-    border:none;
+.topbar-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.topbar img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+}
+.topbar strong{
+    font-size:16px;
+}
+.topbar a{
+    color:#fff;
+    text-decoration:none;
     font-size:14px;
 }
-
-/* SECTION TITLE */
+.container{
+    max-width:980px;
+    margin:24px auto;
+    padding:12px;
+}
 .section-title{
-    color:white;
+    color:#fff;
     font-size:22px;
     margin:20px 0 12px;
 }
-
-/* CARD GRID */
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     gap:16px;
 }
-
-/* CARD */
 .card{
-    background:white;
+    background:#fff;
     border-radius:18px;
     padding:18px;
     box-shadow:0 12px 28px rgba(0,0,0,.18);
-    transition:.3s;
-}
-.card:hover{
-    transform:translateY(-6px);
 }
 .card h3{
-    margin:0 0 6px;
+    margin:8px 0 6px;
+    color:#193763;
+}
+.card p{
+    font-size:14px;
+    margin:8px 0;
+    color:#1c3659;
+    min-height:36px;
 }
 .badge{
     display:inline-block;
     padding:6px 12px;
     border-radius:20px;
     font-size:12px;
-    font-weight:600;
+    font-weight:700;
 }
-.ongoing{ background:#f1c40f; }
-.completed{ background:#2ecc71; color:white; }
-.upcoming{ background:#3498db; color:white; }
-
-/* CARD CONTENT */
-.card p{
-    font-size:14px;
-    margin:8px 0;
-}
+.ongoing{ background:#f1c40f; color:#2c2c2c; }
+.completed{ background:#2ecc71; color:#fff; }
+.upcoming{ background:#3498db; color:#fff; }
+.active{ background:#157347; color:#fff; }
 .info{
     font-size:13px;
-    color:#555;
+    color:#4e5a65;
+    margin-top:6px;
 }
-.info i{ margin-right:6px; }
-
-/* VIEW BTN */
-button{
-    margin-top:10px;
+.info i{
+    margin-right:6px;
+}
+.action-btn{
+    display:inline-block;
+    margin-top:12px;
     padding:10px 14px;
     background:#1e3c72;
-    color:white;
-    border:none;
+    color:#fff;
     border-radius:12px;
-    cursor:pointer;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
 }
-button:hover{
-    background:#16325c;
+.action-btn.disabled{
+    opacity:.65;
+    pointer-events:none;
+}
+.empty{
+    background:rgba(255,255,255,.9);
+    border-radius:12px;
+    padding:12px;
+    color:#17345d;
+    font-size:14px;
 }
 </style>
 </head>
-
 <body>
-
-<!-- TOP BAR -->
 <div class="topbar">
-    <img src="images/logo.png">
-    <strong>E-Municipal Corporation</strong>
+    <div class="topbar-left">
+        <img src="/images/municipalLogo.png" alt="Municipal Logo">
+        <strong>E-Municipal Corporation</strong>
+    </div>
+    <a href="/dashboard">Back to Dashboard</a>
 </div>
 
 <div class="container">
-
-    <!-- FILTER -->
-    <div class="filter">
-        <select>
-            <option>All Wards</option>
-            <option>Ward 1</option>
-            <option>Ward 2</option>
-            <option>Ward 3</option>
-        </select>
-
-        <select>
-            <option>All Status</option>
-            <option>Ongoing</option>
-            <option>Completed</option>
-            <option>Upcoming</option>
-        </select>
-    </div>
-
-    <!-- MUNICIPAL WORKS -->
     <div class="section-title">Municipal Works</div>
-    <div class="grid">
-
-        <div class="card">
-            <span class="badge ongoing">Ongoing</span>
-            <h3>Road Concrete Work</h3>
-            <p>Concrete road construction at Ram Nagar area.</p>
-            <div class="info"><i class="fa-solid fa-location-dot"></i> Ward 5</div>
-            <div class="info"><i class="fa-solid fa-calendar"></i> Jan – Mar 2026</div>
-            <button>View Details</button>
+    <div class="empty" th:if="${workItems == null || workItems.isEmpty()}">No municipal work updates available right now.</div>
+    <div class="grid" th:if="${workItems != null && !workItems.isEmpty()}">
+        <div class="card" th:each="item : ${workItems}">
+            <span class="badge"
+                  th:classappend="${item.statusLabel != null and #strings.equalsIgnoreCase(item.statusLabel, 'Completed')} ? ' completed' : (${item.statusLabel != null and #strings.equalsIgnoreCase(item.statusLabel, 'Upcoming')} ? ' upcoming' : ' ongoing')"
+                  th:text="${item.statusLabel != null ? item.statusLabel : 'Ongoing'}">Ongoing</span>
+            <h3 th:text="${item.title}">Work Title</h3>
+            <p th:text="${item.description != null ? item.description : 'No description available.'}">Description</p>
+            <div class="info" th:if="${item.metaOne != null and !item.metaOne.isBlank()}">
+                <i class="fa-solid fa-location-dot"></i>
+                <span th:text="${item.metaOne}">Meta 1</span>
+            </div>
+            <div class="info" th:if="${item.metaTwo != null and !item.metaTwo.isBlank()}">
+                <i class="fa-solid fa-calendar"></i>
+                <span th:text="${item.metaTwo}">Meta 2</span>
+            </div>
+            <a class="action-btn"
+               th:href="${item.actionUrl != null and !item.actionUrl.isBlank() ? item.actionUrl : '#'}"
+               th:target="${item.actionUrl != null and !item.actionUrl.isBlank() ? '_blank' : null}"
+               th:text="${item.actionText != null and !item.actionText.isBlank() ? item.actionText : 'View Details'}"
+               th:classappend="${item.actionUrl == null or item.actionUrl.isBlank()} ? ' disabled' : ''">View Details</a>
         </div>
-
-        <div class="card">
-            <span class="badge completed">Completed</span>
-            <h3>Drainage Cleaning</h3>
-            <p>Complete drainage cleaning before monsoon.</p>
-            <div class="info"><i class="fa-solid fa-location-dot"></i> Ward 3</div>
-            <div class="info"><i class="fa-solid fa-calendar"></i> Dec 2025</div>
-            <button>View Details</button>
-        </div>
-
     </div>
 
-    <!-- YOJNA -->
     <div class="section-title">Government Yojna</div>
-    <div class="grid">
-
-        <div class="card">
-            <span class="badge upcoming">Active</span>
-            <h3>PM Awas Yojna</h3>
-            <p>Housing scheme for economically weaker sections.</p>
-            <div class="info"><i class="fa-solid fa-user-group"></i> Citizens</div>
-            <button>Apply / Details</button>
+    <div class="empty" th:if="${yojnaItems == null || yojnaItems.isEmpty()}">No yojna updates available right now.</div>
+    <div class="grid" th:if="${yojnaItems != null && !yojnaItems.isEmpty()}">
+        <div class="card" th:each="item : ${yojnaItems}">
+            <span class="badge"
+                  th:classappend="${item.statusLabel != null and #strings.equalsIgnoreCase(item.statusLabel, 'Closed')} ? ' completed' : ' active'"
+                  th:text="${item.statusLabel != null ? item.statusLabel : 'Active'}">Active</span>
+            <h3 th:text="${item.title}">Yojna Title</h3>
+            <p th:text="${item.description != null ? item.description : 'No description available.'}">Description</p>
+            <div class="info" th:if="${item.metaOne != null and !item.metaOne.isBlank()}">
+                <i class="fa-solid fa-user-group"></i>
+                <span th:text="${item.metaOne}">Meta 1</span>
+            </div>
+            <div class="info" th:if="${item.metaTwo != null and !item.metaTwo.isBlank()}">
+                <i class="fa-solid fa-circle-info"></i>
+                <span th:text="${item.metaTwo}">Meta 2</span>
+            </div>
+            <a class="action-btn"
+               th:href="${item.actionUrl != null and !item.actionUrl.isBlank() ? item.actionUrl : '#'}"
+               th:target="${item.actionUrl != null and !item.actionUrl.isBlank() ? '_blank' : null}"
+               th:text="${item.actionText != null and !item.actionText.isBlank() ? item.actionText : 'Know More'}"
+               th:classappend="${item.actionUrl == null or item.actionUrl.isBlank()} ? ' disabled' : ''">Know More</a>
         </div>
-
-        <div class="card">
-            <span class="badge upcoming">Active</span>
-            <h3>Swachh Bharat Abhiyan</h3>
-            <p>Clean city mission with citizen participation.</p>
-            <div class="info"><i class="fa-solid fa-broom"></i> Sanitation</div>
-            <button>Know More</button>
-        </div>
-
     </div>
-
 </div>
-
 </body>
 </html>
