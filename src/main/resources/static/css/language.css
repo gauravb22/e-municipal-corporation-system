@@ -1,0 +1,43 @@
+﻿body{
+    margin:0;
+    height:100vh;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Segoe UI,Arial;
+}
+.card{
+    width:350px;
+    background:#fff;
+    padding:28px;
+    border-radius:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+    text-align:center;
+}
+.popup{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+.popup-box{
+    background:#fff;
+    padding:25px;
+    width:280px;
+    border-radius:15px;
+}
+.lang-btn{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    cursor:pointer;
+}
+.lang-btn:hover{
+    background:#1e3c72;
+    color:white;
+}

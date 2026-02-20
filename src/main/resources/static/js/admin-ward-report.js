@@ -1,0 +1,3 @@
+﻿function printWardReport(){
+    window.print();
+}
