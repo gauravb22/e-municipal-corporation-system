@@ -7,24 +7,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.emunicipal.util.ImageFormatValidator;
 
 @Service
 public class UploadStorageService {
-
-    private static final Map<String, String> CONTENT_TYPE_TO_EXT = Map.of(
-            "image/jpeg", ".jpg",
-            "image/jpg", ".jpg",
-            "image/png", ".png",
-            "image/webp", ".webp"
-    );
 
     private final Path uploadRoot;
 
@@ -36,14 +28,16 @@ public class UploadStorageService {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Missing completion photo");
         }
+        if (!ImageFormatValidator.isJpgMultipartFile(file)) {
+            throw new IllegalArgumentException("Only JPG completion photos are allowed");
+        }
 
         Files.createDirectories(uploadRoot);
 
-        String ext = guessImageExtension(file);
         Path complaintDir = uploadRoot.resolve("complaints").resolve(String.valueOf(complaintId)).normalize();
         Files.createDirectories(complaintDir);
 
-        String filename = "done-" + UUID.randomUUID() + ext;
+        String filename = "done-" + UUID.randomUUID() + ".jpg";
         Path target = complaintDir.resolve(filename).normalize();
         if (!target.startsWith(complaintDir)) {
             throw new IllegalArgumentException("Invalid upload path");
@@ -60,8 +54,8 @@ public class UploadStorageService {
         if (dataUrl == null || dataUrl.isBlank()) {
             throw new IllegalArgumentException("Missing complaint photo");
         }
-        if (!dataUrl.startsWith("data:image/")) {
-            throw new IllegalArgumentException("Unsupported complaint photo format");
+        if (!ImageFormatValidator.isJpgDataUrl(dataUrl)) {
+            throw new IllegalArgumentException("Only JPG complaint photos are allowed");
         }
 
         int comma = dataUrl.indexOf(',');
@@ -69,24 +63,7 @@ public class UploadStorageService {
             throw new IllegalArgumentException("Invalid data URL");
         }
 
-        String header = dataUrl.substring(0, comma).toLowerCase(Locale.ROOT);
         String base64Part = dataUrl.substring(comma + 1);
-
-        String contentType = null;
-        // Example: data:image/jpeg;base64
-        int colon = header.indexOf(':');
-        int semi = header.indexOf(';');
-        if (colon >= 0 && semi > colon) {
-            contentType = header.substring(colon + 1, semi);
-        }
-
-        String ext = ".jpg";
-        if (contentType != null) {
-            String mapped = CONTENT_TYPE_TO_EXT.get(contentType);
-            if (mapped != null) {
-                ext = mapped;
-            }
-        }
 
         byte[] bytes;
         try {
@@ -99,7 +76,7 @@ public class UploadStorageService {
         Path complaintDir = uploadRoot.resolve("complaints").resolve(String.valueOf(complaintId)).normalize();
         Files.createDirectories(complaintDir);
 
-        String filename = "before-" + UUID.randomUUID() + ext;
+        String filename = "before-" + UUID.randomUUID() + ".jpg";
         Path target = complaintDir.resolve(filename).normalize();
         if (!target.startsWith(complaintDir)) {
             throw new IllegalArgumentException("Invalid upload path");
@@ -107,28 +84,5 @@ public class UploadStorageService {
 
         Files.write(target, bytes);
         return "/uploads/complaints/" + complaintId + "/" + filename;
-    }
-
-    private String guessImageExtension(MultipartFile file) {
-        String original = file.getOriginalFilename();
-        if (original != null) {
-            String cleaned = StringUtils.cleanPath(original);
-            int dot = cleaned.lastIndexOf('.');
-            if (dot >= 0 && dot < cleaned.length() - 1) {
-                String ext = cleaned.substring(dot).toLowerCase(Locale.ROOT);
-                if (ext.equals(".jpg") || ext.equals(".jpeg")) return ".jpg";
-                if (ext.equals(".png")) return ".png";
-                if (ext.equals(".webp")) return ".webp";
-            }
-        }
-
-        String contentType = file.getContentType();
-        if (contentType != null) {
-            String mapped = CONTENT_TYPE_TO_EXT.get(contentType.toLowerCase(Locale.ROOT));
-            if (mapped != null) return mapped;
-        }
-
-        // Default to jpg to keep things simple
-        return ".jpg";
     }
 }

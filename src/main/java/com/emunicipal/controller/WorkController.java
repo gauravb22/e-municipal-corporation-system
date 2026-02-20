@@ -17,6 +17,7 @@ import com.emunicipal.repository.WardWorkCommentRepository;
 import com.emunicipal.repository.WardWorkRatingRepository;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.StaffUserRepository;
+import com.emunicipal.util.ImageFormatValidator;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -188,6 +189,9 @@ public class WorkController {
         StaffUser staffUser = (StaffUser) session.getAttribute("staffUser");
         if (staffUser == null || !"WARD".equalsIgnoreCase(staffUser.getRole())) {
             return "redirect:/ward-login";
+        }
+        if (!ImageFormatValidator.isJpgDataUrl(imageBase64)) {
+            return "redirect:/ward-works";
         }
 
         WardWork post = new WardWork();

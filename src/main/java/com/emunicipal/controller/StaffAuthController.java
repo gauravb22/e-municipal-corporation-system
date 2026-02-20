@@ -24,6 +24,7 @@ import com.emunicipal.repository.UserRepository;
 import com.emunicipal.service.ComplaintService;
 import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
+import com.emunicipal.util.ImageFormatValidator;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.Year;
@@ -771,6 +772,11 @@ public class StaffAuthController {
         }
 
         if (photoBase64 != null && !photoBase64.isBlank()) {
+            if (!ImageFormatValidator.isJpgDataUrl(photoBase64)) {
+                model.addAttribute("error", "Only JPG format is allowed for profile photo.");
+                model.addAttribute("staffUser", staffUser);
+                return "ward-profile";
+            }
             staffUser.setPhotoBase64(photoBase64);
         }
 

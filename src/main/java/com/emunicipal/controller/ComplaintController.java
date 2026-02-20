@@ -12,6 +12,7 @@ import com.emunicipal.service.ComplaintService;
 import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.UploadStorageService;
 import com.emunicipal.service.WardService;
+import com.emunicipal.util.ImageFormatValidator;
 import com.emunicipal.entity.Ward;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
@@ -122,6 +123,8 @@ public class ComplaintController {
             }
         } else if (photoBase64 == null || photoBase64.isBlank()) {
             return complaintFormWithError(model, user, type, "Please capture a complaint photo before submitting.");
+        } else if (!ImageFormatValidator.isJpgDataUrl(photoBase64)) {
+            return complaintFormWithError(model, user, type, "Only JPG format is allowed for complaint photos.");
         } else if (!hasValidPhotoLocation(photoLocation, photoLatitude, photoLongitude)) {
             return complaintFormWithError(model, user, type, "Photo complaint requires current location. Please enable GPS and capture photo again.");
         }
@@ -447,6 +450,9 @@ public class ComplaintController {
         }
 
         if (donePhoto == null || donePhoto.isEmpty()) {
+            return "redirect:/ward-complaints/" + complaintId;
+        }
+        if (!ImageFormatValidator.isJpgMultipartFile(donePhoto)) {
             return "redirect:/ward-complaints/" + complaintId;
         }
 

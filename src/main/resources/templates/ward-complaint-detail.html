@@ -184,7 +184,7 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
                     </div>
                     <img id="donePhotoPreview" class="photo" style="display:none;" alt="Completed work photo">
                     <div class="notice" id="donePhotoCapturedMsg" style="display:none;">Photo captured with timestamp and location.</div>
-                    <input type="file" id="donePhotoInput" name="donePhoto" accept="image/*" capture="environment" style="display:none;" onchange="handleDonePhotoCapture(event)">
+                    <input type="file" id="donePhotoInput" name="donePhoto" accept=".jpg,.jpeg,image/jpeg" capture="environment" style="display:none;" onchange="handleDonePhotoCapture(event)">
                     <input type="hidden" id="donePhotoTimestamp" name="donePhotoTimestamp">
                     <input type="hidden" id="donePhotoLocation" name="donePhotoLocation">
                     <input type="hidden" id="donePhotoLatitude" name="donePhotoLatitude">
@@ -199,6 +199,12 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 </div>
 
 <script>
+function isJpgFile(file) {
+    const type = (file.type || '').toLowerCase();
+    const name = (file.name || '').toLowerCase();
+    return type === 'image/jpeg' || type === 'image/jpg' || name.endsWith('.jpg') || name.endsWith('.jpeg');
+}
+
 function captureDonePhoto() {
     document.getElementById('donePhotoInput').click();
 }
@@ -206,6 +212,11 @@ function captureDonePhoto() {
 function handleDonePhotoCapture(event) {
     const file = event.target.files[0];
     if (!file) {
+        return;
+    }
+    if (!isJpgFile(file)) {
+        event.target.value = '';
+        alert('Only JPG format is allowed for completion photo.');
         return;
     }
 
