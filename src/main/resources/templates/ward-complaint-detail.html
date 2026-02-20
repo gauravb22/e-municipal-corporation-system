@@ -31,6 +31,10 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .value{font-weight:600;color:#1e3c72;margin-top:4px;word-break:break-word;}
 .value a{color:#1e3c72;text-decoration:none;}
 .value a:hover{text-decoration:underline;}
+.citizen-profile{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.citizen-avatar{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #e5e7eb;background:#fff;}
+.citizen-name{font-size:14px;font-weight:700;color:#1e3c72;}
+.citizen-phone{font-size:12px;color:#5f6b75;margin-top:2px;}
 .desc{margin-top:12px;font-size:14px;color:#444;line-height:1.4;}
 .photo{margin-top:12px;max-width:100%;border-radius:10px;border:1px solid #e5e7eb;}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
@@ -75,12 +79,16 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 
         <div class="grid">  
             <div class="item">
-                <div class="label">Citizen Name</div>
-                <div class="value" th:text="${citizen != null ? citizen.fullName : 'Unknown'}">Citizen Name</div>
-            </div>
-            <div class="item">
-                <div class="label">Phone</div>
-                <div class="value" th:text="${citizen != null ? citizen.phone : 'Unknown'}">Phone</div>
+                <div class="label">Citizen</div>
+                <div class="citizen-profile">
+                    <img class="citizen-avatar"
+                         th:src="${citizen != null && citizen.photoBase64 != null && !#strings.isEmpty(citizen.photoBase64) ? (#strings.startsWith(citizen.photoBase64, 'data:') ? citizen.photoBase64 : ('data:image/jpeg;base64,' + citizen.photoBase64)) : '/images/municipalLogo.png'}"
+                         alt="Citizen photo">
+                    <div>
+                        <div class="citizen-name" th:text="${citizen != null && citizen.fullName != null ? citizen.fullName : 'Unknown Citizen'}">Citizen Name</div>
+                        <div class="citizen-phone" th:text="${citizen != null && citizen.phone != null ? citizen.phone : 'Unknown'}">Phone</div>
+                    </div>
+                </div>
             </div>
             <div class="item">
                 <div class="label">House No</div>

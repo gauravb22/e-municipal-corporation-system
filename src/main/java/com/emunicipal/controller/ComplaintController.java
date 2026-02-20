@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -325,12 +327,15 @@ public class ComplaintController {
             typeCounts.put(type, typeCounts.getOrDefault(type, 0L) + 1L);
         }
 
+        Map<Long, User> citizenByComplaintId = buildCitizenLookupByComplaintId(complaints);
+
         model.addAttribute("staffUser", staffUser);
         model.addAttribute("newComplaints", newComplaints);
         model.addAttribute("approvedComplaints", approvedComplaints);
         model.addAttribute("pendingComplaints", pendingComplaints);
         model.addAttribute("completedComplaints", completedComplaints);
         model.addAttribute("typeCounts", typeCounts);
+        model.addAttribute("citizenByComplaintId", citizenByComplaintId);
         return "ward-complaints";
     }
 
@@ -570,8 +575,44 @@ public class ComplaintController {
 
         model.addAttribute("staffUser", staffUser);
         model.addAttribute("complaints", result);
+        model.addAttribute("citizenByComplaintId", buildCitizenLookupByComplaintId(result));
         model.addAttribute("feedType", type);
         return "ward-complaints-" + type;
+    }
+
+    private Map<Long, User> buildCitizenLookupByComplaintId(List<Complaint> complaints) {
+        Map<Long, User> result = new HashMap<>();
+        if (complaints == null || complaints.isEmpty()) {
+            return result;
+        }
+
+        Set<Long> userIds = new HashSet<>();
+        for (Complaint complaint : complaints) {
+            if (complaint != null && complaint.getUserId() != null) {
+                userIds.add(complaint.getUserId());
+            }
+        }
+
+        Map<Long, User> userById = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            for (User user : userRepository.findAllById(userIds)) {
+                if (user != null && user.getId() != null) {
+                    userById.put(user.getId(), user);
+                }
+            }
+        }
+
+        for (Complaint complaint : complaints) {
+            if (complaint == null || complaint.getId() == null || complaint.getUserId() == null) {
+                continue;
+            }
+            User citizen = userById.get(complaint.getUserId());
+            if (citizen != null) {
+                result.put(complaint.getId(), citizen);
+            }
+        }
+
+        return result;
     }
 
     private boolean isNoPhotoRequiredComplaintType(String complaintType) {

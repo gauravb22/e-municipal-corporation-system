@@ -16,6 +16,10 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
 .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
 .complaint-card{background:white;border-radius:14px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
 .badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:12px;font-weight:600;background:#e8f7ee;color:#1f6f4a;margin-left:6px;}
+.citizen{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px;border:1px solid #e8efec;border-radius:10px;background:#f8fbfa;}
+.citizen-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #e1ebe6;background:white;}
+.citizen-name{font-size:13px;font-weight:700;color:#1f6f4a;}
+.citizen-phone{font-size:12px;color:#666;margin-top:2px;}
 .meta{font-size:12px;color:#666;margin-top:6px;}
 .meta a{color:#1f6f4a;text-decoration:none;}
 .meta a:hover{text-decoration:underline;}
@@ -41,6 +45,15 @@ body{margin:0;font-family:"Segoe UI", Arial;background:linear-gradient(135deg,#0
     <div class="list" th:if="${!complaints.isEmpty()}">
         <div class="complaint-card" th:each="c : ${complaints}">
             <div><strong th:text="${c.complaintType}">Type</strong> <span class="badge">APPROVED</span></div>
+            <div class="citizen" th:with="citizen=${citizenByComplaintId[c.id]}">
+                <img class="citizen-photo"
+                     th:src="${citizen != null && citizen.photoBase64 != null && !#strings.isEmpty(citizen.photoBase64) ? (#strings.startsWith(citizen.photoBase64, 'data:') ? citizen.photoBase64 : ('data:image/jpeg;base64,' + citizen.photoBase64)) : '/images/municipalLogo.png'}"
+                     alt="Citizen photo">
+                <div>
+                    <div class="citizen-name" th:text="${citizen != null && citizen.fullName != null && !#strings.isEmpty(citizen.fullName) ? citizen.fullName : 'Citizen'}">Citizen</div>
+                    <div class="citizen-phone" th:text="${citizen != null && citizen.phone != null && !#strings.isEmpty(citizen.phone) ? citizen.phone : 'Phone not available'}">Phone</div>
+                </div>
+            </div>
             <div class="meta">
                 <a th:href="'https://www.google.com/maps?q=' + ${c.photoLatitude} + ',' + ${c.photoLongitude}"
                    target="_blank" rel="noopener"
