@@ -14,6 +14,7 @@ import com.emunicipal.repository.NoticeRepository;
 import com.emunicipal.service.SmsService;
 import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
+import com.emunicipal.util.ImageFormatValidator;
 import com.emunicipal.entity.Ward;
 
 import jakarta.servlet.http.HttpSession;
@@ -291,6 +292,7 @@ public class AuthController {
             @RequestParam(value = "houseNo", required = false) String houseNo,
             @RequestParam(value = "wardNo", required = false) Integer wardNo,
             @RequestParam(value = "wardZone", required = false) String wardZone,
+            @RequestParam(value = "photoBase64", required = false) String photoBase64,
             @RequestParam(value = "currentPassword", required = false) String currentPassword,
             @RequestParam(value = "newPassword", required = false) String newPassword,
             @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
@@ -319,6 +321,15 @@ public class AuthController {
             user.setWardZone(ward.getWardZone());
         } else {
             user.setWardId(null);
+        }
+
+        if (photoBase64 != null && !photoBase64.isBlank()) {
+            if (!ImageFormatValidator.isJpgDataUrl(photoBase64)) {
+                model.addAttribute("error", "Only JPG format is allowed for profile photo");
+                model.addAttribute("user", user);
+                return "my-profile";
+            }
+            user.setPhotoBase64(photoBase64);
         }
 
         if (newPassword != null && !newPassword.isEmpty()) {

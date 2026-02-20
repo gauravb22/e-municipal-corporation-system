@@ -37,6 +37,9 @@ public class User {
 
     @Column(name = "ward_id")
     private Long wardId;
+
+    @Column(name = "photo_base64", columnDefinition = "CLOB")
+    private String photoBase64;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -119,6 +122,14 @@ public class User {
 
     public void setWardId(Long wardId) {
         this.wardId = wardId;
+    }
+
+    public String getPhotoBase64() {
+        return photoBase64;
+    }
+
+    public void setPhotoBase64(String photoBase64) {
+        this.photoBase64 = photoBase64;
     }
 
     public LocalDateTime getCreatedAt() {
