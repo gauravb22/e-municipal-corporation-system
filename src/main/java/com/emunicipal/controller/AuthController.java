@@ -11,6 +11,8 @@ import com.emunicipal.entity.Notice;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.repository.ComplaintRepository;
 import com.emunicipal.repository.NoticeRepository;
+import com.emunicipal.service.OtpService;
+import com.emunicipal.service.OtpService.OtpCheckResult;
 import com.emunicipal.service.SmsService;
 import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
@@ -20,26 +22,29 @@ import com.emunicipal.entity.Ward;
 
 import jakarta.servlet.http.HttpSession;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
-    private static final String SESSION_PROFILE_PASSWORD_OTP = "profilePasswordOtp";
-    private static final String SESSION_PROFILE_PASSWORD_OTP_USER_ID = "profilePasswordOtpUserId";
-    private static final String SESSION_PROFILE_PASSWORD_OTP_PHONE = "profilePasswordOtpPhone";
-    private static final String SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT = "profilePasswordOtpExpiresAt";
+    private static final String OTP_CONTEXT_LOGIN = "citizenLoginOtp";
+    private static final String OTP_CONTEXT_PROFILE_PASSWORD = "profilePasswordOtp";
+    private static final String SESSION_PENDING_LOGIN_USER_ID = "pendingLoginUserId";
+    private static final String SESSION_PENDING_LOGIN_PHONE = "pendingLoginPhone";
+    private static final int LOGIN_OTP_EXPIRY_MINUTES = 5;
     private static final int PASSWORD_OTP_EXPIRY_MINUTES = 5;
+    private static final int OTP_MAX_ATTEMPTS = 5;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private OtpService otpService;
 
     @Autowired
     private ComplaintRepository complaintRepository;
@@ -68,6 +73,7 @@ public class AuthController {
     public String loginPage(HttpSession session) {
         session.removeAttribute("staffUser");
         session.removeAttribute("staffRole");
+        clearCitizenLoginOtp(session);
         return "login";
     }
 
@@ -131,8 +137,7 @@ public class AuthController {
 
         session.removeAttribute("staffUser");
         session.removeAttribute("staffRole");
-        session.removeAttribute("otp");
-        session.removeAttribute("phone");
+        clearCitizenLoginOtp(session);
         session.setAttribute("user", user);
         session.setAttribute("authenticated", true);
 
@@ -168,16 +173,32 @@ public class AuthController {
             return "login";
         }
 
-        String otp = String.format("%06d", new Random().nextInt(999999));
+        String otp = otpService.issueOtp(
+                session,
+                OTP_CONTEXT_LOGIN,
+                user.getId(),
+                normalizedPhone,
+                LOGIN_OTP_EXPIRY_MINUTES,
+                OTP_MAX_ATTEMPTS
+        );
 
         session.setAttribute("phone", normalizedPhone);
-        session.setAttribute("otp", otp);
-        session.setAttribute("user", user);
+        session.setAttribute(SESSION_PENDING_LOGIN_USER_ID, user.getId());
+        session.setAttribute(SESSION_PENDING_LOGIN_PHONE, normalizedPhone);
+        session.removeAttribute("user");
+        session.removeAttribute("authenticated");
 
-        smsService.sendOtp(normalizedPhone, otp);
+        boolean sent = smsService.sendOtp(normalizedPhone, otp);
+        if (!sent) {
+            clearCitizenLoginOtp(session);
+            model.addAttribute("error", "Unable to send OTP right now. Please try again.");
+        }
 
+        model.addAttribute("otpSent", sent);
         model.addAttribute("phone", normalizedPhone);
-        model.addAttribute("otp", otp);
+        if (sent) {
+            model.addAttribute("otpPreview", otp);
+        }
 
         return "otp";
     }
@@ -193,18 +214,37 @@ public class AuthController {
                             HttpSession session,
                             Model model) {
 
-        String sessionOtp = (String) session.getAttribute("otp");
+        Long pendingUserId = asLong(session.getAttribute(SESSION_PENDING_LOGIN_USER_ID));
+        String pendingPhone = PhoneNumberUtil.normalizeIndianPhone((String) session.getAttribute(SESSION_PENDING_LOGIN_PHONE));
 
-        if (sessionOtp == null || !sessionOtp.equals(otp)) {
-
-            model.addAttribute("error", "Invalid OTP. Please try again.");
-            model.addAttribute("phone", session.getAttribute("phone"));
-
+        OtpCheckResult otpResult = otpService.verifyOtp(
+                session,
+                OTP_CONTEXT_LOGIN,
+                otp,
+                pendingUserId,
+                pendingPhone
+        );
+        if (!otpResult.isSuccess()) {
+            model.addAttribute("error", mapCitizenLoginOtpError(otpResult));
+            model.addAttribute("phone", pendingPhone);
+            model.addAttribute("otpSent", otpResult.status() != OtpService.OtpStatus.NO_CHALLENGE);
             return "otp";
         }
 
+        if (pendingUserId == null) {
+            clearCitizenLoginOtp(session);
+            return "redirect:/login";
+        }
+
+        User user = userRepository.findById(pendingUserId).orElse(null);
+        if (user == null || (user.getActive() != null && !user.getActive())) {
+            clearCitizenLoginOtp(session);
+            return "redirect:/login";
+        }
+
+        session.setAttribute("user", user);
         session.setAttribute("authenticated", true);
-        session.removeAttribute("otp");
+        clearCitizenLoginOtp(session);
 
         return "redirect:/dashboard";
     }
@@ -356,14 +396,25 @@ public class AuthController {
             return Map.of("success", false, "message", "Registered mobile number is invalid.");
         }
 
-        String otp = String.format("%06d", new Random().nextInt(1_000_000));
-        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP, otp);
-        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID, user.getId());
-        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE, normalizedPhone);
-        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT, LocalDateTime.now().plusMinutes(PASSWORD_OTP_EXPIRY_MINUTES));
+        String otp = otpService.issueOtp(
+                session,
+                OTP_CONTEXT_PROFILE_PASSWORD,
+                user.getId(),
+                normalizedPhone,
+                PASSWORD_OTP_EXPIRY_MINUTES,
+                OTP_MAX_ATTEMPTS
+        );
 
-        smsService.sendOtp(normalizedPhone, otp);
-        return Map.of("success", true, "message", "OTP sent to your registered mobile number.");
+        boolean sent = smsService.sendOtp(normalizedPhone, otp);
+        if (!sent) {
+            otpService.clear(session, OTP_CONTEXT_PROFILE_PASSWORD);
+            return Map.of("success", false, "message", "Unable to send OTP right now. Please try again.");
+        }
+        return Map.of(
+                "success", true,
+                "message", "OTP generated. Check popup for verification code.",
+                "otp", otp
+        );
     }
 
     /*
@@ -461,43 +512,66 @@ public class AuthController {
             return "Please enter OTP sent on your mobile number.";
         }
 
-        String sessionOtp = (String) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP);
-        Long sessionUserId = (Long) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID);
-        String sessionPhone = (String) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE);
-        LocalDateTime expiresAt = (LocalDateTime) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT);
-
-        if (sessionOtp == null || sessionUserId == null || sessionPhone == null || expiresAt == null) {
-            return "Please request OTP first.";
-        }
-
-        if (!Objects.equals(sessionUserId, user.getId())) {
-            clearProfilePasswordOtp(session);
-            return "OTP is not valid for this account. Please request a new OTP.";
-        }
-
         String normalizedUserPhone = PhoneNumberUtil.normalizeIndianPhone(user.getPhone());
-        if (normalizedUserPhone == null || !sessionPhone.equals(normalizedUserPhone)) {
-            clearProfilePasswordOtp(session);
+        if (normalizedUserPhone == null) {
             return "Registered mobile number changed. Please request OTP again.";
         }
 
-        if (LocalDateTime.now().isAfter(expiresAt)) {
-            clearProfilePasswordOtp(session);
-            return "OTP expired. Please request a new OTP.";
+        OtpCheckResult otpResult = otpService.verifyOtp(
+                session,
+                OTP_CONTEXT_PROFILE_PASSWORD,
+                enteredOtp,
+                user.getId(),
+                normalizedUserPhone
+        );
+
+        if (otpResult.isSuccess()) {
+            return null;
         }
 
-        if (!sessionOtp.equals(enteredOtp.trim())) {
-            return "Invalid OTP. Please enter correct OTP.";
-        }
+        return switch (otpResult.status()) {
+            case MISSING -> "Please enter OTP sent on your mobile number.";
+            case NO_CHALLENGE -> "Please request OTP first.";
+            case ACCOUNT_MISMATCH -> "OTP is not valid for this account. Please request a new OTP.";
+            case PHONE_MISMATCH -> "Registered mobile number changed. Please request OTP again.";
+            case EXPIRED -> "OTP expired. Please request a new OTP.";
+            case TOO_MANY_ATTEMPTS -> "Too many invalid attempts. Please request a new OTP.";
+            case INVALID -> "Invalid OTP. Please enter correct OTP.";
+            default -> "Unable to verify OTP. Please request a new OTP.";
+        };
+    }
 
+    private String mapCitizenLoginOtpError(OtpCheckResult otpResult) {
+        return switch (otpResult.status()) {
+            case MISSING -> "Please enter the 6-digit OTP.";
+            case NO_CHALLENGE -> "Please request OTP first.";
+            case ACCOUNT_MISMATCH, PHONE_MISMATCH -> "OTP is not valid for this login. Please request a new OTP.";
+            case EXPIRED -> "OTP expired. Please request a new OTP.";
+            case TOO_MANY_ATTEMPTS -> "Too many invalid attempts. Please request a new OTP.";
+            case INVALID -> "Invalid OTP. Please try again.";
+            default -> "Unable to verify OTP. Please request a new OTP.";
+        };
+    }
+
+    private void clearCitizenLoginOtp(HttpSession session) {
+        otpService.clear(session, OTP_CONTEXT_LOGIN);
+        session.removeAttribute(SESSION_PENDING_LOGIN_USER_ID);
+        session.removeAttribute(SESSION_PENDING_LOGIN_PHONE);
+        session.removeAttribute("phone");
+    }
+
+    private Long asLong(Object value) {
+        if (value instanceof Long longValue) {
+            return longValue;
+        }
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
         return null;
     }
 
     private void clearProfilePasswordOtp(HttpSession session) {
-        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP);
-        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID);
-        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE);
-        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT);
+        otpService.clear(session, OTP_CONTEXT_PROFILE_PASSWORD);
     }
 
 }

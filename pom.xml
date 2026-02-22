@@ -53,14 +53,6 @@
             <artifactId>ojdbc11</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- Twilio SMS API -->
-        <dependency>
-            <groupId>com.twilio.sdk</groupId>
-            <artifactId>twilio</artifactId>
-            <version>9.2.0</version>
-        </dependency>
-
     </dependencies>
 
     <build>

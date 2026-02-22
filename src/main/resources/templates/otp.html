@@ -9,20 +9,14 @@
 <body>
 <div class="card">
     <h2>OTP Verification</h2>
-    <p>Enter 6-digit OTP sent to your phone</p>
+    <p>Enter 6-digit OTP shown in popup</p>
     <div class="phone-display">
         Phone: <strong th:text="${phone != null && !#strings.isEmpty(phone) ? '+91 ' + phone : ''}"></strong>
     </div>
-    
-    <!-- Display OTP on screen -->
-    <div style="background-color: #f0f0f0; padding: 15px; border-radius: 8px; margin: 15px 0; border: 2px solid #1e3c72;">
-        <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">Your OTP is:</p>
-        <div style="font-size: 32px; font-weight: bold; color: #1e3c72; letter-spacing: 8px; font-family: 'Courier New', monospace;" th:text="${otp}"></div>
-    </div>
-    
+
     <div th:if="${error}" class="error" th:text="${error}"></div>
 
-    <form action="/verify-otp" method="post">
+    <form action="/verify-otp" method="post" th:if="${otpSent == null || otpSent}">
         <div class="boxes">
             <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
             <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
@@ -34,9 +28,20 @@
         <input type="hidden" id="otpInput" name="otp">
         <button type="submit">Verify OTP</button>
     </form>
+
+    <div style="margin-top: 12px; font-size: 14px;">
+        <a th:if="${phone != null && !#strings.isEmpty(phone)}" th:href="@{/otp-page(phone=${phone})}">Resend OTP</a>
+        <span th:if="${phone != null && !#strings.isEmpty(phone)}"> | </span>
+        <a href="/login">Change Number</a>
+    </div>
 </div>
 
-
+    <script th:if="${otpPreview != null}" th:inline="javascript">
+        const popupOtp = /*[[${otpPreview}]]*/ '';
+        if (popupOtp) {
+            alert('Your OTP is: ' + popupOtp);
+        }
+    </script>
     <script src="/js/otp.js"></script>
 </body>
 </html>

@@ -54,6 +54,9 @@ async function sendPasswordOtp() {
         } else {
             alert(message);
         }
+        if (data.success && data.otp) {
+            alert('Your OTP is: ' + data.otp);
+        }
     } catch (error) {
         if (status) {
             status.textContent = 'Unable to send OTP. Please try again.';

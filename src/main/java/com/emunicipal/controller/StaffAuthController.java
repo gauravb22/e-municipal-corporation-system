@@ -23,6 +23,8 @@ import com.emunicipal.repository.WardWorkRepository;
 import com.emunicipal.repository.UserRepository;
 import com.emunicipal.service.ComplaintService;
 import com.emunicipal.service.NotificationService;
+import com.emunicipal.service.OtpService;
+import com.emunicipal.service.OtpService.OtpCheckResult;
 import com.emunicipal.service.SmsService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.util.ImageFormatValidator;
@@ -37,16 +39,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.Random;
 
 @Controller
 public class StaffAuthController {
-    private static final String SESSION_WARD_PASSWORD_OTP = "wardPasswordOtp";
-    private static final String SESSION_WARD_PASSWORD_OTP_STAFF_ID = "wardPasswordOtpStaffId";
-    private static final String SESSION_WARD_PASSWORD_OTP_PHONE = "wardPasswordOtpPhone";
-    private static final String SESSION_WARD_PASSWORD_OTP_EXPIRES_AT = "wardPasswordOtpExpiresAt";
+    private static final String OTP_CONTEXT_WARD_PASSWORD = "wardPasswordOtp";
     private static final int PASSWORD_OTP_EXPIRY_MINUTES = 5;
+    private static final int OTP_MAX_ATTEMPTS = 5;
 
     @Autowired
     private StaffUserRepository staffUserRepository;
@@ -66,6 +64,8 @@ public class StaffAuthController {
     private NotificationService notificationService;
     @Autowired
     private SmsService smsService;
+    @Autowired
+    private OtpService otpService;
 
     @GetMapping("/ward-login")
     public String wardLoginPage(HttpSession session) {
@@ -782,14 +782,25 @@ public class StaffAuthController {
             return Map.of("success", false, "message", "Registered mobile number is invalid.");
         }
 
-        String otp = String.format("%06d", new Random().nextInt(1_000_000));
-        session.setAttribute(SESSION_WARD_PASSWORD_OTP, otp);
-        session.setAttribute(SESSION_WARD_PASSWORD_OTP_STAFF_ID, staffUser.getId());
-        session.setAttribute(SESSION_WARD_PASSWORD_OTP_PHONE, normalizedPhone);
-        session.setAttribute(SESSION_WARD_PASSWORD_OTP_EXPIRES_AT, LocalDateTime.now().plusMinutes(PASSWORD_OTP_EXPIRY_MINUTES));
+        String otp = otpService.issueOtp(
+                session,
+                OTP_CONTEXT_WARD_PASSWORD,
+                staffUser.getId(),
+                normalizedPhone,
+                PASSWORD_OTP_EXPIRY_MINUTES,
+                OTP_MAX_ATTEMPTS
+        );
 
-        smsService.sendOtp(normalizedPhone, otp);
-        return Map.of("success", true, "message", "OTP sent to your registered mobile number.");
+        boolean sent = smsService.sendOtp(normalizedPhone, otp);
+        if (!sent) {
+            otpService.clear(session, OTP_CONTEXT_WARD_PASSWORD);
+            return Map.of("success", false, "message", "Unable to send OTP right now. Please try again.");
+        }
+        return Map.of(
+                "success", true,
+                "message", "OTP generated. Check popup for verification code.",
+                "otp", otp
+        );
     }
 
     @PostMapping("/ward-profile")
@@ -874,42 +885,36 @@ public class StaffAuthController {
             return "Please enter OTP sent on your mobile number.";
         }
 
-        String sessionOtp = (String) session.getAttribute(SESSION_WARD_PASSWORD_OTP);
-        Long sessionStaffId = (Long) session.getAttribute(SESSION_WARD_PASSWORD_OTP_STAFF_ID);
-        String sessionPhone = (String) session.getAttribute(SESSION_WARD_PASSWORD_OTP_PHONE);
-        LocalDateTime expiresAt = (LocalDateTime) session.getAttribute(SESSION_WARD_PASSWORD_OTP_EXPIRES_AT);
-
-        if (sessionOtp == null || sessionStaffId == null || sessionPhone == null || expiresAt == null) {
-            return "Please request OTP first.";
-        }
-
-        if (!Objects.equals(sessionStaffId, staffUserId)) {
-            clearWardPasswordOtp(session);
-            return "OTP is not valid for this account. Please request a new OTP.";
-        }
-
         String normalizedRegisteredPhone = PhoneNumberUtil.normalizeIndianPhone(registeredPhone);
-        if (normalizedRegisteredPhone == null || !sessionPhone.equals(normalizedRegisteredPhone)) {
-            clearWardPasswordOtp(session);
+        if (normalizedRegisteredPhone == null) {
             return "Registered mobile number changed. Please request OTP again.";
         }
 
-        if (LocalDateTime.now().isAfter(expiresAt)) {
-            clearWardPasswordOtp(session);
-            return "OTP expired. Please request a new OTP.";
+        OtpCheckResult otpResult = otpService.verifyOtp(
+                session,
+                OTP_CONTEXT_WARD_PASSWORD,
+                enteredOtp,
+                staffUserId,
+                normalizedRegisteredPhone
+        );
+
+        if (otpResult.isSuccess()) {
+            return null;
         }
 
-        if (!sessionOtp.equals(enteredOtp.trim())) {
-            return "Invalid OTP. Please enter correct OTP.";
-        }
-
-        return null;
+        return switch (otpResult.status()) {
+            case MISSING -> "Please enter OTP sent on your mobile number.";
+            case NO_CHALLENGE -> "Please request OTP first.";
+            case ACCOUNT_MISMATCH -> "OTP is not valid for this account. Please request a new OTP.";
+            case PHONE_MISMATCH -> "Registered mobile number changed. Please request OTP again.";
+            case EXPIRED -> "OTP expired. Please request a new OTP.";
+            case TOO_MANY_ATTEMPTS -> "Too many invalid attempts. Please request a new OTP.";
+            case INVALID -> "Invalid OTP. Please enter correct OTP.";
+            default -> "Unable to verify OTP. Please request a new OTP.";
+        };
     }
 
     private void clearWardPasswordOtp(HttpSession session) {
-        session.removeAttribute(SESSION_WARD_PASSWORD_OTP);
-        session.removeAttribute(SESSION_WARD_PASSWORD_OTP_STAFF_ID);
-        session.removeAttribute(SESSION_WARD_PASSWORD_OTP_PHONE);
-        session.removeAttribute(SESSION_WARD_PASSWORD_OTP_EXPIRES_AT);
+        otpService.clear(session, OTP_CONTEXT_WARD_PASSWORD);
     }
 }
