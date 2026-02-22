@@ -1,61 +1,97 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register</title>
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Registration</title>
     <link rel="stylesheet" href="/css/register.css">
 </head>
 <body>
-<div class="card">
-    <h2>Create Account</h2>
-    
-    <div th:if="${error}" class="error" th:text="${error}"></div>
-    <div th:if="${success}" class="success" th:text="${success}"></div>
-
-    <form action="/register" method="post">
-        <div class="form-group">
-            <label for="fullName">Full Name <span class="faint">(à¤ªà¥‚à¤°à¥à¤£ à¤¨à¤¾à¤µ)</span></label>
-            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+<main class="register-shell">
+    <section class="register-card">
+        <div class="register-header">
+            <h1>Create Citizen Account</h1>
+            <p>नागरिक नोंदणी फॉर्म</p>
         </div>
 
-        <div class="form-group">
-            <label for="address">Address <span class="faint">(à¤ªà¤¤à¥à¤¤à¤¾)</span></label>
-            <textarea id="address" name="address" rows="3" placeholder="Enter full address" style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;box-sizing:border-box;" required></textarea>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <form class="register-form" action="/register" method="post">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="phoneDisplay">
+                        Mobile Number
+                        <span class="hint">मोबाईल क्रमांक</span>
+                    </label>
+                    <div id="phoneDisplay" class="phone-preview">
+                        <span class="phone-code">+91</span>
+                        <span class="phone-value" th:text="${phone != null ? phone : 'N/A'}">0000000000</span>
+                    </div>
+                </div>
+
+                <div class="form-group full">
+                    <label for="fullName">
+                        Full Name
+                        <span class="hint">पूर्ण नाव</span>
+                    </label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" autocomplete="name" required>
+                </div>
+
+                <div class="form-group full">
+                    <label for="address">
+                        Address
+                        <span class="hint">पत्ता</span>
+                    </label>
+                    <textarea id="address" name="address" rows="3" placeholder="Enter full address" autocomplete="street-address" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="houseNo">
+                        House No
+                        <span class="hint">घर क्रमांक</span>
+                    </label>
+                    <input type="text" id="houseNo" name="houseNo" placeholder="House / Flat number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="wardNo">
+                        Ward No
+                        <span class="hint">वॉर्ड क्रमांक</span>
+                    </label>
+                    <input type="number" id="wardNo" name="wardNo" min="1" placeholder="Ward number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="wardZone">
+                        Ward Zone
+                        <span class="hint">वॉर्ड झोन</span>
+                    </label>
+                    <select id="wardZone" name="wardZone" required>
+                        <option value="">Select zone / झोन निवडा</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        Create Password
+                        <span class="hint">पासवर्ड तयार करा</span>
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="Create password" autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <button type="submit">Register / नोंदणी करा</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="/login">Login here</a>
         </div>
-
-        <div class="form-group">
-            <label for="houseNo">House No <span class="faint">(à¤˜à¤° à¤•à¥à¤°à¤®à¤¾à¤‚à¤•)</span></label>
-            <input type="text" id="houseNo" name="houseNo" placeholder="House / Flat number" required>
-        </div>
-
-        <div class="form-group">
-            <label for="wardNo">Ward No <span class="faint">(à¤µà¥‰à¤°à¥à¤¡ à¤•à¥à¤°.)</span></label>
-            <input type="number" id="wardNo" name="wardNo" min="1" placeholder="Ward number" required>
-        </div>
-
-        <div class="form-group">
-            <label for="wardZone">Ward Zone <span class="faint">(à¤µà¥‰à¤°à¥à¤¡ à¤à¥‹à¤¨)</span></label>
-            <select id="wardZone" name="wardZone" required style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;">
-                <option value="">à¤à¥‹à¤¨ à¤¨à¤¿à¤µà¤¡à¤¾</option>
-                <option value="à¤…">à¤…</option>
-                <option value="à¤¬">à¤¬</option>
-                <option value="à¤•">à¤•</option>
-                <option value="à¤¡">à¤¡</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="password">Create Password <span class="faint">(à¤ªà¤¾à¤¸à¤µà¤°à¥à¤¡ à¤¤à¤¯à¤¾à¤° à¤•à¤°à¤¾)</span></label>
-            <input type="password" id="password" name="password" placeholder="Create password" required>
-        </div>
-
-        <button type="submit">Register (à¤¨à¥‹à¤‚à¤¦à¤£à¥€ à¤•à¤°à¤¾)</button>
-    </form>
-
-    <div class="login-link">
-        Already have an account? <a href="/login">Login here</a>
-    </div>
-</div>
+    </section>
+</main>
 </body>
 </html>
-

@@ -1,88 +1,240 @@
-﻿        body {
-            margin: 0;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Segoe UI, Arial;
-        }
-        .card {
-            width: 360px;
-            background: #fff;
-            padding: 28px;
-            border-radius: 18px;
-            box-shadow: 0 12px 30px rgba(0,0,0,.15);
-        }
-        h2 {
-            text-align: center;
-            color: #1e3c72;
-        }
-        .form-group {
-            margin: 15px 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        input:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            background: #1e3c72;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        button:hover {
-            background: #0f1f44;
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        .login-link a {
-            color: #1e3c72;
-            text-decoration: none;
-        }
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .success {
-            color: green;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .faint {
-            color: #b0b0b0;
-            font-weight: 400;
-            display: block;
-            margin-top: 4px;
-            font-size: 13px;
-        }
-    
+﻿:root {
+    --bg-1: #14325e;
+    --bg-2: #2a5298;
+    --card: #ffffff;
+    --text: #1b2433;
+    --muted: #5a677d;
+    --line: #d9dfeb;
+    --focus: #1c5fd4;
+    --primary: #1e3c72;
+    --primary-hover: #15325f;
+    --success-bg: #e8f7ed;
+    --success-text: #1f6f4a;
+    --error-bg: #ffecec;
+    --error-text: #b53838;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.15), transparent 32%),
+        radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.1), transparent 28%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+}
+
+.register-shell {
+    width: min(860px, 100%);
+}
+
+.register-card {
+    width: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 18px 36px rgba(7, 18, 38, 0.28);
+}
+
+.register-header {
+    padding: 24px 28px;
+    background: linear-gradient(130deg, #1e3c72, #2d67c6);
+    color: #ffffff;
+}
+
+.register-header h1 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.register-header p {
+    margin: 8px 0 0;
+    font-size: 16px;
+    opacity: 0.95;
+}
+
+.register-form {
+    padding: 24px 28px 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #20304c;
+}
+
+.hint {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 13px;
+    font-size: 15px;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(28, 95, 212, 0.14);
+}
+
+.phone-preview {
+    display: flex;
+    align-items: center;
+    border: 1px dashed #8fa4cf;
+    border-radius: 10px;
+    background: #f6f9ff;
+    min-height: 46px;
+    overflow: hidden;
+}
+
+.phone-code {
+    padding: 10px 12px;
+    font-weight: 700;
+    background: #e7efff;
+    color: #133974;
+    border-right: 1px solid #c9d8f3;
+}
+
+.phone-value {
+    padding: 10px 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #20304c;
+}
+
+button {
+    width: 100%;
+    margin-top: 6px;
+    border: 0;
+    border-radius: 10px;
+    padding: 13px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.alert {
+    margin: 14px 28px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.alert-error {
+    background: var(--error-bg);
+    color: var(--error-text);
+    border-color: #f6b9b9;
+}
+
+.alert-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border-color: #b4e1c3;
+}
+
+.login-link {
+    text-align: center;
+    margin: 0 28px 24px;
+    font-size: 14px;
+    color: #2f3d56;
+}
+
+.login-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+    body {
+        padding: 14px;
+    }
+
+    .register-header {
+        padding: 20px;
+    }
+
+    .register-header h1 {
+        font-size: 24px;
+    }
+
+    .register-form {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .login-link {
+        margin: 0 20px 20px;
+    }
+
+    .alert {
+        margin: 12px 20px 0;
+    }
+}

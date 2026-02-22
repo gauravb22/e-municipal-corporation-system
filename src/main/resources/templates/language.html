@@ -1,14 +1,15 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Select Language</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Language</title>
     <link rel="stylesheet" href="/css/language.css">
 </head>
-
 <body>
 <div class="card">
     <h2>Select Language</h2>
+    <p class="subtitle">Choose your preferred language / आवडती भाषा निवडा</p>
     <button class="lang-btn" onclick="openPopup()">Choose Language</button>
 </div>
 
@@ -16,13 +17,11 @@
     <div class="popup-box">
         <h3>Select Language</h3>
         <button class="lang-btn" onclick="selectLang('en')">English</button>
-        <button class="lang-btn" onclick="selectLang('hi')">Hindi</button>
-        <button class="lang-btn" onclick="selectLang('mr')">Marathi</button>
+        <button class="lang-btn" onclick="selectLang('hi')">हिंदी (Hindi)</button>
+        <button class="lang-btn" onclick="selectLang('mr')">मराठी (Marathi)</button>
     </div>
 </div>
 
-
-    <script src="/js/language.js"></script>
+<script src="/js/language.js"></script>
 </body>
 </html>
-
