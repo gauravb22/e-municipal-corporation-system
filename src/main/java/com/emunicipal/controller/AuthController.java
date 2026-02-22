@@ -85,6 +85,82 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/citizen-password-login")
+    public String citizenPasswordLoginPage(HttpSession session, Model model) {
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
+        if (!model.containsAttribute("identifier")) {
+            model.addAttribute("identifier", "");
+        }
+        return "citizen-password-login";
+    }
+
+    @PostMapping("/citizen-password-login")
+    public String citizenPasswordLoginForm(@RequestParam("identifier") String identifier,
+                                           @RequestParam("password") String password,
+                                           HttpSession session,
+                                           Model model) {
+        String normalizedIdentifier = identifier == null ? "" : identifier.trim();
+        String normalizedPassword = password == null ? "" : password;
+
+        if (normalizedIdentifier.isBlank() || normalizedPassword.isBlank()) {
+            model.addAttribute("error", "Phone/username and password are required.");
+            model.addAttribute("identifier", normalizedIdentifier);
+            return "citizen-password-login";
+        }
+
+        User user = findCitizenByIdentifier(normalizedIdentifier);
+        if (user == null || !normalizedPassword.equals(user.getPassword())) {
+            model.addAttribute("error", "Invalid phone/username or password.");
+            model.addAttribute("identifier", normalizedIdentifier);
+            return "citizen-password-login";
+        }
+        if (user.getActive() != null && !user.getActive()) {
+            model.addAttribute("error", "Account is blocked. Please contact administration.");
+            model.addAttribute("identifier", normalizedIdentifier);
+            return "citizen-password-login";
+        }
+
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
+        session.removeAttribute("otp");
+        session.removeAttribute("phone");
+        session.setAttribute("user", user);
+        session.setAttribute("authenticated", true);
+
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/citizen-login-password")
+    @ResponseBody
+    public Map<String, Object> citizenLoginPassword(@RequestBody Map<String, String> request, HttpSession session) {
+        String identifier = request.get("identifier");
+        String password = request.get("password");
+
+        if (identifier == null || identifier.isBlank() || password == null || password.isBlank()) {
+            return Map.of("success", false, "message", "Phone/username and password are required.");
+        }
+
+        String normalizedIdentifier = identifier.trim();
+        User user = findCitizenByIdentifier(normalizedIdentifier);
+
+        if (user == null || !password.equals(user.getPassword())) {
+            return Map.of("success", false, "message", "Invalid phone/username or password.");
+        }
+        if (user.getActive() != null && !user.getActive()) {
+            return Map.of("success", false, "message", "Account is blocked. Please contact administration.");
+        }
+
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
+        session.removeAttribute("otp");
+        session.removeAttribute("phone");
+        session.setAttribute("user", user);
+        session.setAttribute("authenticated", true);
+
+        return Map.of("success", true, "redirect", "/dashboard");
+    }
+
     /*
     =====================================
     OTP PAGE
@@ -162,10 +238,22 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(@RequestParam(value = "phone", required = false) String phone,
+                               HttpSession session,
                                Model model) {
 
-        if (phone != null && !phone.isEmpty()) {
-            model.addAttribute("phone", phone);
+        String normalizedPhone = phone == null ? null : phone.trim();
+        if (normalizedPhone != null && !normalizedPhone.isEmpty()) {
+            if (normalizedPhone.matches("\\d{10}")) {
+                session.setAttribute("phone", normalizedPhone);
+                model.addAttribute("phone", normalizedPhone);
+            } else {
+                model.addAttribute("error", "Invalid phone number");
+            }
+        } else {
+            String sessionPhone = (String) session.getAttribute("phone");
+            if (sessionPhone != null && !sessionPhone.isBlank()) {
+                model.addAttribute("phone", sessionPhone);
+            }
         }
 
         return "register";
@@ -173,19 +261,43 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user") User user,
+                               @RequestParam(value = "phone", required = false) String phoneFromForm,
                                Model model,
                                HttpSession session) {
 
         Objects.requireNonNull(user, "User data is required");
 
         String phone = (String) session.getAttribute("phone");
+        if ((phone == null || phone.isBlank()) && phoneFromForm != null && !phoneFromForm.isBlank()) {
+            phone = phoneFromForm.trim();
+            if (phone.matches("\\d{10}")) {
+                session.setAttribute("phone", phone);
+            }
+        }
 
-        if (phone == null || phone.length() != 10) {
+        if (phone == null || !phone.matches("\\d{10}")) {
             model.addAttribute("error", "Invalid phone number");
+            model.addAttribute("phone", phoneFromForm);
             return "register";
         }
 
         user.setPhone(phone);
+
+        String username = user.getUsername() != null ? user.getUsername().trim() : null;
+        if (username == null || username.isBlank()) {
+            model.addAttribute("error", "Username is required");
+            return "register";
+        }
+        if (!username.matches("[A-Za-z0-9._-]{4,50}")) {
+            model.addAttribute("error", "Username must be 4-50 characters and can contain letters, numbers, dot, underscore, and hyphen only");
+            return "register";
+        }
+        User existingByUsername = userRepository.findByUsernameIgnoreCase(username);
+        if (existingByUsername != null) {
+            model.addAttribute("error", "Username already taken");
+            return "register";
+        }
+        user.setUsername(username);
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             user.setEmail("user" + phone + "@municipal.local");
@@ -438,6 +550,25 @@ public class AuthController {
         session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID);
         session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE);
         session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT);
+    }
+
+    private User findCitizenByIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return null;
+        }
+
+        String normalizedIdentifier = identifier.trim();
+        User user = null;
+        if (normalizedIdentifier.matches("\\d{10}")) {
+            user = userRepository.findByPhone(normalizedIdentifier);
+        }
+        if (user == null) {
+            user = userRepository.findByUsernameIgnoreCase(normalizedIdentifier);
+        }
+        if (user == null) {
+            user = userRepository.findByEmailIgnoreCase(normalizedIdentifier);
+        }
+        return user;
     }
 
 }
