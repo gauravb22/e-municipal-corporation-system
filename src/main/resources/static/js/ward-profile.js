@@ -20,3 +20,36 @@ function handlePhoto(event){
     };
     reader.readAsDataURL(file);
 }
+
+async function sendWardPasswordOtp() {
+    const status = document.getElementById('passwordOtpStatus');
+    if (status) {
+        status.textContent = 'Sending OTP...';
+        status.style.color = '#1f6f4a';
+    }
+
+    try {
+        const response = await fetch('/ward-profile/send-password-otp', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+        const message = data.message || (data.success ? 'OTP sent successfully.' : 'Unable to send OTP.');
+        if (status) {
+            status.textContent = message;
+            status.style.color = data.success ? '#1f6f4a' : '#b53838';
+        } else {
+            alert(message);
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = 'Unable to send OTP. Please try again.';
+            status.style.color = '#b53838';
+        } else {
+            alert('Unable to send OTP. Please try again.');
+        }
+    }
+}

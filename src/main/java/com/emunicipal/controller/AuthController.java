@@ -19,6 +19,7 @@ import com.emunicipal.entity.Ward;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Map;
@@ -27,6 +28,11 @@ import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
+    private static final String SESSION_PROFILE_PASSWORD_OTP = "profilePasswordOtp";
+    private static final String SESSION_PROFILE_PASSWORD_OTP_USER_ID = "profilePasswordOtpUserId";
+    private static final String SESSION_PROFILE_PASSWORD_OTP_PHONE = "profilePasswordOtpPhone";
+    private static final String SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT = "profilePasswordOtpExpiresAt";
+    private static final int PASSWORD_OTP_EXPIRY_MINUTES = 5;
 
     @Autowired
     private UserRepository userRepository;
@@ -278,6 +284,29 @@ public class AuthController {
         return "my-profile";
     }
 
+    @PostMapping("/profile/send-password-otp")
+    @ResponseBody
+    public Map<String, Object> sendProfilePasswordOtp(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return Map.of("success", false, "message", "Session expired. Please login again.");
+        }
+
+        String phone = user.getPhone();
+        if (phone == null || !phone.matches("\\d{10}")) {
+            return Map.of("success", false, "message", "Registered mobile number is invalid.");
+        }
+
+        String otp = String.format("%06d", new Random().nextInt(1_000_000));
+        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP, otp);
+        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID, user.getId());
+        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE, phone);
+        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT, LocalDateTime.now().plusMinutes(PASSWORD_OTP_EXPIRY_MINUTES));
+
+        smsService.sendOtp(phone, otp);
+        return Map.of("success", true, "message", "OTP sent to your registered mobile number.");
+    }
+
     /*
     =====================================
     UPDATE PROFILE
@@ -293,9 +322,9 @@ public class AuthController {
             @RequestParam(value = "wardNo", required = false) Integer wardNo,
             @RequestParam(value = "wardZone", required = false) String wardZone,
             @RequestParam(value = "photoBase64", required = false) String photoBase64,
-            @RequestParam(value = "currentPassword", required = false) String currentPassword,
             @RequestParam(value = "newPassword", required = false) String newPassword,
             @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
+            @RequestParam(value = "passwordOtp", required = false) String passwordOtp,
             HttpSession session,
             Model model) {
 
@@ -333,15 +362,6 @@ public class AuthController {
         }
 
         if (newPassword != null && !newPassword.isEmpty()) {
-
-            if (!user.getPassword().equals(currentPassword)) {
-
-                model.addAttribute("error", "Current password incorrect");
-                model.addAttribute("user", user);
-
-                return "my-profile";
-            }
-
             if (!newPassword.equals(confirmPassword)) {
 
                 model.addAttribute("error", "Passwords do not match");
@@ -350,7 +370,15 @@ public class AuthController {
                 return "my-profile";
             }
 
+            String otpValidationError = validateProfilePasswordOtp(session, user, passwordOtp);
+            if (otpValidationError != null) {
+                model.addAttribute("error", otpValidationError);
+                model.addAttribute("user", user);
+                return "my-profile";
+            }
+
             user.setPassword(newPassword);
+            clearProfilePasswordOtp(session);
         }
 
         userRepository.save(user);
@@ -367,6 +395,49 @@ public class AuthController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
+    }
+
+    private String validateProfilePasswordOtp(HttpSession session, User user, String enteredOtp) {
+        if (enteredOtp == null || enteredOtp.isBlank()) {
+            return "Please enter OTP sent on your mobile number.";
+        }
+
+        String sessionOtp = (String) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP);
+        Long sessionUserId = (Long) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID);
+        String sessionPhone = (String) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE);
+        LocalDateTime expiresAt = (LocalDateTime) session.getAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT);
+
+        if (sessionOtp == null || sessionUserId == null || sessionPhone == null || expiresAt == null) {
+            return "Please request OTP first.";
+        }
+
+        if (!Objects.equals(sessionUserId, user.getId())) {
+            clearProfilePasswordOtp(session);
+            return "OTP is not valid for this account. Please request a new OTP.";
+        }
+
+        if (user.getPhone() == null || !sessionPhone.equals(user.getPhone())) {
+            clearProfilePasswordOtp(session);
+            return "Registered mobile number changed. Please request OTP again.";
+        }
+
+        if (LocalDateTime.now().isAfter(expiresAt)) {
+            clearProfilePasswordOtp(session);
+            return "OTP expired. Please request a new OTP.";
+        }
+
+        if (!sessionOtp.equals(enteredOtp.trim())) {
+            return "Invalid OTP. Please enter correct OTP.";
+        }
+
+        return null;
+    }
+
+    private void clearProfilePasswordOtp(HttpSession session) {
+        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP);
+        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID);
+        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE);
+        session.removeAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT);
     }
 
 }
