@@ -26,6 +26,7 @@ import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.SmsService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.util.ImageFormatValidator;
+import com.emunicipal.util.PhoneNumberUtil;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.Year;
@@ -665,7 +666,15 @@ public class StaffAuthController {
             wardMember.setFullName(fullName.isBlank() ? null : fullName.trim());
         }
         if (phone != null) {
-            wardMember.setPhone(phone.isBlank() ? null : phone.trim());
+            if (phone.isBlank()) {
+                wardMember.setPhone(null);
+            } else {
+                String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+                if (normalizedPhone == null) {
+                    return "redirect:/admin/ward-members/" + staffId + "?error=phone";
+                }
+                wardMember.setPhone(normalizedPhone);
+            }
         }
         if (password != null && !password.isBlank()) {
             wardMember.setPassword(password);
@@ -768,17 +777,18 @@ public class StaffAuthController {
         }
 
         String phone = staffUser.getPhone();
-        if (phone == null || !phone.matches("\\d{10}")) {
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+        if (normalizedPhone == null) {
             return Map.of("success", false, "message", "Registered mobile number is invalid.");
         }
 
         String otp = String.format("%06d", new Random().nextInt(1_000_000));
         session.setAttribute(SESSION_WARD_PASSWORD_OTP, otp);
         session.setAttribute(SESSION_WARD_PASSWORD_OTP_STAFF_ID, staffUser.getId());
-        session.setAttribute(SESSION_WARD_PASSWORD_OTP_PHONE, phone);
+        session.setAttribute(SESSION_WARD_PASSWORD_OTP_PHONE, normalizedPhone);
         session.setAttribute(SESSION_WARD_PASSWORD_OTP_EXPIRES_AT, LocalDateTime.now().plusMinutes(PASSWORD_OTP_EXPIRY_MINUTES));
 
-        smsService.sendOtp(phone, otp);
+        smsService.sendOtp(normalizedPhone, otp);
         return Map.of("success", true, "message", "OTP sent to your registered mobile number.");
     }
 
@@ -796,7 +806,7 @@ public class StaffAuthController {
             return "redirect:/ward-login";
         }
 
-        String existingPhone = staffUser.getPhone();
+        String existingPhone = PhoneNumberUtil.normalizeIndianPhone(staffUser.getPhone());
 
         if (fullName != null && !fullName.isBlank()) {
             staffUser.setFullName(fullName.trim());
@@ -830,7 +840,13 @@ public class StaffAuthController {
         }
 
         if (phone != null && !phone.isBlank()) {
-            staffUser.setPhone(phone.trim());
+            String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+            if (normalizedPhone == null) {
+                model.addAttribute("error", "Enter valid 10-digit mobile number.");
+                model.addAttribute("staffUser", staffUser);
+                return "ward-profile";
+            }
+            staffUser.setPhone(normalizedPhone);
         }
 
         staffUserRepository.save(staffUser);
@@ -872,7 +888,8 @@ public class StaffAuthController {
             return "OTP is not valid for this account. Please request a new OTP.";
         }
 
-        if (registeredPhone == null || !sessionPhone.equals(registeredPhone)) {
+        String normalizedRegisteredPhone = PhoneNumberUtil.normalizeIndianPhone(registeredPhone);
+        if (normalizedRegisteredPhone == null || !sessionPhone.equals(normalizedRegisteredPhone)) {
             clearWardPasswordOtp(session);
             return "Registered mobile number changed. Please request OTP again.";
         }

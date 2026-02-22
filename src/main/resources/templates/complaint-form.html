@@ -41,7 +41,7 @@
             </div>
             <div class="user-info-item">
                 Phone
-                <strong th:text="${user.phone}">Phone</strong>
+                <strong th:text="${user.phone != null && !#strings.isEmpty(user.phone) ? '+91 ' + user.phone : 'Phone'}">Phone</strong>
             </div>
             <div class="user-info-item">
                 Ward Number

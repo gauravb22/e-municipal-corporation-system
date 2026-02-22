@@ -34,7 +34,7 @@
                      alt="Citizen photo">
                 <div>
                     <div class="citizen-name" th:text="${citizen != null && citizen.fullName != null && !#strings.isEmpty(citizen.fullName) ? citizen.fullName : 'Citizen'}">Citizen</div>
-                    <div class="citizen-phone" th:text="${citizen != null && citizen.phone != null && !#strings.isEmpty(citizen.phone) ? citizen.phone : 'Phone not available'}">Phone</div>
+                    <div class="citizen-phone" th:text="${citizen != null && citizen.phone != null && !#strings.isEmpty(citizen.phone) ? '+91 ' + citizen.phone : 'Phone not available'}">Phone</div>
                 </div>
             </div>
             <div class="meta">

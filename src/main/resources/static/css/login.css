@@ -73,11 +73,25 @@
             display: block;
             margin-top: 4px;
         }
+        .phone-input-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: nowrap;
+        }
+        .country-code {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2a3a;
+            line-height: 1;
+        }
         .phone-boxes {
             display: flex;
             justify-content: center;
             gap: 2px;
-            margin: 20px 0;
+            margin: 0;
             flex-wrap: wrap;
         }
         .phone-boxes input {
@@ -124,6 +138,29 @@
             text-decoration: none;
         }
         .signup-link a:hover { text-decoration: underline; }
+
+        .password-option {
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        .password-btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: #f4c542;
+            color: #1f1f1f;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            transition: background-color .2s ease, transform .2s ease;
+        }
+
+        .password-btn:hover {
+            background: #e3b535;
+            transform: translateY(-1px);
+        }
 
         .menu-btn{
             position:absolute;

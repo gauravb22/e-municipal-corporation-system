@@ -60,7 +60,7 @@
             </div>
             <div>
                 <label class="label" for="phone">Mobile Number</label>
-                <input class="input" id="phone" name="phone" type="tel" placeholder="Enter mobile number" th:value="${user.phone}" readonly>
+                <input class="input" id="phone" name="phone" type="tel" placeholder="Enter mobile number" th:value="${user.phone != null && !#strings.isEmpty(user.phone) ? '+91 ' + user.phone : ''}" readonly>
             </div>
             <div class="full">
                 <label class="label" for="email">Email</label>

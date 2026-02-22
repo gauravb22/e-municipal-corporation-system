@@ -11,7 +11,7 @@
     <h2>OTP Verification</h2>
     <p>Enter 6-digit OTP sent to your phone</p>
     <div class="phone-display">
-        Phone: <strong th:text="${phone}"></strong>
+        Phone: <strong th:text="${phone != null && !#strings.isEmpty(phone) ? '+91 ' + phone : ''}"></strong>
     </div>
     
     <!-- Display OTP on screen -->

@@ -40,7 +40,10 @@
         <form method="post" th:action="@{/admin/ward-members/{id}/update(id=${wardMember.id})}">
             <input class="field" name="fullName" placeholder="Full name" th:value="${wardMember.fullName}" />
             <div class="row">
-                <input class="field" name="phone" placeholder="Phone" th:value="${wardMember.phone}" />
+                <div class="phone-wrap">
+                    <span class="country-code">+91</span>
+                    <input class="field" name="phone" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="10-digit mobile number" th:value="${wardMember.phone}" />
+                </div>
                 <input class="field" name="password" placeholder="New password (leave blank to keep)" />
             </div>
             <div class="row">

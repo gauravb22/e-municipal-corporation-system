@@ -34,7 +34,7 @@
             roleWard.classList.remove('active');
             roleAdmin.classList.remove('active');
             loginTitle.textContent = 'Citizen Login';
-            loginLabel.innerHTML = 'à¤¦à¤¹à¤¾ à¤…à¤‚à¤•à¥€ à¤«à¥‹à¤¨ à¤¨à¤‚à¤¬à¤° <span class="faint">10-digit phone number</span>';
+            loginLabel.innerHTML = 'Please enter your 10-digit phone number <span class="faint">+91 country code is applied by default</span>';
             signupHint.style.display = 'block';
         }
         closeMenu();

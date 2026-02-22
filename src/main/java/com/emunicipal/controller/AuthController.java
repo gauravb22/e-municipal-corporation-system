@@ -15,6 +15,7 @@ import com.emunicipal.service.SmsService;
 import com.emunicipal.service.NotificationService;
 import com.emunicipal.service.WardService;
 import com.emunicipal.util.ImageFormatValidator;
+import com.emunicipal.util.PhoneNumberUtil;
 import com.emunicipal.entity.Ward;
 
 import jakarta.servlet.http.HttpSession;
@@ -72,17 +73,70 @@ public class AuthController {
 
     @PostMapping("/check-phone")
     @ResponseBody
-    public Map<String, Object> checkPhone(@RequestBody Map<String, String> request) {
+    public Map<String, Object> checkPhone(@RequestBody Map<String, String> request,
+                                          HttpSession session) {
 
-        String phone = request.get("phone");
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(request.get("phone"));
+        if (normalizedPhone == null) {
+            return Map.of("exists", false, "message", "Invalid phone number");
+        }
 
-        User user = userRepository.findByPhone(phone);
+        session.setAttribute("phone", normalizedPhone);
+
+        User user = userRepository.findByPhone(normalizedPhone);
 
         if (user != null) {
             return Map.of("exists", true, "message", "Phone found");
         } else {
             return Map.of("exists", false, "message", "Phone not registered");
         }
+    }
+
+    @GetMapping("/citizen-password-login")
+    public String citizenPasswordLoginPage(HttpSession session, Model model) {
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
+        if (!model.containsAttribute("phone")) {
+            model.addAttribute("phone", "");
+        }
+        return "citizen-password-login";
+    }
+
+    @PostMapping("/citizen-password-login")
+    public String citizenPasswordLogin(@RequestParam("phone") String phone,
+                                       @RequestParam("password") String password,
+                                       HttpSession session,
+                                       Model model) {
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+        String enteredPhone = phone == null ? "" : phone.trim();
+        String normalizedPassword = password == null ? "" : password;
+
+        if (normalizedPhone == null || normalizedPassword.isBlank()) {
+            model.addAttribute("error", "Enter valid 10-digit mobile number and password.");
+            model.addAttribute("phone", enteredPhone);
+            return "citizen-password-login";
+        }
+
+        User user = userRepository.findByPhone(normalizedPhone);
+        if (user == null || !normalizedPassword.equals(user.getPassword())) {
+            model.addAttribute("error", "Invalid mobile number or password.");
+            model.addAttribute("phone", normalizedPhone);
+            return "citizen-password-login";
+        }
+        if (user.getActive() != null && !user.getActive()) {
+            model.addAttribute("error", "Account is blocked. Please contact administration.");
+            model.addAttribute("phone", normalizedPhone);
+            return "citizen-password-login";
+        }
+
+        session.removeAttribute("staffUser");
+        session.removeAttribute("staffRole");
+        session.removeAttribute("otp");
+        session.removeAttribute("phone");
+        session.setAttribute("user", user);
+        session.setAttribute("authenticated", true);
+
+        return "redirect:/dashboard";
     }
 
     /*
@@ -96,14 +150,15 @@ public class AuthController {
                           HttpSession session,
                           Model model) {
 
-        if (phone == null || phone.length() != 10 || !phone.matches("[0-9]{10}")) {
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+        if (normalizedPhone == null) {
             return "redirect:/login";
         }
 
         session.removeAttribute("staffUser");
         session.removeAttribute("staffRole");
 
-        User user = userRepository.findByPhone(phone);
+        User user = userRepository.findByPhone(normalizedPhone);
 
         if (user == null) {
             return "redirect:/login";
@@ -115,13 +170,13 @@ public class AuthController {
 
         String otp = String.format("%06d", new Random().nextInt(999999));
 
-        session.setAttribute("phone", phone);
+        session.setAttribute("phone", normalizedPhone);
         session.setAttribute("otp", otp);
         session.setAttribute("user", user);
 
-        smsService.sendOtp(phone, otp);
+        smsService.sendOtp(normalizedPhone, otp);
 
-        model.addAttribute("phone", phone);
+        model.addAttribute("phone", normalizedPhone);
         model.addAttribute("otp", otp);
 
         return "otp";
@@ -162,10 +217,13 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(@RequestParam(value = "phone", required = false) String phone,
+                               HttpSession session,
                                Model model) {
 
-        if (phone != null && !phone.isEmpty()) {
-            model.addAttribute("phone", phone);
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+        if (normalizedPhone != null) {
+            model.addAttribute("phone", normalizedPhone);
+            session.setAttribute("phone", normalizedPhone);
         }
 
         return "register";
@@ -178,9 +236,9 @@ public class AuthController {
 
         Objects.requireNonNull(user, "User data is required");
 
-        String phone = (String) session.getAttribute("phone");
+        String phone = PhoneNumberUtil.normalizeIndianPhone((String) session.getAttribute("phone"));
 
-        if (phone == null || phone.length() != 10) {
+        if (phone == null) {
             model.addAttribute("error", "Invalid phone number");
             return "register";
         }
@@ -293,17 +351,18 @@ public class AuthController {
         }
 
         String phone = user.getPhone();
-        if (phone == null || !phone.matches("\\d{10}")) {
+        String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(phone);
+        if (normalizedPhone == null) {
             return Map.of("success", false, "message", "Registered mobile number is invalid.");
         }
 
         String otp = String.format("%06d", new Random().nextInt(1_000_000));
         session.setAttribute(SESSION_PROFILE_PASSWORD_OTP, otp);
         session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_USER_ID, user.getId());
-        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE, phone);
+        session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_PHONE, normalizedPhone);
         session.setAttribute(SESSION_PROFILE_PASSWORD_OTP_EXPIRES_AT, LocalDateTime.now().plusMinutes(PASSWORD_OTP_EXPIRY_MINUTES));
 
-        smsService.sendOtp(phone, otp);
+        smsService.sendOtp(normalizedPhone, otp);
         return Map.of("success", true, "message", "OTP sent to your registered mobile number.");
     }
 
@@ -416,7 +475,8 @@ public class AuthController {
             return "OTP is not valid for this account. Please request a new OTP.";
         }
 
-        if (user.getPhone() == null || !sessionPhone.equals(user.getPhone())) {
+        String normalizedUserPhone = PhoneNumberUtil.normalizeIndianPhone(user.getPhone());
+        if (normalizedUserPhone == null || !sessionPhone.equals(normalizedUserPhone)) {
             clearProfilePasswordOtp(session);
             return "Registered mobile number changed. Please request OTP again.";
         }

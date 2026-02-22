@@ -121,6 +121,23 @@
     grid-template-columns:1fr 1fr;
     gap:10px;
 }
+.phone-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:8px;
+}
+.phone-wrap .field{
+    margin-top:0;
+}
+.country-code{
+    padding:10px 10px;
+    border-radius:10px;
+    border:1px solid #e2d4c5;
+    background:#f8f2ea;
+    font-weight:700;
+    color:#7a3e0b;
+}
 .msg{
     margin-top:10px;
     padding:10px;

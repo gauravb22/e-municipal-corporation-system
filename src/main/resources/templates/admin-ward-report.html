@@ -45,7 +45,7 @@
                 <div>
                     <div class="profile-name" th:text="${wardMember.fullName != null && !#strings.isEmpty(wardMember.fullName) ? wardMember.fullName : 'Ward Member'}">Ward Member</div>
                     <div class="profile-meta">
-                        Phone: <span th:text="${wardMember.phone != null ? wardMember.phone : '-'}">-</span>
+                        Phone: <span th:text="${wardMember.phone != null && !#strings.isEmpty(wardMember.phone) ? '+91 ' + wardMember.phone : '-'}">-</span>
                     </div>
                 </div>
             </div>

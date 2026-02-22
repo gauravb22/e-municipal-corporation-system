@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="/css/login.css">
 </head>
@@ -30,24 +31,31 @@
     </div>
     
     <h2 id="loginTitle">Citizen Login</h2>
-    <label id="loginLabel">Please enter your 10-digit phone number<span class="faint">कृपया तुमचा १०-अंकी फोन नंबर एंटर करा</span></label>
+    <label id="loginLabel">Please enter your 10-digit phone number<span class="faint">+91 country code is applied by default</span></label>
 
-    <div class="phone-boxes">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
-        <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+    <div class="phone-input-row">
+        <span class="country-code">+91</span>
+        <div class="phone-boxes">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+            <input type="text" class="phone-digit" maxlength="1" inputmode="numeric" placeholder="0">
+        </div>
     </div>
     <div class="status" id="statusMessage"></div>
 
     <div class="signup-link" id="signupHint">
         Not registered yet? You'll be redirected automatically.
+    </div>
+
+    <div class="password-option">
+        <a href="/citizen-password-login" class="password-btn">Login by Password</a>
     </div>
 </div>
 

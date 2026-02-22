@@ -52,6 +52,22 @@ input{
     border:1px solid #d9dee5;
     font-size:14px;
 }
+.phone-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.phone-wrap input{
+    flex:1;
+}
+.country-code{
+    padding:10px 10px;
+    border-radius:8px;
+    border:1px solid #d9dee5;
+    background:#f3f5f9;
+    font-weight:700;
+    color:#1f6f4a;
+}
 input:focus{outline:none;border-color:#2e8b57;box-shadow:0 0 0 3px rgba(46,139,87,.15);}
 .btn{
     border:none;

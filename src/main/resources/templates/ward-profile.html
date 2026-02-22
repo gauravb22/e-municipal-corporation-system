@@ -40,7 +40,10 @@
 
         <div class="form-group">
             <label>Mobile Number</label>
-            <input type="text" name="phone" placeholder="Enter mobile number" th:value="${staffUser.phone}">
+            <div class="phone-wrap">
+                <span class="country-code">+91</span>
+                <input type="text" name="phone" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" th:value="${staffUser.phone}">
+            </div>
         </div>
 
         <div class="row">
