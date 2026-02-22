@@ -14,9 +14,6 @@ public class User {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(nullable = true, unique = true, length = 50)
-    private String username;
-
     @Column(nullable = true, unique = true)
     private String email;
 
@@ -61,14 +58,6 @@ public class User {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getEmail() {
