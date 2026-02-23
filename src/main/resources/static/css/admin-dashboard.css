@@ -164,6 +164,102 @@ body{
     font-size:18px;
     font-weight:700;
 }
+.analytics-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:14px;
+    margin-bottom:14px;
+}
+.chart-card{
+    border:1px solid #f5eadf;
+}
+.chart-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+}
+.chart-head h3{
+    margin:0;
+    color:var(--text);
+    font-size:17px;
+}
+.chart-meta{
+    font-size:12px;
+    color:var(--muted);
+    background:#f7efe8;
+    border-radius:999px;
+    padding:4px 10px;
+}
+.chart-canvas-wrap{
+    position:relative;
+    height:280px;
+}
+.chart-fallback{
+    height:100%;
+    border:1px dashed #d8c3b2;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:13px;
+    background:#fdf9f5;
+}
+.ward-stats-card{
+    margin-bottom:16px;
+    border:1px solid #f5eadf;
+}
+.ward-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+}
+.ward-head h3{
+    margin:0;
+    font-size:17px;
+    color:var(--text);
+}
+.ward-head span{
+    font-size:12px;
+    color:var(--muted);
+}
+.table-wrap{
+    overflow-x:auto;
+}
+.ward-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:520px;
+}
+.ward-table th,
+.ward-table td{
+    padding:10px 8px;
+    border-bottom:1px solid var(--line);
+    text-align:left;
+    font-size:13px;
+}
+.ward-table th{
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+}
+.ward-table td{
+    color:var(--text);
+    font-weight:600;
+}
+.ward-table td.rate{
+    color:#0b6a3e;
+}
+.empty-row{
+    color:var(--muted) !important;
+    text-align:center !important;
+    font-weight:500 !important;
+}
 .action-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -210,5 +306,11 @@ body{
     }
     .value{
         font-size:26px;
+    }
+    .analytics-grid{
+        grid-template-columns:1fr;
+    }
+    .chart-canvas-wrap{
+        height:240px;
     }
 }

@@ -40,17 +40,79 @@
     <div class="container">
         <div class="hero">
             <h1 class="hero-title">Administration Actions</h1>
-            <p class="hero-sub">Manage ward members, monitor reports, review work feed, manage citizen Works/Yojna cards, and publish notices from one dashboard.</p>
+            <p class="hero-sub">Track live complaint analytics, monitor ward performance, review work feed, and manage notices from one dashboard.</p>
         </div>
 
         <div class="stats">
             <div class="card">
+                <div class="label">Total Complaints</div>
+                <div class="value" th:text="${totalComplaints != null ? totalComplaints : 0}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Resolved Complaints</div>
+                <div class="value" th:text="${resolvedComplaints != null ? resolvedComplaints : 0}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Pending Complaints</div>
+                <div class="value" th:text="${pendingComplaints != null ? pendingComplaints : 0}">0</div>
+            </div>
+            <div class="card">
                 <div class="label">Total Ward Members</div>
                 <div class="value" th:text="${totalWardMembers != null ? totalWardMembers : 0}">0</div>
             </div>
-            <div class="card">
-                <div class="label">Quick Access</div>
-                <div class="value small">Ward Reports + Notices</div>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="card chart-card">
+                <div class="chart-head">
+                    <h3>Monthly Complaints</h3>
+                    <span class="chart-meta" th:text="${currentYear}">2026</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="monthlyComplaintChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card chart-card">
+                <div class="chart-head">
+                    <h3>Complaint Types</h3>
+                    <span class="chart-meta">Distribution</span>
+                </div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="complaintTypePieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card ward-stats-card">
+            <div class="ward-head">
+                <h3>Ward-wise Complaint Statistics</h3>
+                <span>Resolution Performance</span>
+            </div>
+            <div class="table-wrap">
+                <table class="ward-table">
+                    <thead>
+                    <tr>
+                        <th>Ward</th>
+                        <th>Total</th>
+                        <th>Resolved</th>
+                        <th>Pending</th>
+                        <th>Resolution Rate</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(wardStats)}">
+                        <td colspan="5" class="empty-row">No complaint data available yet.</td>
+                    </tr>
+                    <tr th:each="ward : ${wardStats}">
+                        <td th:text="${ward.wardNo}">1</td>
+                        <td th:text="${ward.totalComplaints}">0</td>
+                        <td th:text="${ward.resolvedComplaints}">0</td>
+                        <td th:text="${ward.pendingComplaints}">0</td>
+                        <td class="rate" th:text="${ward.resolutionRate}">0.0%</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -106,6 +168,15 @@
     </div>
 </div>
 
+    <script th:inline="javascript">
+        window.adminAnalyticsData = {
+            monthlyLabels: /*[[${monthlyLabels}]]*/ [],
+            monthlyCounts: /*[[${monthlyCounts}]]*/ [],
+            complaintTypeLabels: /*[[${complaintTypeLabels}]]*/ [],
+            complaintTypeCounts: /*[[${complaintTypeCounts}]]*/ []
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <script src="/js/admin-dashboard.js"></script>
 </body>

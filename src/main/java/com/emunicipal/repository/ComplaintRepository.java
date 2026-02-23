@@ -21,6 +21,39 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     long countByWardNoAndCreatedAtBetween(Integer wardNo, LocalDateTime start, LocalDateTime end);
     long countByWardNoAndStatusInAndCreatedAtBetween(Integer wardNo, List<String> statuses, LocalDateTime start, LocalDateTime end);
     long countByWardNoAndStatusAndCreatedAtBetween(Integer wardNo, String status, LocalDateTime start, LocalDateTime end);
+    @Query("select count(c) from Complaint c where lower(c.status) in :statuses")
+    long countByLowerStatusIn(@Param("statuses") List<String> statuses);
+
+    @Query("""
+            select month(c.createdAt), count(c)
+            from Complaint c
+            where c.createdAt between :start and :end
+            group by month(c.createdAt)
+            order by month(c.createdAt)
+            """)
+    List<Object[]> countMonthlyComplaints(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    @Query("""
+            select c.wardNo,
+                   count(c),
+                   sum(case when lower(c.status) in ('completed', 'verified', 'solved') then 1 else 0 end),
+                   sum(case when lower(c.status) in ('submitted', 'pending', 'assigned', 'approved', 'in_progress', 'overdue', 'escalated', 'repeated') then 1 else 0 end)
+            from Complaint c
+            where c.wardNo is not null
+            group by c.wardNo
+            order by c.wardNo
+            """)
+    List<Object[]> countWardWiseComplaintAnalytics();
+
+    @Query("""
+            select coalesce(c.complaintType, 'Other'), count(c)
+            from Complaint c
+            group by c.complaintType
+            order by count(c) desc
+            """)
+    List<Object[]> countByComplaintTypeDistribution();
 
     @Query("select avg(c.feedbackRating) from Complaint c where c.wardNo = :wardNo and c.feedbackRating is not null")
     Double getAverageRatingByWard(@Param("wardNo") Integer wardNo);

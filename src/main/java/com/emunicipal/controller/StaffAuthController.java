@@ -34,17 +34,24 @@ import jakarta.servlet.http.HttpSession;
 import java.time.Year;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 
 @Controller
 public class StaffAuthController {
     private static final String OTP_CONTEXT_WARD_PASSWORD = "wardPasswordOtp";
     private static final int PASSWORD_OTP_EXPIRY_MINUTES = 5;
     private static final int OTP_MAX_ATTEMPTS = 5;
+    private static final List<String> RESOLVED_COMPLAINT_STATUSES = List.of("completed", "verified", "solved");
+    private static final List<String> PENDING_COMPLAINT_STATUSES = List.of(
+            "submitted", "pending", "assigned", "approved", "in_progress", "overdue", "escalated", "repeated"
+    );
 
     @Autowired
     private StaffUserRepository staffUserRepository;
@@ -174,8 +181,86 @@ public class StaffAuthController {
             return "redirect:/admin-login";
         }
 
+        long totalComplaints = complaintRepository.count();
+        long resolvedComplaints = complaintRepository.countByLowerStatusIn(RESOLVED_COMPLAINT_STATUSES);
+        long pendingComplaints = complaintRepository.countByLowerStatusIn(PENDING_COMPLAINT_STATUSES);
+
+        int currentYear = Year.now().getValue();
+        LocalDateTime yearStart = LocalDate.of(currentYear, 1, 1).atStartOfDay();
+        LocalDateTime yearEnd = LocalDate.of(currentYear, 12, 31).atTime(23, 59, 59);
+
+        HashMap<Integer, Long> monthlyCountsByMonth = new HashMap<>();
+        List<Object[]> monthlyRows = complaintRepository.countMonthlyComplaints(yearStart, yearEnd);
+        for (Object[] row : monthlyRows) {
+            if (row == null || row.length < 2 || !(row[0] instanceof Number monthObj) || !(row[1] instanceof Number countObj)) {
+                continue;
+            }
+            monthlyCountsByMonth.put(monthObj.intValue(), countObj.longValue());
+        }
+
+        List<String> monthlyLabels = new ArrayList<>();
+        List<Long> monthlyCounts = new ArrayList<>();
+        for (int monthValue = 1; monthValue <= 12; monthValue++) {
+            monthlyLabels.add(Month.of(monthValue).getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+            monthlyCounts.add(monthlyCountsByMonth.getOrDefault(monthValue, 0L));
+        }
+
+        List<WardAnalyticsRow> wardStats = new ArrayList<>();
+        List<Object[]> wardRows = complaintRepository.countWardWiseComplaintAnalytics();
+        for (Object[] row : wardRows) {
+            if (row == null || row.length < 4 || !(row[0] instanceof Number wardNoObj)) {
+                continue;
+            }
+
+            Integer wardNo = wardNoObj.intValue();
+            long wardTotal = (row[1] instanceof Number n) ? n.longValue() : 0L;
+            long wardResolved = (row[2] instanceof Number n) ? n.longValue() : 0L;
+            long wardPending = (row[3] instanceof Number n) ? n.longValue() : 0L;
+            String resolutionRate = wardTotal > 0 ? String.format("%.1f%%", (wardResolved * 100.0) / wardTotal) : "0.0%";
+
+            wardStats.add(new WardAnalyticsRow(wardNo, wardTotal, wardResolved, wardPending, resolutionRate));
+        }
+
+        List<String> complaintTypeLabels = new ArrayList<>();
+        List<Long> complaintTypeCounts = new ArrayList<>();
+        long othersCount = 0L;
+
+        List<Object[]> complaintTypeRows = complaintRepository.countByComplaintTypeDistribution();
+        for (int i = 0; i < complaintTypeRows.size(); i++) {
+            Object[] row = complaintTypeRows.get(i);
+            if (row == null || row.length < 2) {
+                continue;
+            }
+
+            String typeLabel = row[0] == null ? "Other" : row[0].toString().trim();
+            if (typeLabel.isBlank()) {
+                typeLabel = "Other";
+            }
+            long count = (row[1] instanceof Number n) ? n.longValue() : 0L;
+
+            if (i < 7) {
+                complaintTypeLabels.add(typeLabel);
+                complaintTypeCounts.add(count);
+            } else {
+                othersCount += count;
+            }
+        }
+        if (othersCount > 0) {
+            complaintTypeLabels.add("Other");
+            complaintTypeCounts.add(othersCount);
+        }
+
         model.addAttribute("staffUser", staffUser);
         model.addAttribute("totalWardMembers", staffUserRepository.countByRoleIgnoreCase("WARD"));
+        model.addAttribute("totalComplaints", totalComplaints);
+        model.addAttribute("resolvedComplaints", resolvedComplaints);
+        model.addAttribute("pendingComplaints", pendingComplaints);
+        model.addAttribute("currentYear", currentYear);
+        model.addAttribute("monthlyLabels", monthlyLabels);
+        model.addAttribute("monthlyCounts", monthlyCounts);
+        model.addAttribute("complaintTypeLabels", complaintTypeLabels);
+        model.addAttribute("complaintTypeCounts", complaintTypeCounts);
+        model.addAttribute("wardStats", wardStats);
         return "admin-dashboard";
     }
 
@@ -549,6 +634,28 @@ public class StaffAuthController {
         model.addAttribute("selectedMonth", normalizedMonth);
         model.addAttribute("yearOptions", yearOptions);
         return "admin-ward-member-posts";
+    }
+
+    public static class WardAnalyticsRow {
+        private final Integer wardNo;
+        private final long totalComplaints;
+        private final long resolvedComplaints;
+        private final long pendingComplaints;
+        private final String resolutionRate;
+
+        public WardAnalyticsRow(Integer wardNo, long totalComplaints, long resolvedComplaints, long pendingComplaints, String resolutionRate) {
+            this.wardNo = wardNo;
+            this.totalComplaints = totalComplaints;
+            this.resolvedComplaints = resolvedComplaints;
+            this.pendingComplaints = pendingComplaints;
+            this.resolutionRate = resolutionRate;
+        }
+
+        public Integer getWardNo() { return wardNo; }
+        public long getTotalComplaints() { return totalComplaints; }
+        public long getResolvedComplaints() { return resolvedComplaints; }
+        public long getPendingComplaints() { return pendingComplaints; }
+        public String getResolutionRate() { return resolutionRate; }
     }
 
     public static class PostItem {
