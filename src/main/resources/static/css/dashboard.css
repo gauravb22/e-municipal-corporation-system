@@ -178,6 +178,7 @@ body{
     box-shadow:4px 0 20px rgba(0,0,0,.3);
     transition:.3s;
     z-index:100;
+    overflow-y:auto;
 }
 .sidebar.open{ left:0; }
 .sidebar h3{
@@ -195,6 +196,18 @@ body{
 }
 .sidebar a i{ margin-right:10px; }
 .sidebar a:hover{ background:#f2f2f2; }
+.coming-soon-link{
+    color:#616d7f;
+}
+.sidebar-tag{
+    margin-left:8px;
+    background:#f0f3f9;
+    color:#48566c;
+    border-radius:999px;
+    font-size:10px;
+    padding:2px 6px;
+    font-weight:700;
+}
 .logout{ color:#c0392b; font-weight:600; }
 
 /* Overlay */
