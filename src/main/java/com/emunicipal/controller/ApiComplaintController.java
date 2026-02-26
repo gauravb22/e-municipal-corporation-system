@@ -3,15 +3,16 @@ package com.emunicipal.controller;
 import com.emunicipal.entity.Complaint;
 import com.emunicipal.entity.User;
 import com.emunicipal.entity.Ward;
-import com.emunicipal.repository.ComplaintRepository;
-import com.emunicipal.repository.UserRepository;
 import com.emunicipal.service.ComplaintService;
+import com.emunicipal.service.UserService;
 import com.emunicipal.service.WardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,18 +30,15 @@ import java.util.stream.Stream;
 @RequestMapping("/api/complaints")
 public class ApiComplaintController {
 
-    private final ComplaintRepository complaintRepository;
     private final ComplaintService complaintService;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final WardService wardService;
 
-    public ApiComplaintController(ComplaintRepository complaintRepository,
-                                  ComplaintService complaintService,
-                                  UserRepository userRepository,
+    public ApiComplaintController(ComplaintService complaintService,
+                                  UserService userService,
                                   WardService wardService) {
-        this.complaintRepository = complaintRepository;
         this.complaintService = complaintService;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.wardService = wardService;
     }
 
@@ -50,8 +48,7 @@ public class ApiComplaintController {
             @RequestParam(value = "wardNo", required = false) Integer wardNo,
             @RequestParam(value = "status", required = false) String status) {
 
-        List<Complaint> complaints = complaintRepository.findAll();
-        complaintService.refreshOverdueForComplaints(complaints);
+        List<Complaint> complaints = complaintService.getAllComplaints();
 
         Stream<Complaint> stream = complaints.stream();
         if (userId != null) {
@@ -101,7 +98,7 @@ public class ApiComplaintController {
             return badRequest("houseNo is required.");
         }
 
-        User user = userRepository.findById(request.userId()).orElse(null);
+        User user = userService.getUserById(request.userId()).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "User not found for userId: " + request.userId()));
@@ -158,6 +155,96 @@ public class ApiComplaintController {
 
         Complaint saved = complaintService.saveComplaint(complaint);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateComplaint(@PathVariable("id") Long complaintId,
+                                             @RequestBody UpdateComplaintRequest request) {
+        if (request == null) {
+            return badRequest("Request body is required.");
+        }
+
+        Complaint existing = complaintService.getComplaintById(complaintId).orElse(null);
+        if (existing == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Complaint not found."));
+        }
+
+        Complaint patch = new Complaint();
+
+        if (!isBlank(request.complaintType())) {
+            patch.setComplaintType(request.complaintType().trim());
+        }
+        if (!isBlank(request.location())) {
+            patch.setLocation(request.location().trim());
+        }
+        if (!isBlank(request.houseNo())) {
+            patch.setHouseNo(request.houseNo().trim());
+        }
+        if (request.wardNo() != null) {
+            patch.setWardNo(request.wardNo());
+        }
+        if (!isBlank(request.wardZone())) {
+            patch.setWardZone(request.wardZone().trim().toUpperCase());
+        }
+        if (!isBlank(request.description())) {
+            patch.setDescription(request.description().trim());
+        }
+        if (!isBlank(request.status())) {
+            patch.setStatus(request.status().trim());
+        }
+
+        if (!isBlank(request.notComingFromDate())) {
+            try {
+                patch.setNotComingFromDate(LocalDate.parse(request.notComingFromDate().trim()));
+            } catch (DateTimeParseException ex) {
+                return badRequest("notComingFromDate must be in ISO format yyyy-MM-dd.");
+            }
+        }
+
+        Long targetUserId = request.userId() != null ? request.userId() : existing.getUserId();
+        if (targetUserId != null) {
+            User user = userService.getUserById(targetUserId).orElse(null);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "User not found for userId: " + targetUserId));
+            }
+            patch.setUserId(user.getId());
+
+            Integer resolvedWardNo = request.wardNo() != null ? request.wardNo() : existing.getWardNo();
+            String resolvedWardZone = !isBlank(request.wardZone()) ? request.wardZone().trim() : existing.getWardZone();
+            Ward ward = wardService.resolveWard(resolvedWardNo, resolvedWardZone);
+            if (ward != null) {
+                patch.setWardId(ward.getId());
+                patch.setWardNo(ward.getWardNo());
+                patch.setWardZone(ward.getWardZone());
+            }
+        }
+
+        Complaint updated = complaintService.updateComplaint(
+                complaintId,
+                patch,
+                "SYSTEM",
+                null,
+                "Updated via API"
+        ).orElse(null);
+
+        if (updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Complaint not found."));
+        }
+
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteComplaint(@PathVariable("id") Long complaintId) {
+        boolean deleted = complaintService.deleteComplaint(complaintId);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Complaint not found."));
+        }
+        return ResponseEntity.ok(Map.of("message", "Complaint deleted successfully."));
     }
 
     private ResponseEntity<Map<String, String>> badRequest(String message) {
@@ -219,6 +306,19 @@ public class ApiComplaintController {
             String photoLatitude,
             String photoLongitude,
             String photoBase64,
+            String notComingFromDate
+    ) {
+    }
+
+    public record UpdateComplaintRequest(
+            Long userId,
+            String complaintType,
+            String location,
+            String houseNo,
+            String description,
+            Integer wardNo,
+            String wardZone,
+            String status,
             String notComingFromDate
     ) {
     }
