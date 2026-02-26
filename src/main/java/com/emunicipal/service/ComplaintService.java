@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,6 +38,12 @@ public class ComplaintService {
         return saved;
     }
 
+    public List<Complaint> getAllComplaints() {
+        List<Complaint> complaints = complaintRepository.findAll();
+        refreshOverdueForComplaints(complaints);
+        return complaints;
+    }
+
     // Get all complaints for a user
     public List<Complaint> getUserComplaints(Long userId) {
         List<Complaint> complaints = complaintRepository.findByUserIdOrderByCreatedAtDesc(userId);
@@ -49,6 +56,105 @@ public class ComplaintService {
         Optional<Complaint> complaint = complaintRepository.findById(complaintId);
         complaint.ifPresent(this::refreshOverdueStatus);
         return complaint;
+    }
+
+    public Optional<Complaint> updateComplaint(Long complaintId,
+                                               Complaint patch,
+                                               String changedByType,
+                                               Long changedById,
+                                               String note) {
+        Optional<Complaint> existingOpt = complaintRepository.findById(complaintId);
+        if (existingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Complaint existing = existingOpt.get();
+        String oldStatus = existing.getStatus();
+
+        if (patch.getComplaintType() != null) {
+            existing.setComplaintType(patch.getComplaintType());
+        }
+        if (patch.getUserId() != null) {
+            existing.setUserId(patch.getUserId());
+        }
+        if (patch.getLocation() != null) {
+            existing.setLocation(patch.getLocation());
+        }
+        if (patch.getHouseNo() != null) {
+            existing.setHouseNo(patch.getHouseNo());
+        }
+        if (patch.getWardNo() != null) {
+            existing.setWardNo(patch.getWardNo());
+        }
+        if (patch.getWardZone() != null) {
+            existing.setWardZone(patch.getWardZone());
+        }
+        if (patch.getWardId() != null) {
+            existing.setWardId(patch.getWardId());
+        }
+        if (patch.getDescription() != null) {
+            existing.setDescription(patch.getDescription());
+        }
+        if (patch.getNotComingFromDate() != null) {
+            existing.setNotComingFromDate(patch.getNotComingFromDate());
+        }
+        if (patch.getPhotoTimestamp() != null) {
+            existing.setPhotoTimestamp(patch.getPhotoTimestamp());
+        }
+        if (patch.getPhotoLocation() != null) {
+            existing.setPhotoLocation(patch.getPhotoLocation());
+        }
+        if (patch.getPhotoLatitude() != null) {
+            existing.setPhotoLatitude(patch.getPhotoLatitude());
+        }
+        if (patch.getPhotoLongitude() != null) {
+            existing.setPhotoLongitude(patch.getPhotoLongitude());
+        }
+        if (patch.getPhotoPath() != null) {
+            existing.setPhotoPath(patch.getPhotoPath());
+        }
+        if (patch.getDonePhotoTimestamp() != null) {
+            existing.setDonePhotoTimestamp(patch.getDonePhotoTimestamp());
+        }
+        if (patch.getDonePhotoLocation() != null) {
+            existing.setDonePhotoLocation(patch.getDonePhotoLocation());
+        }
+        if (patch.getDonePhotoLatitude() != null) {
+            existing.setDonePhotoLatitude(patch.getDonePhotoLatitude());
+        }
+        if (patch.getDonePhotoLongitude() != null) {
+            existing.setDonePhotoLongitude(patch.getDonePhotoLongitude());
+        }
+        if (patch.getDonePhotoPath() != null) {
+            existing.setDonePhotoPath(patch.getDonePhotoPath());
+        }
+        if (patch.getStatus() != null && !patch.getStatus().isBlank()) {
+            existing.setStatus(patch.getStatus().trim().toLowerCase());
+        }
+
+        existing.setUpdatedAt(LocalDateTime.now());
+        Complaint saved = complaintRepository.save(existing);
+
+        if (!Objects.equals(normalizeStatus(oldStatus), normalizeStatus(saved.getStatus()))) {
+            recordStatusChange(
+                    saved.getId(),
+                    oldStatus,
+                    saved.getStatus(),
+                    changedByType,
+                    changedById,
+                    note
+            );
+        }
+
+        return Optional.of(saved);
+    }
+
+    public boolean deleteComplaint(Long complaintId) {
+        if (!complaintRepository.existsById(complaintId)) {
+            return false;
+        }
+        complaintRepository.deleteById(complaintId);
+        return true;
     }
 
     // Check if complaint is pending for more than 72 hours
@@ -279,5 +385,9 @@ public class ComplaintService {
             default:
                 return normalized.toUpperCase();
         }
+    }
+
+    private String normalizeStatus(String status) {
+        return status == null ? null : status.trim().toLowerCase();
     }
 }
