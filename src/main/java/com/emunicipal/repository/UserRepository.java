@@ -10,6 +10,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     
     User findByPhone(String phone);
+    boolean existsByPhone(String phone);
+    boolean existsByPhoneAndIdNot(String phone, Long id);
     List<User> findAllByOrderByCreatedAtDesc();
     List<User> findByWardNo(Integer wardNo);
     List<User> findByWardZone(String wardZone);
