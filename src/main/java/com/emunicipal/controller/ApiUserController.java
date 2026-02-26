@@ -1,15 +1,15 @@
 package com.emunicipal.controller;
 
 import com.emunicipal.entity.User;
-import com.emunicipal.entity.Ward;
-import com.emunicipal.repository.UserRepository;
-import com.emunicipal.service.WardService;
+import com.emunicipal.service.UserService;
 import com.emunicipal.util.PhoneNumberUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,12 +24,10 @@ import java.util.stream.Stream;
 @RequestMapping("/api/users")
 public class ApiUserController {
 
-    private final UserRepository userRepository;
-    private final WardService wardService;
+    private final UserService userService;
 
-    public ApiUserController(UserRepository userRepository, WardService wardService) {
-        this.userRepository = userRepository;
-        this.wardService = wardService;
+    public ApiUserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
@@ -38,7 +36,7 @@ public class ApiUserController {
             @RequestParam(value = "wardZone", required = false) String wardZone,
             @RequestParam(value = "active", required = false) Boolean active) {
 
-        Stream<User> stream = userRepository.findAllByOrderByCreatedAtDesc().stream();
+        Stream<User> stream = userService.getAllUsers().stream();
         if (wardNo != null) {
             stream = stream.filter(user -> wardNo.equals(user.getWardNo()));
         }
@@ -60,7 +58,7 @@ public class ApiUserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userService.getUserById(userId).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "User not found."));
@@ -85,8 +83,7 @@ public class ApiUserController {
             return badRequest("Valid 10-digit phone number is required.");
         }
 
-        User existing = userRepository.findByPhone(normalizedPhone);
-        if (existing != null) {
+        if (userService.phoneInUseByOtherUser(normalizedPhone, null)) {
             return badRequest("Phone is already registered.");
         }
 
@@ -106,23 +103,84 @@ public class ApiUserController {
             user.setEmail(request.email().trim());
         }
 
-        Integer wardNo = request.wardNo();
-        String wardZone = blankToNull(request.wardZone());
-        if (wardZone != null) {
-            wardZone = wardZone.toUpperCase();
-        }
-        user.setWardNo(wardNo);
-        user.setWardZone(wardZone);
+        user.setWardNo(request.wardNo());
+        user.setWardZone(blankToNull(request.wardZone()));
 
-        Ward ward = wardService.resolveWard(wardNo, wardZone);
-        if (ward != null) {
-            user.setWardId(ward.getId());
-            user.setWardNo(ward.getWardNo());
-            user.setWardZone(ward.getWardZone());
-        }
-
-        User saved = userRepository.save(user);
+        User saved = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long userId,
+                                        @RequestBody UpdateUserRequest request) {
+        if (request == null) {
+            return badRequest("Request body is required.");
+        }
+
+        User existing = userService.getUserById(userId).orElse(null);
+        if (existing == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found."));
+        }
+
+        User patch = new User();
+
+        if (!isBlank(request.fullName())) {
+            patch.setFullName(request.fullName().trim());
+        }
+        if (!isBlank(request.email())) {
+            patch.setEmail(request.email().trim());
+        }
+        if (!isBlank(request.password())) {
+            patch.setPassword(request.password());
+        }
+
+        if (request.phone() != null) {
+            String normalizedPhone = PhoneNumberUtil.normalizeIndianPhone(request.phone());
+            if (normalizedPhone == null) {
+                return badRequest("Valid 10-digit phone number is required.");
+            }
+            if (userService.phoneInUseByOtherUser(normalizedPhone, userId)) {
+                return badRequest("Phone is already registered.");
+            }
+            patch.setPhone(normalizedPhone);
+        }
+
+        if (request.address() != null) {
+            patch.setAddress(blankToNull(request.address()));
+        }
+        if (request.houseNo() != null) {
+            patch.setHouseNo(blankToNull(request.houseNo()));
+        }
+        if (request.wardNo() != null) {
+            patch.setWardNo(request.wardNo());
+        }
+        if (request.wardZone() != null) {
+            patch.setWardZone(blankToNull(request.wardZone()));
+        }
+        if (request.photoBase64() != null) {
+            patch.setPhotoBase64(blankToNull(request.photoBase64()));
+        }
+        if (request.active() != null) {
+            patch.setActive(request.active());
+        }
+
+        User saved = userService.updateUser(userId, patch).orElse(null);
+        if (saved == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found."));
+        }
+        return ResponseEntity.ok(toResponse(saved));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long userId) {
+        boolean deleted = userService.deleteUser(userId);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found."));
+        }
+        return ResponseEntity.ok(Map.of("message", "User deleted successfully."));
     }
 
     private ResponseEntity<Map<String, String>> badRequest(String message) {
@@ -158,6 +216,20 @@ public class ApiUserController {
     }
 
     public record CreateUserRequest(
+            String fullName,
+            String email,
+            String password,
+            String phone,
+            String address,
+            String houseNo,
+            Integer wardNo,
+            String wardZone,
+            String photoBase64,
+            Boolean active
+    ) {
+    }
+
+    public record UpdateUserRequest(
             String fullName,
             String email,
             String password,
