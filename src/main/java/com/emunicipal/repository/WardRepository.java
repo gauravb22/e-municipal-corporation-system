@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WardRepository extends JpaRepository<Ward, Long> {
     Ward findByWardNoAndWardZone(Integer wardNo, String wardZone);
+    boolean existsByWardNoAndWardZone(Integer wardNo, String wardZone);
+    boolean existsByWardNoAndWardZoneAndIdNot(Integer wardNo, String wardZone, Long id);
 }
-
