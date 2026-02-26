@@ -53,7 +53,9 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/error"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers("/api/complaints/**", "/api/wards/**", "/api/users/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/ward/**").hasAnyRole("WARD_MEMBER", "ADMIN")
                         .requestMatchers("/api/citizen/**").hasRole("CITIZEN")

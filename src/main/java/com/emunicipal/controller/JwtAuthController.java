@@ -99,11 +99,14 @@ public class JwtAuthController {
         }
 
         User user = userRepository.findByPhone(normalizedPhone);
-        if (user == null || !request.password().equals(user.getPassword())) {
-            return error(HttpStatus.UNAUTHORIZED, "Invalid phone number or password.");
+        if (user == null) {
+            return error(HttpStatus.NOT_FOUND, "Citizen account not found.");
+        }
+        if (!request.password().equals(user.getPassword())) {
+            return error(HttpStatus.BAD_REQUEST, "Invalid password.");
         }
         if (user.getActive() != null && !user.getActive()) {
-            return error(HttpStatus.FORBIDDEN, "Account is blocked. Please contact administration.");
+            return error(HttpStatus.BAD_REQUEST, "Account is blocked. Please contact administration.");
         }
 
         AuthPrincipal principal = new AuthPrincipal(user.getId(), normalizedPhone, AppRole.CITIZEN, "CITIZEN");
@@ -121,13 +124,16 @@ public class JwtAuthController {
         }
 
         StaffUser staffUser = staffUserRepository.findByUsername(username);
-        if (staffUser == null || !request.password().equals(staffUser.getPassword())) {
-            return error(HttpStatus.UNAUTHORIZED, "Invalid username or password.");
+        if (staffUser == null) {
+            return error(HttpStatus.NOT_FOUND, "Staff account not found.");
+        }
+        if (!request.password().equals(staffUser.getPassword())) {
+            return error(HttpStatus.BAD_REQUEST, "Invalid password.");
         }
 
         AppRole actualRole = AppRole.fromStaffRole(staffUser.getRole());
         if (actualRole == null || actualRole != requestedRole) {
-            return error(HttpStatus.UNAUTHORIZED, "Role mismatch for this account.");
+            return error(HttpStatus.BAD_REQUEST, "Role mismatch for this account.");
         }
 
         AuthPrincipal principal = new AuthPrincipal(staffUser.getId(), username, actualRole, "STAFF");
